@@ -3,144 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>driveLog - Gestione Auto</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <title>driveLog Pro - micheledoris</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* Stili ripresi dai tuoi screenshot per coerenza visiva */
-        :root { --primary: #667eea; --secondary: #764ba2; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 0; }
-        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; text-align: left; }
-        .container { padding: 20px; max-width: 1000px; margin: auto; }
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid var(--primary); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 10px; }
-        .label { font-size: 0.8rem; color: #666; text-transform: uppercase; }
-        .value { font-weight: bold; font-size: 1rem; }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; float: right; }
-        .modal { background: white; padding: 20px; border-radius: 15px; max-width: 500px; margin: 50px auto; border: 1px solid #ddd; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        :root { --primary: #6366f1; --secondary: #4f46e5; --bg: #f8fafc; --dark: #1e293b; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--dark); margin: 0; }
+        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 30px; }
+        .container { max-width: 1100px; margin: auto; padding: 20px; }
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .btn { padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-excel { background: #107c10; color: white; margin-top: 10px; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:100; overflow-y: auto; }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 90%; max-width: 500px; border-radius: 15px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0 18px 0; border: 1px solid #ddd; border-radius: 8px; }
+        .label { font-weight: bold; font-size: 0.85rem; color: #64748b; }
+        .section-title { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>driveLog</h1>
-    <p>micheledoris@gmail.com</p>
+    <h1>driveLog <span style="font-weight: 200;">Pro</span></h1>
+    <p>Gestione flotta: micheledoris@gmail.com</p>
 </div>
 
 <div class="container">
-    <button class="btn-add" onclick="apriModalAuto()">+ Aggiungi Auto</button>
-    <h2>Le Mie Auto</h2>
+    <div class="section-title">
+        <h2>Le Mie Auto</h2>
+        <button class="btn btn-main" onclick="openM('modalAuto')">+ Aggiungi Auto</button>
+    </div>
     <div id="listaAuto"></div>
 
-    <hr>
-
-    <h2>Rifornimenti</h2>
-    <button class="btn-add" onclick="apriModalRifornimento()">Nuovo Rifornimento</button>
-    <div id="listaRifornimenti"></div>
+    <div class="section-title">
+        <h2>Attività</h2>
+        <div>
+            <button class="btn btn-main" onclick="prepareRif()">+ Rifornimento</button>
+            <button class="btn btn-main" style="background:#f59e0b" onclick="openM('modalMaint')">+ Manutenzione</button>
+            <button class="btn btn-main" style="background:#06b6d4" onclick="openM('modalWash')">+ Lavaggio</button>
+        </div>
+    </div>
+    
+    <button class="btn btn-excel" onclick="exportToExcel()">📊 Scarica Dati Excel</button>
+    
+    <div class="card" style="margin-top:20px;">
+        <h3>Storico Recente</h3>
+        <div id="logAttivita"></div>
+    </div>
 </div>
 
-<div id="modalAuto" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-    <div class="modal">
-        <h3>Aggiungi Nuova Auto</h3>
-        <input type="text" id="autoNome" placeholder="Marca e Modello (es. Alfa Romeo Stelvio)">
-        <input type="text" id="autoTarga" placeholder="Targa">
-        
+<div id="modalAuto" class="modal">
+    <div class="modal-content">
+        <h3>Registra Veicolo</h3>
+        <input type="text" id="aNome" placeholder="Marca e Modello (es. KIA Sportage)">
+        <input type="text" id="aTarga" placeholder="Targa">
         <label class="label">Alimentazione</label>
-        <select id="autoAlimentazione">
-            <option value="Diesel">Diesel</option>
+        <select id="aAlim">
             <option value="Benzina">Benzina</option>
-            <option value="Metano">Metano</option>
-            <option value="GPL">GPL</option>
+            <option value="Diesel">Diesel</option>
             <option value="Benzina + GPL">Benzina + GPL</option>
             <option value="Benzina + Metano">Benzina + Metano</option>
-            <option value="Elettrica">Elettrica</option>
         </select>
-
-        <label class="label">Data Immatricolazione</label>
-        <input type="date" id="dataImm">
-        
-        <label class="label">Scadenza Bollo</label>
-        <input type="date" id="scadenzaBollo">
-        
-        <label class="label">Scadenza RCA</label>
-        <input type="date" id="scadenzaRCA">
-
-        <button onclick="salvaAuto()" style="background:var(--primary); color:white; border:none; padding:10px; width:100%; border-radius:5px;">Salva Auto</button>
-        <button onclick="chiudiModal()" style="background:#ccc; border:none; padding:10px; width:100%; border-radius:5px; margin-top:5px;">Annulla</button>
+        <div class="grid-4">
+            <div><label class="label">Immatricolazione</label><input type="date" id="dImm"></div>
+            <div><label class="label">Scad. Bollo</label><input type="date" id="dBol"></div>
+            <div><label class="label">Scad. RCA</label><input type="date" id="dRca"></div>
+            <div><label class="label">Scad. Revisione</label><input type="date" id="dRev"></div>
+        </div>
+        <button class="btn btn-main" onclick="saveAuto()" style="width:100%">Salva Veicolo</button>
+        <button class="btn" onclick="closeM()" style="width:100%; margin-top:10px;">Annulla</button>
     </div>
 </div>
 
-<div id="modalRifornimento" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-    <div class="modal">
+<div id="modalRif" class="modal">
+    <div class="modal-content">
         <h3>Nuovo Rifornimento</h3>
-        <label class="label">Seleziona Auto</label>
-        <select id="selectAutoRif"></select> <label class="label">Litri / Kg</label>
-        <input type="number" id="rifLitri" placeholder="0.00">
-        
-        <label class="label">Prezzo Unitario (€)</label>
-        <input type="number" id="rifPrezzo" placeholder="0.000">
-
-        <button onclick="salvaRifornimento()" style="background:var(--primary); color:white; border:none; padding:10px; width:100%; border-radius:5px;">Salva Rifornimento</button>
-        <button onclick="chiudiModal()" style="background:#ccc; border:none; padding:10px; width:100%; border-radius:5px; margin-top:5px;">Annulla</button>
+        <label class="label">Auto</label>
+        <select id="rSelAuto" onchange="checkFuelType()"></select>
+        <div id="fuelSelectArea" style="display:none">
+            <label class="label">Carburante Erogato</label>
+            <select id="rFuelType"></select>
+        </div>
+        <label class="label">Litri / Kg</label>
+        <input type="number" id="rLitri" step="0.01" oninput="calcRif()">
+        <label class="label">Prezzo al Litro (€)</label>
+        <input type="number" id="rPrezzo" step="0.001" oninput="calcRif()">
+        <label class="label">Totale Speso: € <span id="rTotalDisplay">0.00</span></label>
+        <button class="btn btn-main" onclick="saveRif()" style="width:100%; margin-top:15px;">Conferma Rifornimento</button>
+        <button class="btn" onclick="closeM()" style="width:100%; margin-top:10px;">Chiudi</button>
     </div>
 </div>
+
+<div id="modalMaint" class="modal"><div class="modal-content"><h3>Manutenzione</h3><input type="text" id="mDesc" placeholder="Descrizione (es. Cambio Olio)"><input type="number" id="mCosto" placeholder="Costo €"><button class="btn btn-main" onclick="saveGeneric('Manutenzione', 'mDesc', 'mCosto')">Salva</button><button class="btn" onclick="closeM()">Esci</button></div></div>
+<div id="modalWash" class="modal"><div class="modal-content"><h3>Lavaggio</h3><select id="wTipo"><option>Interno</option><option>Esterno</option><option>Completo</option></select><input type="number" id="wCosto" placeholder="Costo €"><button class="btn btn-main" onclick="saveGeneric('Lavaggio', 'wTipo', 'wCosto')">Salva</button><button class="btn" onclick="closeM()">Esci</button></div></div>
 
 <script>
-    let autoSavlata = JSON.parse(localStorage.getItem('auto')) || [];
+    let db = JSON.parse(localStorage.getItem('dlog_v2')) || { auto: [], log: [] };
 
-    function apriModalAuto() { document.getElementById('modalAuto').style.display = 'block'; }
-    function apriModalRifornimento() { 
-        const select = document.getElementById('selectAutoRif');
-        select.innerHTML = ""; // Pulisce
-        autoSavlata.forEach(a => {
-            let opt = document.createElement('option');
-            opt.value = a.nome;
-            opt.innerHTML = a.nome;
-            select.appendChild(opt);
-        });
-        document.getElementById('modalRifornimento').style.display = 'block'; 
-    }
-    function chiudiModal() { 
-        document.getElementById('modalAuto').style.display = 'none'; 
-        document.getElementById('modalRifornimento').style.display = 'none'; 
-    }
+    function openM(id) { document.getElementById(id).style.display = 'block'; }
+    function closeM() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
 
-    function salvaAuto() {
-        const nuovaAuto = {
-            nome: document.getElementById('autoNome').value,
-            targa: document.getElementById('autoTarga').value,
-            alimentazione: document.getElementById('autoAlimentazione').value,
-            immatricolazione: document.getElementById('dataImm').value,
-            bollo: document.getElementById('scadenzaBollo').value,
-            rca: document.getElementById('scadenzaRCA').value
+    function saveAuto() {
+        const a = {
+            id: Date.now(),
+            nome: document.getElementById('aNome').value,
+            targa: document.getElementById('aTarga').value,
+            alim: document.getElementById('aAlim').value,
+            scadenze: { imm: document.getElementById('dImm').value, bollo: document.getElementById('dBol').value, rca: document.getElementById('dRca').value, rev: document.getElementById('dRev').value }
         };
-        autoSavlata.push(nuovaAuto);
-        localStorage.setItem('auto', JSON.stringify(autoSavlata));
-        chiudiModal();
-        renderizzaTutto();
+        db.auto.push(a);
+        update();
     }
 
-    function renderizzaTutto() {
-        const lista = document.getElementById('listaAuto');
-        lista.innerHTML = "";
-        autoSavlata.forEach(a => {
-            lista.innerHTML += `
-                <div class="card">
-                    <div style="font-weight:bold; font-size:1.2rem;">${a.nome}</div>
-                    <div style="color:#666; font-size:0.9rem; margin-bottom:10px;">${a.targa}</div>
-                    <div class="grid">
-                        <div><div class="label">Alimentazione</div><div class="value">${a.alimentazione}</div></div>
-                        <div><div class="label">Immatricolazione</div><div class="value">${a.immatricolazione}</div></div>
-                        <div><div class="label">Scad. Bollo</div><div class="value">${a.bollo}</div></div>
-                        <div><div class="label">Scad. RCA</div><div class="value">${a.rca}</div></div>
-                    </div>
+    function prepareRif() {
+        const sel = document.getElementById('rSelAuto');
+        sel.innerHTML = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+        checkFuelType();
+        openM('modalRif');
+    }
+
+    function checkFuelType() {
+        const auto = db.auto.find(a => a.id == document.getElementById('rSelAuto').value);
+        const area = document.getElementById('fuelSelectArea');
+        if(auto && auto.alim.includes('+')) {
+            area.style.display = 'block';
+            const tipi = auto.alim.split(' + ');
+            document.getElementById('rFuelType').innerHTML = tipi.map(t => `<option value="${t}">${t}</option>`).join('');
+        } else { area.style.display = 'none'; }
+    }
+
+    function calcRif() {
+        const l = document.getElementById('rLitri').value || 0;
+        const p = document.getElementById('rPrezzo').value || 0;
+        document.getElementById('rTotalDisplay').innerText = (l * p).toFixed(2);
+    }
+
+    function saveRif() {
+        const auto = db.auto.find(a => a.id == document.getElementById('rSelAuto').value);
+        const tipo = auto.alim.includes('+') ? document.getElementById('rFuelType').value : auto.alim;
+        const entry = {
+            data: new Date().toLocaleDateString(),
+            tipo: 'Rifornimento',
+            auto: auto.nome,
+            dettaglio: tipo,
+            quantita: document.getElementById('rLitri').value + ' L',
+            costo: parseFloat(document.getElementById('rTotalDisplay').innerText)
+        };
+        db.log.push(entry);
+        update();
+    }
+
+    function saveGeneric(categoria, idDesc, idCosto) {
+        const entry = {
+            data: new Date().toLocaleDateString(),
+            tipo: categoria,
+            auto: "Generale",
+            dettaglio: document.getElementById(idDesc).value,
+            quantita: "-",
+            costo: parseFloat(document.getElementById(idCosto).value)
+        };
+        db.log.push(entry);
+        update();
+    }
+
+    function update() {
+        localStorage.setItem('dlog_v2', JSON.stringify(db));
+        renderAuto();
+        renderLog();
+        closeM();
+    }
+
+    function renderAuto() {
+        document.getElementById('listaAuto').innerHTML = db.auto.map(a => `
+            <div class="card">
+                <div style="font-size:1.2rem; font-weight:bold">${a.nome} <span style="font-size:0.8rem; color:blue">${a.targa}</span></div>
+                <div class="grid-4" style="margin-top:10px">
+                    <div><span class="label">Alim:</span><br>${a.alim}</div>
+                    <div><span class="label">Scad. Bollo:</span><br>${a.scadenze.bollo}</div>
+                    <div><span class="label">Scad. RCA:</span><br>${a.scadenze.rca}</div>
+                    <div><span class="label">Scad. Revisione:</span><br>${a.scadenze.rev}</div>
                 </div>
-            `;
-        });
+            </div>
+        `).join('');
     }
 
-    renderizzaTutto();
-</script>
+    function renderLog() {
+        document.getElementById('logAttivita').innerHTML = db.log.slice().reverse().map(l => `
+            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee">
+                <span><b>${l.data}</b> - ${l.auto} (${l.tipo}: ${l.dettaglio})</span>
+                <span style="color:green; font-weight:bold">€ ${l.costo.toFixed(2)}</span>
+            </div>
+        `).join('');
+    }
 
+    function exportToExcel() {
+        const ws = XLSX.utils.json_to_sheet(db.log);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Storico");
+        XLSX.writeFile(wb, "driveLog_Dati.xlsx");
+    }
+
+    update();
+</script>
 </body>
 </html>
