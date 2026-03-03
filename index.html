@@ -5,196 +5,178 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>driveLog Elite</title>
     <style>
-        :root { --accent: #006064; --bg: #ffffff; --card-bg: #f8f9fa; --text: #1a1a1a; --muted: #6c757d; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; -webkit-font-smoothing: antialiased; }
+        :root { --accent: #006064; --bg: #fdfdfd; --text: #1a1a1a; --muted: #8e8e93; --nav-bg: rgba(255, 255, 255, 0.95); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 130px; -webkit-font-smoothing: antialiased; }
         
-        /* Header con immagine come da spunto */
-        .hero-header { position: relative; width: 100%; height: 260px; background: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1000&auto=format&fit=crop') center/cover; }
-        .hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 25px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; }
-        .hero-overlay h1 { margin: 0; font-size: 1.6rem; font-weight: 700; }
-
-        /* Contenitore principale */
-        .main-content { max-width: 500px; margin: -20px auto 0; background: white; border-radius: 25px 25px 0 0; padding: 25px; position: relative; box-shadow: 0 -10px 20px rgba(0,0,0,0.05); }
+        .hero-header { position: relative; width: 100%; height: 160px; background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1486497394800-2fd402c6f399?q=80&w=1000&auto=format&fit=crop'); background-size: cover; background-position: center; }
+        .main-content { max-width: 500px; margin: -30px auto 0; background: white; border-radius: 30px 30px 0 0; padding: 30px 20px; position: relative; box-shadow: 0 -15px 35px rgba(0,0,0,0.03); }
         .view { display: none; }
         .view.active { display: block; }
 
-        /* Card e Liste (Stile Foto 101) */
-        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
-        .data-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f1f1f1; align-items: center; }
-        .data-label { font-size: 0.9rem; color: var(--muted); }
-        .data-value { font-weight: 600; font-size: 0.95rem; }
+        .section-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 25px; letter-spacing: -0.5px; }
+        .data-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f2f2f7; align-items: center; }
+        .data-label { font-size: 0.85rem; color: var(--muted); }
+        .data-value { font-weight: 600; font-size: 0.9rem; }
 
-        /* Form e Input */
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
-        select, input { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #e0e0e0; font-size: 1rem; background: transparent; border-radius: 0; }
-        input:focus { outline: none; border-bottom: 2px solid var(--accent); }
+        /* Report Cards */
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 15px; border: 1px solid #eee; }
+        .stat-val { font-size: 1.2rem; font-weight: 800; color: var(--accent); margin-top: 5px; }
 
-        /* Bottoni */
-        .btn-order { background: var(--accent); color: white; border: none; padding: 14px 25px; border-radius: 10px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 15px; }
-        .btn-fab { position: fixed; right: 20px; bottom: 110px; width: 56px; height: 56px; background: var(--accent); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; z-index: 99; }
+        input, select { width: 100%; padding: 10px 0; border: none; border-bottom: 1px solid #d1d1d6; font-size: 1rem; background: transparent; color: var(--text); margin-bottom: 20px; }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .btn-order { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; width: 100%; cursor: pointer; font-size: 0.9rem; }
 
-        /* Navigazione Bassa (Foto 101) */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: 15px; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; color: #a0a0a0; text-decoration: none; cursor: pointer; }
-        .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 1.5rem; margin-bottom: 4px; }
+        /* BARRA FLOATING AGGIORNATA */
+        .nav-container { position: fixed; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; z-index: 2000; }
+        .bottom-nav { width: 95%; max-width: 500px; height: 70px; background: var(--nav-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; border-radius: 22px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); padding: 0 5px; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #a2a2a2; text-decoration: none; cursor: pointer; transition: 0.2s; }
+        .nav-item.active { color: var(--accent); transform: translateY(-3px); }
+        .nav-icon { font-size: 1.2rem; margin-bottom: 3px; }
+        .nav-text { font-size: 0.5rem; font-weight: 800; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-<div class="hero-header">
-    <div class="hero-overlay">
-        <p style="margin:0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Garage Personale</p>
-        <h1 id="top-title">driveLog Elite</h1>
-    </div>
-</div>
+<div class="hero-header"></div>
 
 <div class="main-content">
     
     <div id="view-auto" class="view active">
-        <div class="section-title">I tuoi veicoli</div>
+        <div class="section-title">Garage</div>
         <div id="lista-auto"></div>
-        <button class="btn-order" onclick="openModal()">+ AGGIUNGI AUTO</button>
     </div>
 
     <div id="view-gas" class="view">
-        <div class="section-title">Nuovo Rifornimento</div>
-        <div class="input-group">
-            <label>Auto</label><select id="g-auto" onchange="updateFuelOptions()"></select>
+        <div class="section-title">Rifornimento</div>
+        <label>Veicolo</label><select id="g-auto"></select>
+        <div style="display:flex; gap:15px">
+            <div style="flex:1"><label>Litri</label><input type="number" id="g-lit" oninput="calcT()"></div>
+            <div style="flex:1"><label>Prezzo/L</label><input type="number" id="g-pre" oninput="calcT()"></div>
         </div>
-        <div class="input-group">
-            <label>Carburante</label><select id="g-tipo"></select>
+        <div class="data-row" style="background:#f1f3f5; padding:15px; border-radius:12px; border:none">
+            <span>TOTALE</span><span style="color:var(--accent); font-weight:800">€ <span id="g-tot">0.00</span></span>
         </div>
-        <div style="display:flex; gap:20px">
-            <div class="input-group" style="flex:1"><label>Litri</label><input type="number" id="g-lit" oninput="calcTotal()"></div>
-            <div class="input-group" style="flex:1"><label>Prezzo/L</label><input type="number" id="g-pre" oninput="calcTotal()"></div>
-        </div>
-        <div class="data-row" style="border-top:1px solid #eee; margin-top:10px">
-            <span class="data-label">TOTALE SPESA</span>
-            <span class="data-value" style="color:var(--accent); font-size: 1.2rem;">€ <span id="g-tot">0.00</span></span>
-        </div>
-        <button class="btn-order" onclick="saveGas()">CONFERMA</button>
+        <button class="btn-order" onclick="saveData('GAS')">REGISTRA</button>
     </div>
 
     <div id="view-man" class="view">
         <div class="section-title">Manutenzione</div>
-        <div class="input-group">
-            <label>Veicolo</label><select id="m-auto"></select>
+        <label>Intervento</label>
+        <select id="m-tipo" onchange="document.getElementById('m-alt').style.display=(this.value=='ALTRO'?'block':'none')">
+            <option>Tagliando</option><option>Olio/Filtri</option><option>Freni</option><option value="ALTRO">Altro...</option>
+        </select>
+        <input type="text" id="m-alt" placeholder="Specifica..." style="display:none">
+        <label>Costo €</label><input type="number" id="m-costo">
+        <button class="btn-order" onclick="saveData('MAN')">SALVA</button>
+    </div>
+
+    <div id="view-spese" class="view">
+        <div class="section-title">Spese Fisse</div>
+        <label>Tipo</label>
+        <select id="s-tipo"><option>Assicurazione</option><option>Bollo</option><option>Revisione</option></select>
+        <label>Costo €</label><input type="number" id="s-costo">
+        <label>Nuova Scadenza</label><input type="date" id="s-scad">
+        <button class="btn-order" onclick="saveData('SPE')">AGGIORNA</button>
+    </div>
+
+    <div id="view-report" class="view">
+        <div class="section-title">Report Generale</div>
+        <div class="report-grid">
+            <div class="stat-card"><label>Bilancio</label><div class="stat-val" id="rep-tot">€ 0</div></div>
+            <div class="stat-card"><label>Rifornimenti</label><div class="stat-val" style="color:#e67e22" id="rep-gas">€ 0</div></div>
+            <div class="stat-card"><label>Manutenzioni</label><div class="stat-val" style="color:#2980b9" id="rep-man">€ 0</div></div>
+            <div class="stat-card"><label>Spese Fisse</label><div class="stat-val" style="color:#27ae60" id="rep-spe">€ 0</div></div>
         </div>
-        <div class="input-group">
-            <label>Tipo Intervento</label>
-            <select id="m-tipo" onchange="toggleOther(this.value)">
-                <option>Tagliando Completo</option><option>Cambio Olio</option>
-                <option>Filtri</option><option>Freni</option><option>Pneumatici</option>
-                <option value="ALTRO">-- Altro (specifica) --</option>
-            </select>
-        </div>
-        <div id="m-altro-wrap" class="input-group" style="display:none">
-            <label>Descrizione libera</label><input type="text" id="m-altro-val" placeholder="Es. Spazzole tergicristallo">
-        </div>
-        <div class="input-group">
-            <label>Costo €</label><input type="number" id="m-costo">
-        </div>
-        <button class="btn-order" onclick="saveMan()">SALVA INTERVENTO</button>
+        <div id="lista-voci-report"></div>
     </div>
 
     <div id="view-log" class="view">
-        <div class="section-title">Cronologia Attività</div>
-        <div id="storico-lista"></div>
+        <div class="section-title">Cronologia</div>
+        <div id="log-list"></div>
     </div>
+
 </div>
 
-<nav class="bottom-nav">
-    <div class="nav-item active" onclick="showView('view-auto', this)"><span class="nav-icon">🏠</span>Home</div>
-    <div class="nav-item" onclick="showView('view-gas', this)"><span class="nav-icon">⛽</span>Gas</div>
-    <div class="nav-item" onclick="showView('view-man', this)"><span class="nav-icon">🔧</span>Manut.</div>
-    <div class="nav-item" onclick="showView('view-log', this)"><span class="nav-icon">📋</span>Storico</div>
-</nav>
+<div class="nav-container">
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="showV('view-auto', this)"><span class="nav-icon">🏠</span><span class="nav-text">Auto</span></div>
+        <div class="nav-item" onclick="showV('view-gas', this)"><span class="nav-icon">⛽</span><span class="nav-text">Gas</span></div>
+        <div class="nav-item" onclick="showV('view-man', this)"><span class="nav-icon">🔧</span><span class="nav-text">Manut.</span></div>
+        <div class="nav-item" onclick="showV('view-spese', this)"><span class="nav-icon">💳</span><span class="nav-text">Spese</span></div>
+        <div class="nav-item" onclick="showV('view-report', this)"><span class="nav-icon">📊</span><span class="nav-text">Report</span></div>
+        <div class="nav-item" onclick="showV('view-log', this)"><span class="nav-icon">◇</span><span class="nav-text">Log</span></div>
+    </nav>
+</div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('dlog_elite_v1')) || { auto: [], log: [] };
+    let db = JSON.parse(localStorage.getItem('dlog_report_v1')) || { 
+        auto: [{id: 1, nome: "ALFA ROMEO STELVIO", targa: "GG123DD", bollo: "2026-03-30", rca: "2025-12-15", rev: "2026-05-01"}], 
+        log: [] 
+    };
 
-    function showView(id, el) {
+    function showV(id, el) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
-        if(id !== 'view-auto') populateSelects();
+        if(id === 'view-report') updateReport();
+        const sel = document.getElementById('g-auto');
+        if(sel) sel.innerHTML = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
     }
 
-    function toggleOther(val) {
-        document.getElementById('m-altro-wrap').style.display = (val === 'ALTRO') ? 'block' : 'none';
+    function calcT() { 
+        document.getElementById('g-tot').innerText = (document.getElementById('g-lit').value * document.getElementById('g-pre').value).toFixed(2); 
     }
 
-    function populateSelects() {
-        ['g-auto', 'm-auto'].forEach(id => {
-            const s = document.getElementById(id);
-            s.innerHTML = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+    function saveData(cat) {
+        let entry = { data: new Date().toLocaleDateString(), costo: 0, desc: "", cat: cat };
+        if(cat === 'GAS') { entry.costo = document.getElementById('g-tot').innerText; entry.desc = "Rifornimento"; }
+        if(cat === 'MAN') { entry.costo = document.getElementById('m-costo').value; entry.desc = document.getElementById('m-tipo').value === 'ALTRO' ? document.getElementById('m-alt').value : document.getElementById('m-tipo').value; }
+        if(cat === 'SPE') { 
+            entry.costo = document.getElementById('s-costo').value; entry.desc = document.getElementById('s-tipo').value;
+            const a = db.auto[0]; // Per semplicità usiamo la prima auto
+            if(entry.desc === 'Bollo') a.bollo = document.getElementById('s-scad').value;
+            if(entry.desc === 'Assicurazione') a.rca = document.getElementById('s-scad').value;
+            if(entry.desc === 'Revisione') a.rev = document.getElementById('s-scad').value;
+        }
+        db.log.push(entry);
+        localStorage.setItem('dlog_report_v1', JSON.stringify(db));
+        render(); alert("Salvato!");
+    }
+
+    function updateReport() {
+        let tGas = 0, tMan = 0, tSpe = 0;
+        db.log.forEach(l => {
+            if(l.cat === 'GAS') tGas += parseFloat(l.costo);
+            if(l.cat === 'MAN') tMan += parseFloat(l.costo);
+            if(l.cat === 'SPE') tSpe += parseFloat(l.costo);
         });
-        updateFuelOptions();
-    }
-
-    function updateFuelOptions() {
-        const a = db.auto.find(x => x.id == document.getElementById('g-auto').value);
-        if(a) document.getElementById('g-tipo').innerHTML = a.alim.split(' + ').map(o => `<option>${o}</option>`).join('');
-    }
-
-    function calcTotal() {
-        const l = document.getElementById('g-lit').value;
-        const p = document.getElementById('g-pre').value;
-        document.getElementById('g-tot').innerText = (l * p).toFixed(2);
-    }
-
-    function saveGas() {
-        const a = db.auto.find(x => x.id == document.getElementById('g-auto').value);
-        db.log.push({ data: new Date().toLocaleDateString(), auto: a.nome, tipo: '⛽ Gas', desc: document.getElementById('g-tipo').value, costo: document.getElementById('g-tot').innerText });
-        save();
-    }
-
-    function saveMan() {
-        const a = db.auto.find(x => x.id == document.getElementById('m-auto').value);
-        const desc = document.getElementById('m-tipo').value === 'ALTRO' ? document.getElementById('m-altro-val').value : document.getElementById('m-tipo').value;
-        db.log.push({ data: new Date().toLocaleDateString(), auto: a.nome, tipo: '🔧 Manut.', desc: desc, costo: document.getElementById('m-costo').value });
-        save();
-    }
-
-    function save() {
-        localStorage.setItem('dlog_elite_v1', JSON.stringify(db));
-        render();
-        alert('Salvato con successo');
+        document.getElementById('rep-gas').innerText = "€ " + tGas.toFixed(0);
+        document.getElementById('rep-man').innerText = "€ " + tMan.toFixed(0);
+        document.getElementById('rep-spe').innerText = "€ " + tSpe.toFixed(0);
+        document.getElementById('rep-tot').innerText = "€ " + (tGas + tMan + tSpe).toFixed(0);
     }
 
     function render() {
         document.getElementById('lista-auto').innerHTML = db.auto.map(a => `
-            <div style="background:#fcfcfc; padding:20px; border-radius:15px; margin-bottom:15px; border:1px solid #f0f0f0">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-                    <span style="font-weight:700; font-size:1.1rem">${a.nome}</span>
-                    <span style="font-size:0.7rem; background:#eee; padding:3px 8px; border-radius:5px">${a.targa}</span>
-                </div>
-                <div class="data-row"><span class="data-label">Alimentazione</span><span class="data-value">${a.alim}</span></div>
-                <div class="data-row"><span class="data-label">Scadenza Bollo</span><span class="data-value">${a.bolloD}</span></div>
+            <div style="margin-bottom:20px">
+                <div style="font-weight:800; font-size:1.1rem">${a.nome}</div>
+                <div class="data-row"><span class="data-label">Bollo</span><span class="data-value">${a.bollo}</span></div>
+                <div class="data-row"><span class="data-label">RCA</span><span class="data-value">${a.rca}</span></div>
+                <div class="data-row"><span class="data-label">Revisione</span><span class="data-value">${a.rev}</span></div>
             </div>
         `).join('');
 
-        document.getElementById('storico-lista').innerHTML = db.log.slice().reverse().map(l => `
+        document.getElementById('log-list').innerHTML = db.log.slice().reverse().map(l => `
             <div class="data-row">
-                <div>
-                    <div style="font-weight:600; font-size:0.9rem">${l.tipo} - ${l.desc}</div>
-                    <div style="font-size:0.75rem; color:#888">${l.data} • ${l.auto}</div>
-                </div>
+                <div><div style="font-weight:700">${l.desc}</div><div style="font-size:0.7rem; color:var(--muted)">${l.data}</div></div>
                 <div style="font-weight:700; color:var(--accent)">€ ${l.costo}</div>
             </div>
         `).join('');
     }
 
-    // Per test: Aggiungiamo un'auto se il DB è vuoto
-    if(db.auto.length === 0) {
-        db.auto.push({id: 1, nome: "ALFA ROMEO STELVIO", targa: "GG123DD", alim: "Diesel", bolloD: "2026-03-30"});
-        render();
-    } else {
-        render();
-    }
+    render();
 </script>
 </body>
 </html>
