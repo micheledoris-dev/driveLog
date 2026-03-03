@@ -3,236 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>driveLog Pro - micheledoris</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>driveLog Elite</title>
     <style>
-        :root { --primary: #2563eb; --secondary: #3b82f6; --bg: #f1f5f9; --white: #ffffff; --text: #1e293b; --accent: #10b981; --warning: #f59e0b; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
-        .header { background: #1e293b; color: white; padding: 20px; border-bottom: 4px solid var(--primary); }
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
-        .nav-item { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: #64748b; }
-        .nav-item.active { color: var(--primary); border-top: 3px solid var(--primary); }
-        .container { max-width: 600px; margin: auto; padding: 15px; display: none; }
-        .container.active { display: block; }
-        .card { background: var(--white); border-radius: 16px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-        .btn { padding: 14px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; font-size: 1rem; }
-        .btn-main { background: var(--primary); color: white; }
-        .btn-maint { background: var(--warning); color: white; margin-top: 10px; }
-        .btn-photo { background: var(--accent); color: white; margin-top: 10px; }
-        label { font-size: 0.8rem; font-weight: 700; color: #475569; margin-top: 12px; display: block; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-size: 1rem; text-transform: uppercase; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .img-preview { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; border: 1px solid #ddd; }
-        .log-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        :root { --accent: #006064; --bg: #ffffff; --card-bg: #f8f9fa; --text: #1a1a1a; --muted: #6c757d; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; -webkit-font-smoothing: antialiased; }
+        
+        /* Header con immagine come da spunto */
+        .hero-header { position: relative; width: 100%; height: 260px; background: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1000&auto=format&fit=crop') center/cover; }
+        .hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 25px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; }
+        .hero-overlay h1 { margin: 0; font-size: 1.6rem; font-weight: 700; }
+
+        /* Contenitore principale */
+        .main-content { max-width: 500px; margin: -20px auto 0; background: white; border-radius: 25px 25px 0 0; padding: 25px; position: relative; box-shadow: 0 -10px 20px rgba(0,0,0,0.05); }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Card e Liste (Stile Foto 101) */
+        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+        .data-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f1f1f1; align-items: center; }
+        .data-label { font-size: 0.9rem; color: var(--muted); }
+        .data-value { font-weight: 600; font-size: 0.95rem; }
+
+        /* Form e Input */
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
+        select, input { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #e0e0e0; font-size: 1rem; background: transparent; border-radius: 0; }
+        input:focus { outline: none; border-bottom: 2px solid var(--accent); }
+
+        /* Bottoni */
+        .btn-order { background: var(--accent); color: white; border: none; padding: 14px 25px; border-radius: 10px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 15px; }
+        .btn-fab { position: fixed; right: 20px; bottom: 110px; width: 56px; height: 56px; background: var(--accent); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; z-index: 99; }
+
+        /* Navigazione Bassa (Foto 101) */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: 15px; z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; color: #a0a0a0; text-decoration: none; cursor: pointer; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 1.5rem; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1 style="margin:0; font-size: 1.3rem;">driveLog <span style="color:var(--primary)">Pro</span></h1>
-    <p style="margin:2px 0 0 0; opacity:0.7; font-size: 0.8rem;">micheledoris@gmail.com</p>
-</div>
-
-<div id="tab-0" class="container active">
-    <div id="listaAuto"></div>
-    <button class="btn btn-main" onclick="openM('modalAuto')">+ AGGIUNGI VEICOLO</button>
-</div>
-
-<div id="tab-1" class="container">
-    <div class="card">
-        <h3>⛽ Rifornimento</h3>
-        <label>Auto</label><select id="rAuto" onchange="updateFuelOptions()"></select>
-        <label>Carburante</label><select id="rTipo"></select>
-        <div class="grid-2">
-            <div><label>Litri</label><input type="number" id="rLit" oninput="calcGas()"></div>
-            <div><label>Prezzo/L</label><input type="number" id="rPre" oninput="calcGas()"></div>
-        </div>
-        <div style="text-align:center; padding:10px; font-weight:bold; color:var(--primary)">TOTALE: € <span id="rTot">0.00</span></div>
-        <button class="btn btn-photo" onclick="takePhoto('fotoRif')">📸 SCONTRINO</button>
-        <img id="preRif" class="img-preview">
-        <button class="btn btn-main" style="margin-top:10px" onclick="saveRif()">SALVA RIFORNIMENTO</button>
+<div class="hero-header">
+    <div class="hero-overlay">
+        <p style="margin:0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Garage Personale</p>
+        <h1 id="top-title">driveLog Elite</h1>
     </div>
 </div>
 
-<div id="tab-2" class="container">
-    <div class="card">
-        <h3>🔧 Manutenzione</h3>
-        <label>Auto</label><select id="mAuto"></select>
-        <label>Tipo Intervento</label>
-        <select id="mTipo" onchange="checkOther(this)">
-            <option>CAMBIO OLIO</option><option>FILTRO OLIO</option><option>FILTRO ARIA</option>
-            <option>FILTRO CARBURANTE</option><option>FILTRO ABITACOLO</option><option>FRENI</option>
-            <option>PNEUMATICI</option><option>DISTRIBUZIONE</option><option>CINGHIE</option>
-            <option>BATTERIA</option><option>ARIA CONDIZIONATA</option><option>LUCI</option>
-            <option>SOSPENSIONI</option><option>CONVERGENZA</option><option>MANODOPERA</option>
-            <option value="ALTRO">-- ALTRO (SPECIFICA) --</option>
-        </select>
-        <input type="text" id="mAltro" placeholder="SCRIVI INTERVENTO..." style="display:none; margin-top:10px">
-        
-        <div class="grid-2">
-            <div><label>KM ATTUALI</label><input type="number" id="mKm"></div>
-            <div><label>COSTO €</label><input type="number" id="mCosto"></div>
-        </div>
-        <button class="btn btn-photo" onclick="takePhoto('fotoMan')">📸 FOTO RICEVUTA</button>
-        <img id="preMan" class="img-preview">
-        <button class="btn btn-maint" onclick="saveMaint()">SALVA INTERVENTO</button>
+<div class="main-content">
+    
+    <div id="view-auto" class="view active">
+        <div class="section-title">I tuoi veicoli</div>
+        <div id="lista-auto"></div>
+        <button class="btn-order" onclick="openModal()">+ AGGIUNGI AUTO</button>
     </div>
-    <div id="logAttivita"></div>
+
+    <div id="view-gas" class="view">
+        <div class="section-title">Nuovo Rifornimento</div>
+        <div class="input-group">
+            <label>Auto</label><select id="g-auto" onchange="updateFuelOptions()"></select>
+        </div>
+        <div class="input-group">
+            <label>Carburante</label><select id="g-tipo"></select>
+        </div>
+        <div style="display:flex; gap:20px">
+            <div class="input-group" style="flex:1"><label>Litri</label><input type="number" id="g-lit" oninput="calcTotal()"></div>
+            <div class="input-group" style="flex:1"><label>Prezzo/L</label><input type="number" id="g-pre" oninput="calcTotal()"></div>
+        </div>
+        <div class="data-row" style="border-top:1px solid #eee; margin-top:10px">
+            <span class="data-label">TOTALE SPESA</span>
+            <span class="data-value" style="color:var(--accent); font-size: 1.2rem;">€ <span id="g-tot">0.00</span></span>
+        </div>
+        <button class="btn-order" onclick="saveGas()">CONFERMA</button>
+    </div>
+
+    <div id="view-man" class="view">
+        <div class="section-title">Manutenzione</div>
+        <div class="input-group">
+            <label>Veicolo</label><select id="m-auto"></select>
+        </div>
+        <div class="input-group">
+            <label>Tipo Intervento</label>
+            <select id="m-tipo" onchange="toggleOther(this.value)">
+                <option>Tagliando Completo</option><option>Cambio Olio</option>
+                <option>Filtri</option><option>Freni</option><option>Pneumatici</option>
+                <option value="ALTRO">-- Altro (specifica) --</option>
+            </select>
+        </div>
+        <div id="m-altro-wrap" class="input-group" style="display:none">
+            <label>Descrizione libera</label><input type="text" id="m-altro-val" placeholder="Es. Spazzole tergicristallo">
+        </div>
+        <div class="input-group">
+            <label>Costo €</label><input type="number" id="m-costo">
+        </div>
+        <button class="btn-order" onclick="saveMan()">SALVA INTERVENTO</button>
+    </div>
+
+    <div id="view-log" class="view">
+        <div class="section-title">Cronologia Attività</div>
+        <div id="storico-lista"></div>
+    </div>
 </div>
 
-<div id="modalAuto" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200; overflow-y:auto">
-    <div style="background:white; margin:15px; padding:20px; border-radius:20px;">
-        <h3>Nuovo Veicolo</h3>
-        <input type="text" id="aNome" placeholder="MARCA E MODELLO">
-        <input type="text" id="aTarga" placeholder="TARGA">
-        <select id="aAlim">
-            <option>BENZINA</option><option>DIESEL</option>
-            <option>BENZINA + GPL</option><option>BENZINA + METANO</option>
-        </select>
-        <div style="background:#f8fafc; padding:10px; border-radius:10px; margin-top:10px">
-            <div class="grid-2">
-                <div><label>BOLLO €</label><input type="number" id="cBol"></div>
-                <div><label>SCADENZA</label><input type="date" id="dBol"></div>
-            </div>
-            <div class="grid-2">
-                <div><label>RCA €</label><input type="number" id="cRca"></div>
-                <div><label>SCADENZA</label><input type="date" id="dRca"></div>
-            </div>
-            <div class="grid-2">
-                <div><label>REVISIONE €</label><input type="number" id="cRev"></div>
-                <div><label>SCADENZA</label><input type="date" id="dRev"></div>
-            </div>
-        </div>
-        <button class="btn btn-photo" onclick="takePhoto('fotoAuto')">📸 FOTO AUTO</button>
-        <img id="preAuto" class="img-preview">
-        <button class="btn btn-main" style="margin-top:15px" onclick="saveAuto()">SALVA</button>
-        <button class="btn" style="background:#eee" onclick="closeM()">CHIUDI</button>
-    </div>
-</div>
-
-<input type="file" id="camInput" accept="image/*" capture="camera" style="display:none">
-
-<nav class="nav-bar">
-    <div class="nav-item active" onclick="switchTab(0)">🚗 AUTO</div>
-    <div class="nav-item" onclick="switchTab(1)">⛽ GAS</div>
-    <div class="nav-item" onclick="switchTab(2)">🔧 MANUT.</div>
+<nav class="bottom-nav">
+    <div class="nav-item active" onclick="showView('view-auto', this)"><span class="nav-icon">🏠</span>Home</div>
+    <div class="nav-item" onclick="showView('view-gas', this)"><span class="nav-icon">⛽</span>Gas</div>
+    <div class="nav-item" onclick="showView('view-man', this)"><span class="nav-icon">🔧</span>Manut.</div>
+    <div class="nav-item" onclick="showView('view-log', this)"><span class="nav-icon">📋</span>Storico</div>
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('dlog_v8')) || { auto: [], log: [] };
-    let tempFoto = "";
+    let db = JSON.parse(localStorage.getItem('dlog_elite_v1')) || { auto: [], log: [] };
 
-    function switchTab(n) {
-        document.querySelectorAll('.container').forEach((c, i) => c.classList.toggle('active', i === n));
-        document.querySelectorAll('.nav-item').forEach((t, i) => t.classList.toggle('active', i === n));
-        if(n === 1) fillSelects('rAuto');
-        if(n === 2) fillSelects('mAuto');
+    function showView(id, el) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        if(id !== 'view-auto') populateSelects();
     }
 
-    function openM(id) { document.getElementById(id).style.display = 'block'; }
-    function closeM() { 
-        document.querySelectorAll('[id^="modal"]').forEach(m => m.style.display='none');
-        tempFoto = ""; document.querySelectorAll('.img-preview').forEach(i => i.style.display='none');
+    function toggleOther(val) {
+        document.getElementById('m-altro-wrap').style.display = (val === 'ALTRO') ? 'block' : 'none';
     }
 
-    function fillSelects(id) {
-        const sel = document.getElementById(id);
-        sel.innerHTML = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
-        if(id === 'rAuto') updateFuelOptions();
+    function populateSelects() {
+        ['g-auto', 'm-auto'].forEach(id => {
+            const s = document.getElementById(id);
+            s.innerHTML = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+        });
+        updateFuelOptions();
     }
 
     function updateFuelOptions() {
-        const auto = db.auto.find(a => a.id == document.getElementById('rAuto').value);
-        if(!auto) return;
-        document.getElementById('rTipo').innerHTML = auto.alim.split(' + ').map(o => `<option>${o}</option>`).join('');
+        const a = db.auto.find(x => x.id == document.getElementById('g-auto').value);
+        if(a) document.getElementById('g-tipo').innerHTML = a.alim.split(' + ').map(o => `<option>${o}</option>`).join('');
     }
 
-    function checkOther(sel) {
-        document.getElementById('mAltro').style.display = sel.value === 'ALTRO' ? 'block' : 'none';
+    function calcTotal() {
+        const l = document.getElementById('g-lit').value;
+        const p = document.getElementById('g-pre').value;
+        document.getElementById('g-tot').innerText = (l * p).toFixed(2);
     }
 
-    function takePhoto(type) {
-        const input = document.getElementById('camInput');
-        input.onchange = (e) => {
-            const reader = new FileReader();
-            reader.onload = (re) => {
-                tempFoto = re.target.result;
-                const prevId = type === 'fotoAuto' ? 'preAuto' : (type === 'fotoRif' ? 'preRif' : 'preMan');
-                const img = document.getElementById(prevId);
-                img.src = tempFoto; img.style.display = 'block';
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        };
-        input.click();
+    function saveGas() {
+        const a = db.auto.find(x => x.id == document.getElementById('g-auto').value);
+        db.log.push({ data: new Date().toLocaleDateString(), auto: a.nome, tipo: '⛽ Gas', desc: document.getElementById('g-tipo').value, costo: document.getElementById('g-tot').innerText });
+        save();
     }
 
-    function calcGas() {
-        const tot = document.getElementById('rLit').value * document.getElementById('rPre').value;
-        document.getElementById('rTot').innerText = tot.toFixed(2);
+    function saveMan() {
+        const a = db.auto.find(x => x.id == document.getElementById('m-auto').value);
+        const desc = document.getElementById('m-tipo').value === 'ALTRO' ? document.getElementById('m-altro-val').value : document.getElementById('m-tipo').value;
+        db.log.push({ data: new Date().toLocaleDateString(), auto: a.nome, tipo: '🔧 Manut.', desc: desc, costo: document.getElementById('m-costo').value });
+        save();
     }
 
-    function saveAuto() {
-        const a = {
-            id: Date.now(), nome: document.getElementById('aNome').value.toUpperCase(),
-            targa: document.getElementById('aTarga').value.toUpperCase(), alim: document.getElementById('aAlim').value,
-            bollo: {c: document.getElementById('cBol').value, d: document.getElementById('dBol').value},
-            rca: {c: document.getElementById('cRca').value, d: document.getElementById('dRca').value},
-            rev: {c: document.getElementById('cRev').value, d: document.getElementById('dRev').value},
-            foto: tempFoto
-        };
-        db.auto.push(a); updateDB();
+    function save() {
+        localStorage.setItem('dlog_elite_v1', JSON.stringify(db));
+        render();
+        alert('Salvato con successo');
     }
 
-    function saveRif() {
-        const auto = db.auto.find(a => a.id == document.getElementById('rAuto').value);
-        db.log.push({
-            tipo: 'RIFORNIMENTO', auto: auto.nome, desc: document.getElementById('rTipo').value,
-            val: document.getElementById('rLit').value + "L", costo: document.getElementById('rTot').innerText,
-            foto: tempFoto, data: new Date().toLocaleDateString()
-        });
-        updateDB(); alert("Rifornimento Salvato!");
-    }
-
-    function saveMaint() {
-        const auto = db.auto.find(a => a.id == document.getElementById('mAuto').value);
-        const tipo = document.getElementById('mTipo').value === 'ALTRO' ? document.getElementById('mAltro').value.toUpperCase() : document.getElementById('mTipo').value;
-        db.log.push({
-            tipo: 'MANUTENZIONE', auto: auto.nome, desc: tipo,
-            val: document.getElementById('mKm').value + " KM", costo: document.getElementById('mCosto').value,
-            foto: tempFoto, data: new Date().toLocaleDateString()
-        });
-        updateDB(); alert("Manutenzione Salvata!");
-    }
-
-    function updateDB() {
-        localStorage.setItem('dlog_v8', JSON.stringify(db));
-        renderAuto(); renderLog(); closeM();
-    }
-
-    function renderAuto() {
-        document.getElementById('listaAuto').innerHTML = db.auto.map(a => `
-            <div class="card">
-                ${a.foto ? `<img src="${a.foto}" style="width:100%; height:150px; object-fit:cover; border-radius:12px; margin-bottom:10px">` : ''}
-                <h3 style="margin:0">${a.nome} <small style="color:var(--primary)">${a.targa}</small></h3>
-                <div style="font-size:0.8rem; margin-top:8px">
-                    📅 BOLLO: ${a.bollo.d} (€${a.bollo.c}) | RCA: ${a.rca.d} (€${a.rca.c})<br>
-                    📅 REVISIONE: ${a.rev.d} (€${a.rev.c})
+    function render() {
+        document.getElementById('lista-auto').innerHTML = db.auto.map(a => `
+            <div style="background:#fcfcfc; padding:20px; border-radius:15px; margin-bottom:15px; border:1px solid #f0f0f0">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+                    <span style="font-weight:700; font-size:1.1rem">${a.nome}</span>
+                    <span style="font-size:0.7rem; background:#eee; padding:3px 8px; border-radius:5px">${a.targa}</span>
                 </div>
+                <div class="data-row"><span class="data-label">Alimentazione</span><span class="data-value">${a.alim}</span></div>
+                <div class="data-row"><span class="data-label">Scadenza Bollo</span><span class="data-value">${a.bolloD}</span></div>
+            </div>
+        `).join('');
+
+        document.getElementById('storico-lista').innerHTML = db.log.slice().reverse().map(l => `
+            <div class="data-row">
+                <div>
+                    <div style="font-weight:600; font-size:0.9rem">${l.tipo} - ${l.desc}</div>
+                    <div style="font-size:0.75rem; color:#888">${l.data} • ${l.auto}</div>
+                </div>
+                <div style="font-weight:700; color:var(--accent)">€ ${l.costo}</div>
             </div>
         `).join('');
     }
 
-    function renderLog() {
-        document.getElementById('logAttivita').innerHTML = "<h4>Storico Recente</h4>" + db.log.slice().reverse().map(l => `
-            <div class="log-item">
-                <span><b>${l.data}</b> ${l.auto}<br><small>${l.tipo}: ${l.desc}</small></span>
-                <span style="color:green; font-weight:bold">€ ${l.costo}</span>
-            </div>
-        `).join('');
+    // Per test: Aggiungiamo un'auto se il DB è vuoto
+    if(db.auto.length === 0) {
+        db.auto.push({id: 1, nome: "ALFA ROMEO STELVIO", targa: "GG123DD", alim: "Diesel", bolloD: "2026-03-30"});
+        render();
+    } else {
+        render();
     }
-
-    renderAuto();
-    renderLog();
 </script>
 </body>
 </html>
