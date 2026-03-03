@@ -3,170 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>driveLog Elite v5</title>
+    <title>driveLog Elite - v9</title>
     <style>
-        :root { --accent: #006064; --bg: #f4f4f7; --card: #ffffff; --text: #1d1d1f; --muted: #86868b; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
+        :root { --accent: #006064; --bg: #f5f5f7; --text: #1d1d1f; --muted: #86868b; --nav-bg: rgba(255, 255, 255, 0.8); }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 110px; -webkit-font-smoothing: antialiased; }
         
-        /* Header & Brand */
-        header { background: #fff; padding: 30px 20px; border-bottom: 1px solid #e5e5e7; text-align: center; }
-        .brand { font-size: 1rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--text); }
+        /* Header Astratto (Senza nomi o loghi) */
+        .hero-header { 
+            position: relative; width: 100%; height: 220px; 
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), 
+                        url('https://images.unsplash.com/photo-1486497394800-2fd402c6f399?q=80&w=1000&auto=format&fit=crop'); 
+            background-size: cover; background-position: center;
+        }
 
-        .container { max-width: 500px; margin: 20px auto; padding: 0 20px; }
+        .main-content { max-width: 500px; margin: -30px auto 0; background: white; border-radius: 30px 30px 0 0; padding: 30px 25px; position: relative; box-shadow: 0 -15px 35px rgba(0,0,0,0.03); }
         .view { display: none; }
         .view.active { display: block; }
 
-        /* Scheda Auto Foto 101/106 Style */
-        .car-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .car-title { font-size: 1.2rem; font-weight: 800; border-bottom: 2px solid var(--text); padding-bottom: 8px; margin-bottom: 15px; }
-        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f2f2f7; font-size: 0.9rem; }
-        .info-label { color: var(--muted); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; }
-        
-        /* Form & Inputs */
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #e5e5e7; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
-        .btn-action { background: var(--accent); color: white; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        /* Titoli e Testi */
+        .section-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 25px; letter-spacing: -0.5px; }
+        .data-row { display: flex; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid #f2f2f7; align-items: center; }
+        .data-label { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
+        .data-value { font-weight: 600; font-size: 0.95rem; }
 
-        /* Barra Navigazione */
-        nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #eee; padding: 10px; z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; color: var(--muted); cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
-        .nav-item.active { color: var(--accent); }
-        .nav-item span { display: block; font-size: 1.4rem; margin-bottom: 3px; }
+        /* Input Minimal */
+        .input-group { margin-bottom: 25px; }
+        label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        select, input { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #d1d1d6; font-size: 1.1rem; background: transparent; transition: 0.3s; color: var(--text); }
+        input:focus { outline: none; border-bottom: 2px solid var(--accent); }
+
+        /* Bottoni */
+        .btn-order { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 14px; font-weight: 700; width: 100%; cursor: pointer; margin-top: 20px; font-size: 1rem; box-shadow: 0 8px 20px rgba(0,96,100,0.2); }
+        .btn-ghost { background: transparent; color: #8e8e93; border: 1px solid #d1d1d6; padding: 12px; border-radius: 10px; width: 100%; font-weight: 600; cursor: pointer; margin-top: 10px; }
+
+        /* BARRA DI NAVIGAZIONE FLOATING */
+        .nav-container { position: fixed; bottom: 30px; left: 0; right: 0; display: flex; justify-content: center; z-index: 2000; }
+        .bottom-nav { 
+            width: 90%; max-width: 400px; height: 70px; 
+            background: var(--nav-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); 
+            border: 1px solid rgba(255,255,255,0.3); padding: 0 10px;
+        }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; text-decoration: none; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--accent); transform: translateY(-5px); }
+        .nav-icon { font-size: 1.6rem; margin-bottom: 2px; }
+        .nav-text { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
 
-<header><div class="brand">driveLog Elite</div></header>
+<div class="hero-header"></div>
 
-<div class="container">
-    <div id="v-home" class="view active">
-        <div id="car-list"></div>
-        <button class="btn-action" style="background:#1d1d1f" onclick="showView('v-add')">+ AGGIUNGI AUTO</button>
+<div class="main-content">
+    
+    <div id="view-auto" class="view active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="section-title" style="margin:0">I tuoi veicoli</div>
+            <button class="btn-ghost" onclick="document.getElementById('mAuto').style.display='block'" style="width:auto; margin:0">+ AGGIUNGI</button>
+        </div>
+        <div id="listaAuto"></div>
     </div>
 
-    <div id="v-add" class="view">
-        <div class="car-card">
-            <h2 class="car-title">Nuovo Veicolo</h2>
-            <div class="input-group"><label>Nome</label><input type="text" id="a-nome" placeholder="es. ALFA ROMEO STELVIO"></div>
-            <div class="input-group"><label>Targa</label><input type="text" id="a-targa" placeholder="AA000BB"></div>
-            <button class="btn-action" onclick="dbAddAuto()">SALVA NEL GARAGE</button>
+    <div id="view-gas" class="view">
+        <div class="section-title">Nuovo Rifornimento</div>
+        <div class="card" style="background:#f9f9fa; border-radius:15px; padding:20px;">
+            <label>Auto</label>
+            <select id="gAuto"></select> <label>Carburante</label>
+            <select id="gTipo"><option>Benzina</option><option>Diesel</option><option>GPL</option><option>Metano</option></select>
+
+            <div style="display:flex; gap:20px">
+                <div style="flex:1"><label>Litri / Kg</label><input type="number" id="gLit" placeholder="0.00" oninput="calcT()"></div>
+                <div style="flex:1"><label>Prezzo/L €</label><input type="number" id="gPre" placeholder="0.000" oninput="calcT()"></div>
+            </div>
+            
+            <div style="text-align:center; padding:15px; background:white; border-radius:10px; margin-top:15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <span style="font-size:0.9rem; color:#64748b">TOTALE SPESO</span><br>
+                <span style="font-size:1.8rem; font-weight:bold; color:var(--accent)">€ <span id="gTot">0.00</span></span>
+            </div>
+
+            <button class="btn-order" onclick="saveRif()">SALVA</button>
         </div>
     </div>
 
-    <div id="v-input" class="view">
-        <div class="car-card">
-            <h2 class="car-title">Registra Attività</h2>
-            <div class="input-group">
-                <label>Tipo</label>
-                <select id="i-cat" onchange="toggleInput()">
-                    <option value="GAS">⛽ Rifornimento</option>
-                    <option value="MAN">🔧 Manutenzione</option>
-                    <option value="SPE">💳 Spesa Fissa (Bollo/RCA)</option>
-                </select>
-            </div>
-            <div id="box-gas">
-                <div class="input-group"><label>Litri</label><input type="number" id="i-lit"></div>
-                <div class="input-group"><label>Prezzo/L</label><input type="number" id="i-pre"></div>
-            </div>
-            <div id="box-scadenza" style="display:none">
-                <label>Nuova Scadenza</label><input type="date" id="i-scad">
-            </div>
-            <div class="input-group"><label>Costo Totale €</label><input type="number" id="i-tot"></div>
-            <div class="input-group"><label>Descrizione</label><input type="text" id="i-desc" placeholder="es. Tagliando, Assicurazione..."></div>
-            <button class="btn-action" onclick="dbAddLog()">CONFERMA E SALVA</button>
-        </div>
+    <div id="view-report" class="view">
+        <div class="section-title">Report Spese</div>
+        <div id="reportData"></div>
     </div>
 
-    <div id="v-report" class="view">
-        <div class="car-card">
-            <h2 class="car-title">Report Totale</h2>
-            <div id="rep-data"></div>
+</div>
+
+<div id="mAuto" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; overflow-y:auto">
+    <div style="background:white; margin:15px; padding:25px; border-radius:20px; max-width: 500px; margin-left: auto; margin-right: auto;">
+        <h3 style="margin-top:0">Configura Veicolo</h3>
+        <input type="text" id="aNome" placeholder="MARCA E MODELLO (ES: KIA SPORTAGE)">
+        <input type="text" id="aTarga" placeholder="TARGA (ES: AA000BB)" style="text-transform: uppercase;" required>
+        <select id="aAlim">
+            <option>BENZINA</option><option>DIESEL</option><option>BENZINA + GPL</option><option>BENZINA + METANO</option>
+        </select>
+
+        <div style="background:#f1f5f9; padding:15px; border-radius:12px; margin-top:15px">
+            <p style="margin:0 0 10px 0; font-weight:bold; font-size:0.8rem">COSTI E SCADENZE ANNUALI</p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div><label>BOLLO €</label><input type="number" id="cBol"></div>
+                <div><label>DATA SCAD.</label><input type="date" id="dBol"></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div><label>RCA €</label><input type="number" id="cRca"></div>
+                <div><label>DATA SCAD.</label><input type="date" id="dRca"></div>
+            </div>
         </div>
+
+        <button class="btn-order" style="margin-top:20px" onclick="saveAuto()">SALVA VEICOLO</button>
+        <button class="btn-ghost" onclick="document.getElementById('mAuto').style.display='none'">ANNULLA</button>
     </div>
 </div>
 
-<nav>
-    <div class="nav-item active" onclick="showView('v-home', this)"><span>🏠</span>Garage</div>
-    <div class="nav-item" onclick="showView('v-input', this)"><span>➕</span>Inserisci</div>
-    <div class="nav-item" onclick="showView('v-report', this)"><span>📊</span>Report</div>
-</nav>
+<div class="nav-container">
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="showV('view-auto', this)">
+            <span class="nav-icon">○</span><span class="nav-text">Auto</span>
+        </div>
+        <div class="nav-item" onclick="showV('view-gas', this)">
+            <span class="nav-icon">⬡</span><span class="nav-text">Gas</span>
+        </div>
+        <div class="nav-item" onclick="showV('view-report', this)">
+            <span class="nav-icon">📊</span><span class="nav-text">Report</span>
+        </div>
+    </nav>
+</div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('dlog_v5')) || { auto: [], log: [] };
+    let db = JSON.parse(localStorage.getItem('dlog_elite_v9')) || { auto: [], log: [] };
 
-    function showView(id, el) {
+    function showV(id, el) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
-        if(id === 'v-home') renderHome();
-        if(id === 'v-report') renderReport();
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        if(id === 'view-gas') fillAutoRif();
+        if(id === 'view-report') renderReport();
+        window.scrollTo(0,0);
     }
 
-    function toggleInput() {
-        const cat = document.getElementById('i-cat').value;
-        document.getElementById('box-gas').style.display = (cat === 'GAS') ? 'block' : 'none';
-        document.getElementById('box-scadenza').style.display = (cat === 'SPE') ? 'block' : 'none';
+    function fillAutoRif() {
+        const sel = document.getElementById('gAuto');
+        sel.innerHTML = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
     }
 
-    function dbAddAuto() {
-        db.auto.push({
+    function calcT() {
+        const lit = document.getElementById('gLit').value || 0;
+        const pre = document.getElementById('gPre').value || 0;
+        document.getElementById('gTot').innerText = (lit * pre).toFixed(2);
+    }
+
+    function saveAuto() {
+        const n = document.getElementById('aNome').value.toUpperCase();
+        const t = document.getElementById('aTarga').value.toUpperCase();
+        if(!t) { alert('Targa obbligatoria!'); return; }
+
+        const a = {
             id: Date.now(),
-            nome: document.getElementById('a-nome').value.toUpperCase(),
-            targa: document.getElementById('a-targa').value.toUpperCase(),
-            bollo: '--', rca: '--', rev: '--'
+            nome: n,
+            targa: t,
+            alim: document.getElementById('aAlim').value,
+            bollo: { c: parseFloat(document.getElementById('cBol').value || 0), d: document.getElementById('dBol').value },
+            rca: { c: parseFloat(document.getElementById('cRca').value || 0), d: document.getElementById('dRca').value }
+        };
+        db.auto.push(a);
+        sync(); document.getElementById('mAuto').style.display='none';
+    }
+
+    function saveRif() {
+        const auto = db.auto.find(a => a.id == document.getElementById('gAuto').value);
+        db.log.push({
+            data: new Date().toLocaleDateString(),
+            auto: auto.nome,
+            tipo: document.getElementById('gTipo').value,
+            costo: parseFloat(document.getElementById('gTot').innerText)
         });
-        sync(); showView('v-home');
+        sync(); showV('view-auto');
     }
 
-    function dbAddLog() {
-        const cat = document.getElementById('i-cat').value;
-        const desc = document.getElementById('i-desc').value;
-        const scad = document.getElementById('i-scad').value;
-        let costo = parseFloat(document.getElementById('i-tot').value) || 0;
-        
-        if(cat === 'GAS') costo = document.getElementById('i-lit').value * document.getElementById('i-pre').value;
-        
-        // Se è una spesa, aggiorna la data dell'auto (logica collegata!)
-        if(cat === 'SPE' && db.auto.length > 0) {
-            if(desc.toLowerCase().includes('bollo')) db.auto[0].bollo = scad;
-            if(desc.toLowerCase().includes('assicurazione') || desc.toLowerCase().includes('rca')) db.auto[0].rca = scad;
-        }
+    function sync() { localStorage.setItem('dlog_elite_v9', JSON.stringify(db)); render(); }
 
-        db.log.push({ cat, costo, desc, date: new Date().toLocaleDateString() });
-        sync(); showView('v-home');
-    }
-
-    function sync() { localStorage.setItem('dlog_v5', JSON.stringify(db)); renderHome(); }
-
-    function renderHome() {
-        document.getElementById('car-list').innerHTML = db.auto.map(a => `
-            <div class="car-card">
-                <div class="car-title">${a.nome}</div>
-                <div class="info-row"><span class="info-label">Targa</span><span>${a.targa}</span></div>
-                <div class="info-row"><span class="info-label">Scad. Bollo</span><span>${a.bollo}</span></div>
-                <div class="info-row"><span class="info-label">Scad. RCA</span><span>${a.rca}</span></div>
+    function render() {
+        document.getElementById('listaAuto').innerHTML = db.auto.map(a => `
+            <div class="card" style="background:white; border-radius:15px; padding:20px; margin-bottom:15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0">${a.nome}</h3>
+                    <span style="color:var(--accent); font-weight:bold; font-size:0.9rem">${a.targa}</span>
+                </div>
+                <div style="font-size:0.85rem; color:#64748b; margin-bottom:12px;">Alimentazione: <b>${a.alim}</b></div>
+                <div style="border-top:1px solid #f2f2f7; padding-top:12px;">
+                    <div>📅 BOLLO: ${a.bollo.d} (€${a.bollo.c})</div>
+                    <div>📅 RCA: ${a.rca.d} (€${a.rca.c})</div>
+                </div>
             </div>
         `).join('');
     }
 
     function renderReport() {
-        const tot = db.log.reduce((a, b) => a + b.costo, 0);
-        document.getElementById('rep-data').innerHTML = `
-            <div style="text-align:center; padding:20px">
-                <div class="info-label">Spesa Complessiva</div>
-                <div style="font-size:2rem; font-weight:800; color:var(--accent)">€ ${tot.toFixed(2)}</div>
+        const tGas = db.log.reduce((acc, c) => acc + c.costo, 0);
+        const tFissi = db.auto.reduce((acc, a) => acc + a.bollo.c + a.rca.c, 0);
+        document.getElementById('reportData').innerHTML = `
+            <div class="card" style="background:white; padding:20px; border-radius:15px; text-align:center;">
+                <label>SPESA TOTALE CUMULATA</label><br>
+                <span style="font-size:2rem; font-weight:800; color:var(--accent)">€ ${(tGas + tFissi).toFixed(2)}</span>
             </div>
-            ${db.log.slice().reverse().map(l => `
-                <div class="info-row"><span>${l.date} - ${l.desc}</span><b>€ ${l.costo.toFixed(2)}</b></div>
-            `).join('')}
         `;
     }
 
-    renderHome();
+    render();
 </script>
 </body>
 </html>
