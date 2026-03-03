@@ -5,233 +5,230 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>driveLog Pro - micheledoris</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root { --primary: #4f46e5; --secondary: #818cf8; --bg: #f3f4f6; --dark: #1f2937; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
-        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 15px; text-align: center; }
-        .nav-tabs { display: flex; background: white; border-bottom: 1px solid #ddd; sticky: top; z-index: 10; }
-        .nav-tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #6b7280; }
-        .nav-tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
-        .container { max-width: 800px; margin: auto; padding: 15px; display: none; }
+        :root { --primary: #2563eb; --secondary: #3b82f6; --bg: #f1f5f9; --white: #ffffff; --text: #1e293b; --accent: #10b981; --warning: #f59e0b; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
+        .header { background: #1e293b; color: white; padding: 20px; border-bottom: 4px solid var(--primary); }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
+        .nav-item { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: #64748b; }
+        .nav-item.active { color: var(--primary); border-top: 3px solid var(--primary); }
+        .container { max-width: 600px; margin: auto; padding: 15px; display: none; }
         .container.active { display: block; }
-        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .btn { padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
+        .card { background: var(--white); border-radius: 16px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .btn { padding: 14px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; font-size: 1rem; }
         .btn-main { background: var(--primary); color: white; }
-        .btn-photo { background: #10b981; color: white; }
-        .btn-danger { background: #ef4444; color: white; margin-top: 5px; }
-        label { font-size: 0.8rem; font-weight: bold; color: #4b5563; display: block; margin-top: 10px; }
-        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; text-transform: uppercase; }
+        .btn-maint { background: var(--warning); color: white; margin-top: 10px; }
+        .btn-photo { background: var(--accent); color: white; margin-top: 10px; }
+        label { font-size: 0.8rem; font-weight: 700; color: #475569; margin-top: 12px; display: block; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-size: 1rem; text-transform: uppercase; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .img-preview { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-top: 10px; display: none; border: 2px dashed #ddd; }
-        .scadenza-item { background: #f9fafb; padding: 8px; border-radius: 5px; margin-bottom: 5px; font-size: 0.85rem; }
+        .img-preview { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; border: 1px solid #ddd; }
+        .log-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>driveLog Pro</h1>
-    <p>micheledoris@gmail.com</p>
-</div>
-
-<div class="nav-tabs">
-    <div class="nav-tab active" onclick="switchTab(0)">VEICOLI</div>
-    <div class="nav-tab" onclick="switchTab(1)">ATTIVITÀ</div>
-    <div class="nav-tab" onclick="switchTab(2)">REPORT 📊</div>
+    <h1 style="margin:0; font-size: 1.3rem;">driveLog <span style="color:var(--primary)">Pro</span></h1>
+    <p style="margin:2px 0 0 0; opacity:0.7; font-size: 0.8rem;">micheledoris@gmail.com</p>
 </div>
 
 <div id="tab-0" class="container active">
-    <button class="btn btn-main" onclick="openM('modalAuto')">+ AGGIUNGI NUOVA AUTO</button>
-    <div id="listaAuto" style="margin-top:20px"></div>
+    <div id="listaAuto"></div>
+    <button class="btn btn-main" onclick="openM('modalAuto')">+ AGGIUNGI VEICOLO</button>
 </div>
 
 <div id="tab-1" class="container">
-    <div class="grid-2">
-        <button class="btn btn-main" onclick="openAct('rif')">⛽ RIFORNIMENTO</button>
-        <button class="btn btn-main" style="background:#f59e0b" onclick="openAct('man')">🔧 MANUTENZIONE</button>
+    <div class="card">
+        <h3>⛽ Rifornimento</h3>
+        <label>Auto</label><select id="rAuto" onchange="updateFuelOptions()"></select>
+        <label>Carburante</label><select id="rTipo"></select>
+        <div class="grid-2">
+            <div><label>Litri</label><input type="number" id="rLit" oninput="calcGas()"></div>
+            <div><label>Prezzo/L</label><input type="number" id="rPre" oninput="calcGas()"></div>
+        </div>
+        <div style="text-align:center; padding:10px; font-weight:bold; color:var(--primary)">TOTALE: € <span id="rTot">0.00</span></div>
+        <button class="btn btn-photo" onclick="takePhoto('fotoRif')">📸 SCONTRINO</button>
+        <img id="preRif" class="img-preview">
+        <button class="btn btn-main" style="margin-top:10px" onclick="saveRif()">SALVA RIFORNIMENTO</button>
     </div>
-    <button class="btn btn-main" style="background:#06b6d4" onclick="openAct('lav')">🧼 LAVAGGIO</button>
-    <button class="btn" style="background:#107c10; color:white" onclick="exportExcel()">📊 SCARICA EXCEL</button>
-    <div id="logAttivita" style="margin-top:20px"></div>
 </div>
 
 <div id="tab-2" class="container">
     <div class="card">
-        <h3>Spese Totali per Auto</h3>
-        <canvas id="barChart"></canvas>
+        <h3>🔧 Manutenzione</h3>
+        <label>Auto</label><select id="mAuto"></select>
+        <label>Tipo Intervento</label>
+        <select id="mTipo" onchange="checkOther(this)">
+            <option>CAMBIO OLIO</option><option>FILTRO OLIO</option><option>FILTRO ARIA</option>
+            <option>FILTRO CARBURANTE</option><option>FILTRO ABITACOLO</option><option>FRENI</option>
+            <option>PNEUMATICI</option><option>DISTRIBUZIONE</option><option>CINGHIE</option>
+            <option>BATTERIA</option><option>ARIA CONDIZIONATA</option><option>LUCI</option>
+            <option>SOSPENSIONI</option><option>CONVERGENZA</option><option>MANODOPERA</option>
+            <option value="ALTRO">-- ALTRO (SPECIFICA) --</option>
+        </select>
+        <input type="text" id="mAltro" placeholder="SCRIVI INTERVENTO..." style="display:none; margin-top:10px">
+        
+        <div class="grid-2">
+            <div><label>KM ATTUALI</label><input type="number" id="mKm"></div>
+            <div><label>COSTO €</label><input type="number" id="mCosto"></div>
+        </div>
+        <button class="btn btn-photo" onclick="takePhoto('fotoMan')">📸 FOTO RICEVUTA</button>
+        <img id="preMan" class="img-preview">
+        <button class="btn btn-maint" onclick="saveMaint()">SALVA INTERVENTO</button>
     </div>
+    <div id="logAttivita"></div>
 </div>
 
-<div id="modalAuto" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:100; overflow-y:auto">
-    <div style="background:white; margin:15px; padding:20px; border-radius:15px">
-        <h3>Dati Veicolo</h3>
-        <input type="text" id="aNome" placeholder="MARCA E MODELLO (ES: KIA SPORTAGE)">
-        <input type="text" id="aTarga" placeholder="TARGA (ES: GA789FR)" maxlength="7">
+<div id="modalAuto" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200; overflow-y:auto">
+    <div style="background:white; margin:15px; padding:20px; border-radius:20px;">
+        <h3>Nuovo Veicolo</h3>
+        <input type="text" id="aNome" placeholder="MARCA E MODELLO">
+        <input type="text" id="aTarga" placeholder="TARGA">
         <select id="aAlim">
             <option>BENZINA</option><option>DIESEL</option>
             <option>BENZINA + GPL</option><option>BENZINA + METANO</option>
         </select>
-
-        <div class="card" style="background:#f0f4ff">
+        <div style="background:#f8fafc; padding:10px; border-radius:10px; margin-top:10px">
             <div class="grid-2">
-                <div><label>DATA BOLLO</label><input type="date" id="dBol"></div>
-                <div><label>COSTO BOLLO €</label><input type="number" id="cBol" placeholder="0.00"></div>
+                <div><label>BOLLO €</label><input type="number" id="cBol"></div>
+                <div><label>SCADENZA</label><input type="date" id="dBol"></div>
             </div>
             <div class="grid-2">
-                <div><label>DATA RCA</label><input type="date" id="dRca"></div>
-                <div><label>COSTO RCA €</label><input type="number" id="cRca" placeholder="0.00"></div>
+                <div><label>RCA €</label><input type="number" id="cRca"></div>
+                <div><label>SCADENZA</label><input type="date" id="dRca"></div>
             </div>
             <div class="grid-2">
-                <div><label>DATA REVISIONE</label><input type="date" id="dRev"></div>
-                <div><label>COSTO REVISIONE €</label><input type="number" id="cRev" placeholder="0.00"></div>
+                <div><label>REVISIONE €</label><input type="number" id="cRev"></div>
+                <div><label>SCADENZA</label><input type="date" id="dRev"></div>
             </div>
         </div>
-
-        <button class="btn btn-photo" onclick="document.getElementById('inPhoto').click()">📸 SCATTA FOTO AUTO</button>
-        <input type="file" id="inPhoto" accept="image/*" capture="camera" style="display:none" onchange="preview(this, 'preAuto')">
+        <button class="btn btn-photo" onclick="takePhoto('fotoAuto')">📸 FOTO AUTO</button>
         <img id="preAuto" class="img-preview">
-        
-        <button class="btn btn-main" onclick="saveAuto()">SALVA VEICOLO</button>
-        <button class="btn btn-danger" onclick="closeM()">CHIUDI</button>
+        <button class="btn btn-main" style="margin-top:15px" onclick="saveAuto()">SALVA</button>
+        <button class="btn" style="background:#eee" onclick="closeM()">CHIUDI</button>
     </div>
 </div>
 
-<div id="modalAct" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:100;">
-    <div style="background:white; margin:15px; padding:20px; border-radius:15px">
-        <h3 id="actTitle">Nuova Attività</h3>
-        <select id="actAuto"></select>
-        <input type="text" id="actDesc" placeholder="DESCRIZIONE (ES: PIENO GPL)">
-        <input type="number" id="actCosto" placeholder="COSTO TOTALE €">
-        
-        <button class="btn btn-photo" onclick="document.getElementById('inScontrino').click()">📸 FOTO SCONTRINO</button>
-        <input type="file" id="inScontrino" accept="image/*" capture="camera" style="display:none" onchange="preview(this, 'preSco')">
-        <img id="preSco" class="img-preview">
+<input type="file" id="camInput" accept="image/*" capture="camera" style="display:none">
 
-        <button class="btn btn-main" onclick="saveAct()">REGISTRA</button>
-        <button class="btn btn-danger" onclick="closeM()">ANNULLA</button>
-    </div>
-</div>
+<nav class="nav-bar">
+    <div class="nav-item active" onclick="switchTab(0)">🚗 AUTO</div>
+    <div class="nav-item" onclick="switchTab(1)">⛽ GAS</div>
+    <div class="nav-item" onclick="switchTab(2)">🔧 MANUT.</div>
+</nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('dlog_vPro')) || { auto: [], log: [] };
+    let db = JSON.parse(localStorage.getItem('dlog_v8')) || { auto: [], log: [] };
     let tempFoto = "";
 
     function switchTab(n) {
         document.querySelectorAll('.container').forEach((c, i) => c.classList.toggle('active', i === n));
-        document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', i === n));
-        if(n === 2) renderChart();
+        document.querySelectorAll('.nav-item').forEach((t, i) => t.classList.toggle('active', i === n));
+        if(n === 1) fillSelects('rAuto');
+        if(n === 2) fillSelects('mAuto');
     }
 
     function openM(id) { document.getElementById(id).style.display = 'block'; }
     function closeM() { 
         document.querySelectorAll('[id^="modal"]').forEach(m => m.style.display='none');
-        tempFoto = "";
-        document.querySelectorAll('.img-preview').forEach(i => i.style.display='none');
+        tempFoto = ""; document.querySelectorAll('.img-preview').forEach(i => i.style.display='none');
     }
 
-    function preview(input, id) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            tempFoto = e.target.result;
-            const img = document.getElementById(id);
-            img.src = tempFoto;
-            img.style.display = 'block';
+    function fillSelects(id) {
+        const sel = document.getElementById(id);
+        sel.innerHTML = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+        if(id === 'rAuto') updateFuelOptions();
+    }
+
+    function updateFuelOptions() {
+        const auto = db.auto.find(a => a.id == document.getElementById('rAuto').value);
+        if(!auto) return;
+        document.getElementById('rTipo').innerHTML = auto.alim.split(' + ').map(o => `<option>${o}</option>`).join('');
+    }
+
+    function checkOther(sel) {
+        document.getElementById('mAltro').style.display = sel.value === 'ALTRO' ? 'block' : 'none';
+    }
+
+    function takePhoto(type) {
+        const input = document.getElementById('camInput');
+        input.onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (re) => {
+                tempFoto = re.target.result;
+                const prevId = type === 'fotoAuto' ? 'preAuto' : (type === 'fotoRif' ? 'preRif' : 'preMan');
+                const img = document.getElementById(prevId);
+                img.src = tempFoto; img.style.display = 'block';
+            };
+            reader.readAsDataURL(e.target.files[0]);
         };
-        reader.readAsDataURL(input.files[0]);
+        input.click();
+    }
+
+    function calcGas() {
+        const tot = document.getElementById('rLit').value * document.getElementById('rPre').value;
+        document.getElementById('rTot').innerText = tot.toFixed(2);
     }
 
     function saveAuto() {
         const a = {
-            id: Date.now(),
-            nome: document.getElementById('aNome').value.toUpperCase(),
-            targa: document.getElementById('aTarga').value.toUpperCase(),
-            alim: document.getElementById('aAlim').value,
-            bolloD: document.getElementById('dBol').value,
-            bolloC: parseFloat(document.getElementById('cBol').value || 0),
-            rcaD: document.getElementById('dRca').value,
-            rcaC: parseFloat(document.getElementById('cRca').value || 0),
-            revD: document.getElementById('dRev').value,
-            revC: parseFloat(document.getElementById('cRev').value || 0),
+            id: Date.now(), nome: document.getElementById('aNome').value.toUpperCase(),
+            targa: document.getElementById('aTarga').value.toUpperCase(), alim: document.getElementById('aAlim').value,
+            bollo: {c: document.getElementById('cBol').value, d: document.getElementById('dBol').value},
+            rca: {c: document.getElementById('cRca').value, d: document.getElementById('dRca').value},
+            rev: {c: document.getElementById('cRev').value, d: document.getElementById('dRev').value},
             foto: tempFoto
         };
-        db.auto.push(a);
-        localStorage.setItem('dlog_vPro', JSON.stringify(db));
-        renderAuto();
-        closeM();
+        db.auto.push(a); updateDB();
     }
 
-    function openAct(type) {
-        document.getElementById('actTitle').innerText = type.toUpperCase();
-        const sel = document.getElementById('actAuto');
-        sel.innerHTML = db.auto.map(a => `<option value="${a.nome}">${a.nome}</option>`).join('');
-        openM('modalAct');
+    function saveRif() {
+        const auto = db.auto.find(a => a.id == document.getElementById('rAuto').value);
+        db.log.push({
+            tipo: 'RIFORNIMENTO', auto: auto.nome, desc: document.getElementById('rTipo').value,
+            val: document.getElementById('rLit').value + "L", costo: document.getElementById('rTot').innerText,
+            foto: tempFoto, data: new Date().toLocaleDateString()
+        });
+        updateDB(); alert("Rifornimento Salvato!");
     }
 
-    function saveAct() {
-        const entry = {
-            data: new Date().toLocaleDateString(),
-            auto: document.getElementById('actAuto').value,
-            tipo: document.getElementById('actTitle').innerText,
-            desc: document.getElementById('actDesc').value.toUpperCase(),
-            costo: parseFloat(document.getElementById('actCosto').value || 0),
-            foto: tempFoto
-        };
-        db.log.push(entry);
-        localStorage.setItem('dlog_vPro', JSON.stringify(db));
-        renderLog();
-        closeM();
+    function saveMaint() {
+        const auto = db.auto.find(a => a.id == document.getElementById('mAuto').value);
+        const tipo = document.getElementById('mTipo').value === 'ALTRO' ? document.getElementById('mAltro').value.toUpperCase() : document.getElementById('mTipo').value;
+        db.log.push({
+            tipo: 'MANUTENZIONE', auto: auto.nome, desc: tipo,
+            val: document.getElementById('mKm').value + " KM", costo: document.getElementById('mCosto').value,
+            foto: tempFoto, data: new Date().toLocaleDateString()
+        });
+        updateDB(); alert("Manutenzione Salvata!");
+    }
+
+    function updateDB() {
+        localStorage.setItem('dlog_v8', JSON.stringify(db));
+        renderAuto(); renderLog(); closeM();
     }
 
     function renderAuto() {
         document.getElementById('listaAuto').innerHTML = db.auto.map(a => `
             <div class="card">
-                ${a.foto ? `<img src="${a.foto}" style="width:100%; height:150px; object-fit:cover; border-radius:10px">` : ''}
-                <h3>${a.nome} <span style="color:blue; font-size:0.9rem">${a.targa}</span></h3>
-                <div class="scadenza-item">📅 BOLLO: ${a.bolloD} - € ${a.bolloC}</div>
-                <div class="scadenza-item">📅 RCA: ${a.rcaD} - € ${a.rcaC}</div>
-                <div class="scadenza-item">📅 REVISIONE: ${a.revD} - € ${a.revC}</div>
-                <button class="btn btn-danger" onclick="deleteAuto(${a.id})" style="width:auto; padding:5px 10px">Elimina Auto</button>
+                ${a.foto ? `<img src="${a.foto}" style="width:100%; height:150px; object-fit:cover; border-radius:12px; margin-bottom:10px">` : ''}
+                <h3 style="margin:0">${a.nome} <small style="color:var(--primary)">${a.targa}</small></h3>
+                <div style="font-size:0.8rem; margin-top:8px">
+                    📅 BOLLO: ${a.bollo.d} (€${a.bollo.c}) | RCA: ${a.rca.d} (€${a.rca.c})<br>
+                    📅 REVISIONE: ${a.rev.d} (€${a.rev.c})
+                </div>
             </div>
         `).join('');
     }
 
     function renderLog() {
-        document.getElementById('logAttivita').innerHTML = db.log.slice().reverse().map(l => `
-            <div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center">
-                <span><b>${l.data}</b><br>${l.auto} - ${l.tipo}</span>
-                <span style="font-weight:bold; color:green">€ ${l.costo.toFixed(2)}</span>
+        document.getElementById('logAttivita').innerHTML = "<h4>Storico Recente</h4>" + db.log.slice().reverse().map(l => `
+            <div class="log-item">
+                <span><b>${l.data}</b> ${l.auto}<br><small>${l.tipo}: ${l.desc}</small></span>
+                <span style="color:green; font-weight:bold">€ ${l.costo}</span>
             </div>
         `).join('');
-    }
-
-    function deleteAuto(id) {
-        if(confirm("Sei sicuro? Perderai tutti i dati dell'auto.")) {
-            db.auto = db.auto.filter(a => a.id !== id);
-            localStorage.setItem('dlog_vPro', JSON.stringify(db));
-            renderAuto();
-        }
-    }
-
-    function renderChart() {
-        const ctx = document.getElementById('barChart').getContext('2d');
-        const data = db.auto.map(a => {
-            const spesaLog = db.log.filter(l => l.auto === a.nome).reduce((s, c) => s + c.costo, 0);
-            return spesaLog + a.bolloC + a.rcaC + a.revC;
-        });
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: db.auto.map(a => a.nome),
-                datasets: [{ label: 'Spesa Totale (€)', data: data, backgroundColor: '#4f46e5' }]
-            }
-        });
-    }
-
-    function exportExcel() {
-        const ws = XLSX.utils.json_to_sheet(db.log);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Storico");
-        XLSX.writeFile(wb, "driveLog_Dati.xlsx");
     }
 
     renderAuto();
