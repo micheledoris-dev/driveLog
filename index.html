@@ -3,140 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>driveLog Pro</title>
+    <title>driveLog Elite v5</title>
     <style>
-        :root { --accent: #006064; --bg: #ffffff; --text: #1a1a1a; --muted: #8e8e93; --line: #f2f2f7; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px; }
+        :root { --accent: #006064; --bg: #f4f4f7; --card: #ffffff; --text: #1d1d1f; --muted: #86868b; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        /* Header compatto stile lusso */
-        header { padding: 40px 25px 20px; background: #f9f9f9; border-bottom: 1px solid var(--line); }
-        .logo { font-size: 0.9rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: #333; }
+        /* Header & Brand */
+        header { background: #fff; padding: 30px 20px; border-bottom: 1px solid #e5e5e7; text-align: center; }
+        .brand { font-size: 1rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--text); }
 
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 500px; margin: 20px auto; padding: 0 20px; }
         .view { display: none; }
         .view.active { display: block; }
 
-        /* Card Auto - Pulita ma Informativa (Ispirata a Foto 101) */
-        .car-item { margin-bottom: 30px; }
-        .car-header { font-size: 1.4rem; font-weight: 800; margin-bottom: 15px; border-bottom: 2px solid var(--text); padding-bottom: 5px; }
-        .data-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
-        .label { color: var(--muted); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; }
-        .val { font-weight: 600; }
-
-        /* Form Minimal */
-        .input-group { margin-bottom: 20px; }
+        /* Scheda Auto Foto 101/106 Style */
+        .car-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .car-title { font-size: 1.2rem; font-weight: 800; border-bottom: 2px solid var(--text); padding-bottom: 8px; margin-bottom: 15px; }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f2f2f7; font-size: 0.9rem; }
+        .info-label { color: var(--muted); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; }
+        
+        /* Form & Inputs */
+        .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #ccc; font-size: 1rem; border-radius: 0; background: transparent; }
-        .btn-main { background: var(--accent); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #e5e5e7; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        .btn-action { background: var(--accent); color: white; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
-        /* Barra Navigazione Sospesa (La migliore delle versioni) */
-        .nav-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); height: 70px; border-radius: 25px; display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--line); }
-        .nav-btn { flex: 1; text-align: center; color: var(--muted); cursor: pointer; transition: 0.3s; }
-        .nav-btn.active { color: var(--accent); transform: translateY(-3px); }
-        .nav-btn div { font-size: 0.55rem; font-weight: 800; text-transform: uppercase; margin-top: 4px; }
+        /* Barra Navigazione */
+        nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #eee; padding: 10px; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; color: var(--muted); cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item span { display: block; font-size: 1.4rem; margin-bottom: 3px; }
     </style>
 </head>
 <body>
 
-<header><div class="logo">driveLog Elite</div></header>
+<header><div class="brand">driveLog Elite</div></header>
 
 <div class="container">
     <div id="v-home" class="view active">
         <div id="car-list"></div>
-        <button class="btn-main" style="background:#333" onclick="showView('v-add')">+ AGGIUNGI VEICOLO</button>
-    </div>
-
-    <div id="v-input" class="view">
-        <h2 style="font-weight: 800;">Nuovo Inserimento</h2>
-        <div class="input-group">
-            <label>Categoria</label>
-            <select id="cat" onchange="toggleFields()">
-                <option value="GAS">⛽ Rifornimento</option>
-                <option value="MAN">🔧 Manutenzione</option>
-                <option value="SPE">💳 Spesa (Bollo/RCA/Rev)</option>
-            </select>
-        </div>
-        <div id="fields-gas">
-            <div class="input-group"><label>Litri</label><input type="number" id="lit"></div>
-            <div class="input-group"><label>Prezzo/L</label><input type="number" id="pre"></div>
-        </div>
-        <div id="fields-common">
-            <div class="input-group"><label>Costo Totale €</label><input type="number" id="tot"></div>
-            <div class="input-group"><label>Note / Descrizione</label><input type="text" id="desc" placeholder="es. Tagliando o RCA"></div>
-        </div>
-        <button class="btn-main" onclick="saveData()">SALVA NELLO STORICO</button>
-    </div>
-
-    <div id="v-report" class="view">
-        <h2 style="font-weight: 800;">Report Spese</h2>
-        <div id="report-stats"></div>
+        <button class="btn-action" style="background:#1d1d1f" onclick="showView('v-add')">+ AGGIUNGI AUTO</button>
     </div>
 
     <div id="v-add" class="view">
-        <h2 style="font-weight: 800;">Nuovo Veicolo</h2>
-        <div class="input-group"><label>Nome Auto</label><input type="text" id="a-nome"></div>
-        <div class="input-group"><label>Targa</label><input type="text" id="a-targa"></div>
-        <button class="btn-main" onclick="saveAuto()">SALVA AUTO</button>
+        <div class="car-card">
+            <h2 class="car-title">Nuovo Veicolo</h2>
+            <div class="input-group"><label>Nome</label><input type="text" id="a-nome" placeholder="es. ALFA ROMEO STELVIO"></div>
+            <div class="input-group"><label>Targa</label><input type="text" id="a-targa" placeholder="AA000BB"></div>
+            <button class="btn-action" onclick="dbAddAuto()">SALVA NEL GARAGE</button>
+        </div>
+    </div>
+
+    <div id="v-input" class="view">
+        <div class="car-card">
+            <h2 class="car-title">Registra Attività</h2>
+            <div class="input-group">
+                <label>Tipo</label>
+                <select id="i-cat" onchange="toggleInput()">
+                    <option value="GAS">⛽ Rifornimento</option>
+                    <option value="MAN">🔧 Manutenzione</option>
+                    <option value="SPE">💳 Spesa Fissa (Bollo/RCA)</option>
+                </select>
+            </div>
+            <div id="box-gas">
+                <div class="input-group"><label>Litri</label><input type="number" id="i-lit"></div>
+                <div class="input-group"><label>Prezzo/L</label><input type="number" id="i-pre"></div>
+            </div>
+            <div id="box-scadenza" style="display:none">
+                <label>Nuova Scadenza</label><input type="date" id="i-scad">
+            </div>
+            <div class="input-group"><label>Costo Totale €</label><input type="number" id="i-tot"></div>
+            <div class="input-group"><label>Descrizione</label><input type="text" id="i-desc" placeholder="es. Tagliando, Assicurazione..."></div>
+            <button class="btn-action" onclick="dbAddLog()">CONFERMA E SALVA</button>
+        </div>
+    </div>
+
+    <div id="v-report" class="view">
+        <div class="car-card">
+            <h2 class="car-title">Report Totale</h2>
+            <div id="rep-data"></div>
+        </div>
     </div>
 </div>
 
-<div class="nav-dock">
-    <div class="nav-btn active" onclick="showView('v-home', this)"><span>🏠</span><div>Garage</div></div>
-    <div class="nav-btn" onclick="showView('v-input', this)"><span>➕</span><div>Inserisci</div></div>
-    <div class="nav-btn" onclick="showView('v-report', this)"><span>📊</span><div>Report</div></div>
-</div>
+<nav>
+    <div class="nav-item active" onclick="showView('v-home', this)"><span>🏠</span>Garage</div>
+    <div class="nav-item" onclick="showView('v-input', this)"><span>➕</span>Inserisci</div>
+    <div class="nav-item" onclick="showView('v-report', this)"><span>📊</span>Report</div>
+</nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('dlog_final')) || { auto: [], log: [] };
+    let db = JSON.parse(localStorage.getItem('dlog_v5')) || { auto: [], log: [] };
 
     function showView(id, el) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         if(el) {
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
         }
+        if(id === 'v-home') renderHome();
         if(id === 'v-report') renderReport();
     }
 
-    function saveAuto() {
-        db.auto.push({ nome: document.getElementById('a-nome').value, targa: document.getElementById('a-targa').value });
-        localStorage.setItem('dlog_final', JSON.stringify(db));
-        renderHome(); showView('v-home');
+    function toggleInput() {
+        const cat = document.getElementById('i-cat').value;
+        document.getElementById('box-gas').style.display = (cat === 'GAS') ? 'block' : 'none';
+        document.getElementById('box-scadenza').style.display = (cat === 'SPE') ? 'block' : 'none';
     }
 
-    function saveData() {
-        let cat = document.getElementById('cat').value;
-        let costo = document.getElementById('tot').value;
-        if(cat === 'GAS') costo = document.getElementById('lit').value * document.getElementById('pre').value;
-        
-        db.log.push({ cat, costo: parseFloat(costo), desc: document.getElementById('desc').value, date: new Date().toLocaleDateString() });
-        localStorage.setItem('dlog_final', JSON.stringify(db));
-        alert("Salvato!"); showView('v-home');
+    function dbAddAuto() {
+        db.auto.push({
+            id: Date.now(),
+            nome: document.getElementById('a-nome').value.toUpperCase(),
+            targa: document.getElementById('a-targa').value.toUpperCase(),
+            bollo: '--', rca: '--', rev: '--'
+        });
+        sync(); showView('v-home');
     }
+
+    function dbAddLog() {
+        const cat = document.getElementById('i-cat').value;
+        const desc = document.getElementById('i-desc').value;
+        const scad = document.getElementById('i-scad').value;
+        let costo = parseFloat(document.getElementById('i-tot').value) || 0;
+        
+        if(cat === 'GAS') costo = document.getElementById('i-lit').value * document.getElementById('i-pre').value;
+        
+        // Se è una spesa, aggiorna la data dell'auto (logica collegata!)
+        if(cat === 'SPE' && db.auto.length > 0) {
+            if(desc.toLowerCase().includes('bollo')) db.auto[0].bollo = scad;
+            if(desc.toLowerCase().includes('assicurazione') || desc.toLowerCase().includes('rca')) db.auto[0].rca = scad;
+        }
+
+        db.log.push({ cat, costo, desc, date: new Date().toLocaleDateString() });
+        sync(); showView('v-home');
+    }
+
+    function sync() { localStorage.setItem('dlog_v5', JSON.stringify(db)); renderHome(); }
 
     function renderHome() {
         document.getElementById('car-list').innerHTML = db.auto.map(a => `
-            <div class="car-item">
-                <div class="car-header">${a.nome}</div>
-                <div class="data-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
-                <div class="data-row"><span class="label">Stato Scadenze</span><span class="val" style="color:var(--accent)">In regola</span></div>
+            <div class="car-card">
+                <div class="car-title">${a.nome}</div>
+                <div class="info-row"><span class="info-label">Targa</span><span>${a.targa}</span></div>
+                <div class="info-row"><span class="info-label">Scad. Bollo</span><span>${a.bollo}</span></div>
+                <div class="info-row"><span class="info-label">Scad. RCA</span><span>${a.rca}</span></div>
             </div>
         `).join('');
     }
 
     function renderReport() {
-        let total = db.log.reduce((s, item) => s + item.costo, 0);
-        document.getElementById('report-stats').innerHTML = `
-            <div style="background:#f9f9f9; padding:30px; border-radius:20px; text-align:center; margin-bottom:20px">
-                <div class="label">Spesa Totale Cumulata</div>
-                <div style="font-size:2.2rem; font-weight:800; color:var(--accent)">€ ${total.toFixed(2)}</div>
+        const tot = db.log.reduce((a, b) => a + b.costo, 0);
+        document.getElementById('rep-data').innerHTML = `
+            <div style="text-align:center; padding:20px">
+                <div class="info-label">Spesa Complessiva</div>
+                <div style="font-size:2rem; font-weight:800; color:var(--accent)">€ ${tot.toFixed(2)}</div>
             </div>
+            ${db.log.slice().reverse().map(l => `
+                <div class="info-row"><span>${l.date} - ${l.desc}</span><b>€ ${l.costo.toFixed(2)}</b></div>
+            `).join('')}
         `;
-    }
-
-    function toggleFields() {
-        document.getElementById('fields-gas').style.display = (document.getElementById('cat').value === 'GAS') ? 'block' : 'none';
     }
 
     renderHome();
