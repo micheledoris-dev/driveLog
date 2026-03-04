@@ -3,49 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DRIVELOG ELITE</title>
+    <title>DRIVELOG ELITE v13</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --accent: #006064; --bg: #000000; --card: #1c1c1e; --text: #ffffff; --muted: #8e8e93; --line: #38383a; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px; -webkit-font-smoothing: antialiased; }
-
-        /* Header Foto 108 Style */
-        .hero { 
-            width: 100%; height: 220px; 
-            background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, var(--bg) 100%), 
-                        url('https://i.ibb.co/vzY3rK7/108.jpg') center/cover; 
-            background-color: #000;
-        }
-
-        .container { max-width: 500px; margin: -20px auto 0; padding: 0 20px; box-sizing: border-box; }
+        :root { --accent: #006064; --bg: #000; --card: #1c1c1e; --text: #fff; --muted: #8e8e93; --line: #38383a; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px; -webkit-font-smoothing: antialiased; }
+        
+        .hero { width: 100%; height: 180px; background: linear-gradient(to bottom, transparent, #000), url('https://i.ibb.co/vzY3rK7/108.jpg') center/cover; }
+        .container { max-width: 500px; margin: -30px auto 0; padding: 0 20px; }
+        
         .view { display: none; }
-        .view.active { display: block; animation: fade 0.3s ease-out; }
-        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+        .view.active { display: block; }
 
-        /* Card & Typography */
-        .title-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #fff; padding-bottom: 10px; }
-        .title { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; }
-        .car-card { background: var(--card); border-radius: 20px; padding: 25px; margin-bottom: 15px; border: 1px solid var(--line); }
-        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        /* Typography & Cards */
+        .title { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-bottom: 2px solid #fff; padding-bottom: 10px; margin-bottom: 20px; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--line); }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .label { color: var(--muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
         .val { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
 
-        /* Inputs */
-        label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin: 15px 0 5px 5px; }
-        input, select { 
-            width: 100%; background: #2c2c2e; border: 1px solid var(--line); border-radius: 12px; 
-            padding: 15px; color: #fff; font-size: 1rem; font-weight: 600; box-sizing: border-box;
-            text-transform: uppercase; outline: none;
-        }
+        /* Forms */
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin: 15px 0 5px 5px; }
+        input, select { width: 100%; background: #2c2c2e; border: 1px solid var(--line); border-radius: 12px; padding: 15px; color: #fff; font-size: 1rem; font-weight: 600; box-sizing: border-box; text-transform: uppercase; outline: none; }
+        
+        .btn-main { background: var(--accent); color: white; border: none; padding: 18px; width: 100%; border-radius: 16px; font-weight: 800; font-size: 0.9rem; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
+        .btn-add { background: #fff; color: #000; border: none; padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; }
 
-        /* Bottoni */
-        .btn-main { background: var(--accent); color: white; border: none; padding: 18px; width: 100%; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
-        .btn-add { background: #fff; color: #000; border: none; padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; cursor: pointer; }
-
-        /* Navigazione */
-        nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: rgba(28,28,30,0.9); backdrop-filter: blur(20px); height: 75px; border-radius: 25px; display: flex; border: 1px solid var(--line); box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 100; }
+        /* Nav */
+        nav { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 500px; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); height: 70px; border-radius: 20px; display: flex; border: 1px solid var(--line); z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; }
         .nav-item.active { color: var(--accent); }
-        .nav-text { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 4px; }
+        .nav-text { font-size: 0.5rem; font-weight: 800; text-transform: uppercase; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -54,8 +42,8 @@
 
 <div class="container">
     <div id="v-home" class="view active">
-        <div class="title-group">
-            <div class="title">Garage</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+            <div class="title" style="margin:0; border:0">Garage</div>
             <button class="btn-add" onclick="showV('v-add-car')">+ AUTO</button>
         </div>
         <div id="car-list"></div>
@@ -63,56 +51,71 @@
 
     <div id="v-add-car" class="view">
         <div class="title">Nuovo Veicolo</div>
-        <label>Marca e Modello</label><input type="text" id="a-nome" placeholder="ES. ALFA ROMEO STELVIO" oninput="u(this)">
+        <label>Marca e Modello</label><input type="text" id="a-nome" placeholder="ALFA ROMEO STELVIO" oninput="u(this)">
         <label>Targa</label><input type="text" id="a-targa" placeholder="AA 000 AA" maxlength="9" oninput="fmtTarga(this)">
-        <label>Data di Immatricolazione</label><input type="date" id="a-imm">
-        <button class="btn-main" onclick="saveCar()">Salva Veicolo</button>
+        <label>Data Immatricolazione</label><input type="date" id="a-imm">
+        <button class="btn-main" onclick="saveCar()">Crea Identità</button>
     </div>
 
     <div id="v-spese" class="view">
-        <div class="title">Registra Spesa</div>
+        <div class="title">Spese Burocratiche</div>
         <label>Auto</label><select id="s-auto"></select>
         <label>Tipo Spesa</label>
-        <select id="s-tipo">
-            <option>BOLLO</option>
-            <option>ASSICURAZIONE (RCA)</option>
-            <option>REVISIONE</option>
-            <option>MANUTENZIONE</option>
-            <option>ALTRO</option>
+        <select id="s-tipo" onchange="toggleAlt(this, 's-alt-box')">
+            <option>BOLLO</option><option>ASSICURAZIONE (RCA)</option><option>REVISIONE</option><option value="ALTRO">ALTRO...</option>
         </select>
-        <label>Importo €</label><input type="number" id="s-euro" placeholder="0.00">
-        <label>Scadenza (se applicabile)</label><input type="date" id="s-scad">
-        <button class="btn-main" onclick="saveSpesa()">Salva Spesa</button>
+        <div id="s-alt-box" style="display:none"><label>Specifica voce</label><input type="text" id="s-alt" oninput="u(this)"></div>
+        <label>Importo €</label><input type="number" id="s-euro" step="0.01">
+        <label>Data Scadenza</label><input type="date" id="a-scad">
+        <button class="btn-main" onclick="saveSpesa()">Registra Spesa</button>
+    </div>
+
+    <div id="v-manu" class="view">
+        <div class="title">Manutenzione</div>
+        <label>Auto</label><select id="m-auto"></select>
+        <label>Intervento</label>
+        <select id="m-tipo" onchange="toggleAlt(this, 'm-alt-box')">
+            <option>TAGLIANDO</option><option>FRENI</option><option>PNEUMATICI</option><option>DISTRIBUZIONE</option><option value="ALTRO">ALTRO...</option>
+        </select>
+        <div id="m-alt-box" style="display:none"><label>Specifica intervento</label><input type="text" id="m-alt" oninput="u(this)"></div>
+        <label>KM Attuali</label><input type="number" id="m-km">
+        <label>Costo €</label><input type="number" id="m-euro" step="0.01">
+        <button class="btn-main" onclick="saveManu()">Registra Meccanico</button>
     </div>
 
     <div id="v-gas" class="view">
         <div class="title">Rifornimento</div>
         <label>Auto</label><select id="g-auto"></select>
+        <label>Tipo Carburante</label>
+        <select id="g-tipo">
+            <option>BENZINA</option><option>DIESEL</option><option>DIESEL PLUS</option><option>HVO</option><option>GPL</option><option>METANO</option>
+        </select>
         <div style="display:flex; gap:10px">
-            <div style="flex:1"><label>Litri</label><input type="number" id="g-lit" oninput="calcGas()"></div>
-            <div style="flex:1"><label>Prezzo/L</label><input type="number" id="g-pre" oninput="calcGas()" step="0.001"></div>
+            <div style="flex:1"><label>Litri</label><input type="number" id="g-lit" oninput="calcG()"></div>
+            <div style="flex:1"><label>Prezzo/L</label><input type="number" id="g-pre" oninput="calcG()" step="0.001"></div>
         </div>
-        <div class="info-row" style="margin-top:20px; background:var(--card); padding:20px; border-radius:15px">
-            <span class="label">Totale</span><span class="val" style="color:var(--accent); font-size:1.4rem">€ <span id="g-tot">0.00</span></span>
-        </div>
-        <button class="btn-main" onclick="saveGas()">Salva Rifornimento</button>
+        <button class="btn-main" onclick="saveGas()">Salva (€ <span id="g-tot">0.00</span>)</button>
     </div>
 
     <div id="v-rep" class="view">
-        <div class="title">Report Totale</div>
-        <div id="rep-box"></div>
+        <div class="title">Report & Analisi</div>
+        <canvas id="myChart" style="width:100%; height:250px; margin-bottom:20px;"></canvas>
+        <div id="rep-stats"></div>
+        <button class="btn-main" style="background:#2c2c2e" onclick="exportExcel()">📥 Esporta Excel</button>
     </div>
 </div>
 
 <nav>
     <div class="nav-item active" onclick="showV('v-home', this)"><span>🏠</span><span class="nav-text">Garage</span></div>
     <div class="nav-item" onclick="showV('v-spese', this)"><span>💳</span><span class="nav-text">Spese</span></div>
+    <div class="nav-item" onclick="showV('v-manu', this)"><span>🔧</span><span class="nav-text">Manu</span></div>
     <div class="nav-item" onclick="showV('v-gas', this)"><span>⛽</span><span class="nav-text">Gas</span></div>
     <div class="nav-item" onclick="showV('v-rep', this)"><span>📊</span><span class="nav-text">Report</span></div>
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('dlog_elite_v11')) || { auto: [], spese: [], gas: [] };
+    let db = JSON.parse(localStorage.getItem('dlog_v13')) || { auto: [], spese: [], manu: [], gas: [] };
+    let myChart = null;
 
     function u(el) { el.value = el.value.toUpperCase(); }
     function fmtTarga(el) {
@@ -121,69 +124,96 @@
         if (v.length > 6) v = v.slice(0,6) + ' ' + v.slice(6,8);
         el.value = v;
     }
+    function toggleAlt(el, boxId) { document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none'; }
 
     function showV(id, el) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
-        if(id === 'v-gas' || id === 'v-spese') fillSelects();
-        if(id === 'v-rep') renderRep();
+        fillSels();
+        if(id === 'v-rep') renderCharts();
+    }
+
+    function fillSels() {
+        const o = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+        ['s-auto', 'm-auto', 'g-auto'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = o; });
     }
 
     function saveCar() {
-        const a = { id: Date.now(), nome: document.getElementById('a-nome').value, targa: document.getElementById('a-targa').value, imm: document.getElementById('a-imm').value || '--' };
-        if(!a.nome || !a.targa) return alert("DATI MANCANTI");
-        db.auto.push(a);
-        sync(); showV('v-home');
-    }
-
-    function fillSelects() {
-        const options = db.auto.map(a => `<option value="${a.id}">${a.nome} [${a.targa}]</option>`).join('');
-        document.getElementById('g-auto').innerHTML = options;
-        document.getElementById('s-auto').innerHTML = options;
+        db.auto.push({ id: Date.now(), nome: document.getElementById('a-nome').value, targa: document.getElementById('a-targa').value, imm: document.getElementById('a-imm').value });
+        sync(); showV('v-home', document.querySelector('.nav-item'));
     }
 
     function saveSpesa() {
-        const s = { autoId: document.getElementById('s-auto').value, tipo: document.getElementById('s-tipo').value, euro: parseFloat(document.getElementById('s-euro').value || 0), scad: document.getElementById('s-scad').value, data: new Date().toLocaleDateString() };
-        db.spese.push(s);
-        sync(); showV('v-home');
+        const tipo = document.getElementById('s-tipo').value;
+        db.spese.push({ autoId: document.getElementById('s-auto').value, tipo: tipo === 'ALTRO' ? document.getElementById('s-alt').value : tipo, euro: parseFloat(document.getElementById('s-euro').value), data: new Date().toISOString() });
+        sync(); showV('v-home', document.querySelector('.nav-item'));
     }
 
-    function calcGas() {
-        const t = document.getElementById('g-lit').value * document.getElementById('g-pre').value;
-        document.getElementById('g-tot').innerText = t.toFixed(2);
+    function saveManu() {
+        const tipo = document.getElementById('m-tipo').value;
+        db.manu.push({ autoId: document.getElementById('m-auto').value, tipo: tipo === 'ALTRO' ? document.getElementById('m-alt').value : tipo, euro: parseFloat(document.getElementById('m-euro').value), km: document.getElementById('m-km').value, data: new Date().toISOString() });
+        sync(); showV('v-home', document.querySelector('.nav-item'));
     }
+
+    function calcG() { document.getElementById('g-tot').innerText = (document.getElementById('g-lit').value * document.getElementById('g-pre').value).toFixed(2); }
 
     function saveGas() {
-        const g = { autoId: document.getElementById('g-auto').value, euro: parseFloat(document.getElementById('g-tot').innerText), data: new Date().toLocaleDateString() };
-        db.gas.push(g);
-        sync(); showV('v-home');
+        db.gas.push({ autoId: document.getElementById('g-auto').value, tipo: document.getElementById('g-tipo').value, litri: parseFloat(document.getElementById('g-lit').value), euro: parseFloat(document.getElementById('g-tot').innerText), data: new Date().toISOString() });
+        sync(); showV('v-home', document.querySelector('.nav-item'));
     }
 
-    function sync() { localStorage.setItem('dlog_elite_v11', JSON.stringify(db)); renderHome(); }
+    function sync() { localStorage.setItem('dlog_v13', JSON.stringify(db)); renderHome(); }
 
     function renderHome() {
         document.getElementById('car-list').innerHTML = db.auto.map(a => `
-            <div class="car-card">
-                <div class="car-name" style="font-weight:900; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:10px">${a.nome}</div>
+            <div class="card">
+                <div class="val" style="font-size:1.1rem; margin-bottom:10px">${a.nome}</div>
                 <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
-                <div class="info-row"><span class="label">Immatricolazione</span><span class="val">${a.imm}</span></div>
+                <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm}</span></div>
             </div>
         `).join('');
     }
 
-    function renderRep() {
-        const tGas = db.gas.reduce((s, i) => s + i.euro, 0);
-        const tSpese = db.spese.reduce((s, i) => s + i.euro, 0);
-        document.getElementById('rep-box').innerHTML = `
-            <div class="car-card" style="text-align:center">
-                <div class="label">Spesa Complessiva</div>
-                <div style="font-size:2.5rem; font-weight:900; color:var(--accent)">€ ${(tGas + tSpese).toFixed(2)}</div>
-            </div>
-            <div class="info-row"><span class="label">Totale Carburante</span><span class="val">€ ${tGas.toFixed(2)}</span></div>
-            <div class="info-row"><span class="label">Totale Spese Fisse/Manut.</span><span class="val">€ ${tSpese.toFixed(2)}</span></div>
+    function renderCharts() {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        if(myChart) myChart.destroy();
+        
+        const dataGas = db.gas.reduce((a, b) => a + b.euro, 0);
+        const dataSpese = db.spese.reduce((a, b) => a + b.euro, 0);
+        const dataManu = db.manu.reduce((a, b) => a + b.euro, 0);
+
+        myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['GAS', 'SPESE', 'MANU'],
+                datasets: [{
+                    data: [dataGas, dataSpese, dataManu],
+                    backgroundColor: ['#006064', '#00acc1', '#004d40'],
+                    borderWidth: 0
+                }]
+            },
+            options: { plugins: { legend: { labels: { color: '#fff' } } } }
+        });
+        
+        document.getElementById('rep-stats').innerHTML = `
+            <div class="info-row"><span class="label">Costo Annuo Totale</span><span class="val">€ ${(dataGas+dataSpese+dataManu).toFixed(2)}</span></div>
         `;
+    }
+
+    function exportExcel() {
+        let csv = "Tipo,Auto,Dettaglio,Euro,Data\n";
+        db.gas.forEach(g => csv += `GAS,${g.autoId},${g.tipo},${g.euro},${g.data}\n`);
+        db.spese.forEach(s => csv += `SPESA,${s.autoId},${s.tipo},${s.euro},${s.data}\n`);
+        db.manu.forEach(m => csv += `MANU,${m.autoId},${m.tipo},${m.euro},${m.data}\n`);
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'drivelog_report.csv');
+        a.click();
     }
 
     renderHome();
