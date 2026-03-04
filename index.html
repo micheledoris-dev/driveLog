@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -127,20 +128,12 @@
     function toggleAlt(el, boxId) { document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none'; }
 
     function showV(id, el) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    
-    // Rendi attivo il tasto della navigazione se presente
-    if(el) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
-    }
-
-    // --- LOGICA DI PULIZIA (IL FIX) ---
-    if(id === 'v-add-car') {
-        document.getElementById('a-nome').value = "";
-        document.getElementById('a-targa').value = "";
-        document.getElementById('a-imm').value = "";
+        fillSels();
+        if(id === 'v-rep') renderCharts();
     }
 
     function fillSels() {
