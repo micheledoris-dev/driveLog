@@ -144,7 +144,6 @@
       <label>Auto</label><select id="g-auto"></select>
 
       <label>Data Rifornimento</label><input type="date" id="g-date" />
-
       <label>KM Attuali</label><input type="number" id="g-km" />
 
       <label>Tipo Carburante</label>
@@ -181,6 +180,17 @@
       <canvas id="myChart" style="width:100%; height:250px; margin-bottom:20px;"></canvas>
 
       <div id="rep-stats"></div>
+
+      <!-- ✅ NUOVO: DETTAGLIO PER VOCE (qui vedrai anche ALTRO) -->
+      <div class="card">
+        <div class="val" style="font-size:1rem; margin-bottom:10px">Dettaglio (calcola anche “ALTRO”)</div>
+
+        <div class="label" style="margin-top:10px">Spese per voce</div>
+        <div id="rep-break-spese"></div>
+
+        <div class="label" style="margin-top:14px">Manutenzione per intervento</div>
+        <div id="rep-break-manu"></div>
+      </div>
 
       <div class="card">
         <div class="val" style="font-size:1rem; margin-bottom:10px">Storico (ultimi movimenti)</div>
@@ -224,7 +234,6 @@
       document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none';
     }
 
-    // ✅ FIX showV robusta
     function showV(id, el) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById(id).classList.add('active');
@@ -269,7 +278,9 @@
       return maxKm;
     }
 
-    // ✅ RESET FORMS
+    // =========================
+    // RESET FORMS
+    // =========================
     function resetCarForm() {
       document.getElementById('a-nome').value = '';
       document.getElementById('a-targa').value = '';
@@ -327,7 +338,7 @@
 
       if (!tipo) return alert('Inserisci TIPO SPESA');
 
-      db.spese.push({ autoId, tipo, euro, scadenza, data: new Date().toISOString() });
+      db.spese.push({ autoId, tipo: tipo.toUpperCase(), euro, scadenza, data: new Date().toISOString() });
       sync();
       resetSpesaForm();
       showV('v-home', document.querySelector('.nav-item'));
@@ -354,15 +365,7 @@
 
       if (!tipo) return alert('Inserisci INTERVENTO');
 
-      db.manu.push({
-        autoId,
-        tipo,
-        euro,
-        km,
-        date,              // data scelta dall’utente
-        data: new Date().toISOString() // timestamp salvataggio
-      });
-
+      db.manu.push({ autoId, tipo: tipo.toUpperCase(), euro, km, date, data: new Date().toISOString() });
       sync();
       resetManuForm();
       showV('v-home', document.querySelector('.nav-item'));
@@ -395,16 +398,7 @@
 
       if (litri <= 0 || euro <= 0) return alert('Inserisci LITRI e PREZZO/L');
 
-      db.gas.push({
-        autoId,
-        tipo,
-        litri,
-        euro,
-        km,
-        date,               // data scelta dall’utente
-        data: new Date().toISOString() // timestamp salvataggio
-      });
-
+      db.gas.push({ autoId, tipo, litri, euro, km, date, data: new Date().toISOString() });
       sync();
       resetGasForm();
       showV('v-home', document.querySelector('.nav-item'));
@@ -433,7 +427,7 @@
     }
 
     // =========================
-    // REPORT PER AUTO + STORICO
+    // REPORT
     // =========================
     function fillRepSel() {
       const sel = document.getElementById('rep-auto');
@@ -512,7 +506,6 @@
     }
 
     function computeFuelEuroPerKm(gasArr) {
-      // usa i rifornimenti ordinati per km: €/km = totale euro / (km_last - km_first)
       const arr = gasArr
         .filter(x => Number.isFinite(Number(x.km)))
         .map(x => ({ ...x, km: Number(x.km), euro: Number(x.euro) || 0 }))
@@ -523,11 +516,41 @@
       const kmFirst = arr[0].km;
       const kmLast = arr[arr.length - 1].km;
       const delta = kmLast - kmFirst;
-
       if (delta <= 0) return null;
 
       const euroTot = arr.reduce((s, x) => s + (Number(x.euro) || 0), 0);
       return euroTot / delta;
+    }
+
+    // ✅ nuovo: somma per “voce” (qui entra anche ALTRO)
+    function sumByKey(arr, keyName) {
+      const map = {};
+      arr.forEach(x => {
+        const k = String(x[keyName] || 'NON SPECIFICATO').trim().toUpperCase();
+        const v = Number(x.euro) || 0;
+        map[k] = (map[k] || 0) + v;
+      });
+      return map;
+    }
+
+    function renderBreakdown(containerId, mapObj) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+
+      const rows = Object.entries(mapObj)
+        .sort((a, b) => b[1] - a[1]);
+
+      if (rows.length === 0) {
+        el.innerHTML = `<div class="hist-empty">Nessun dato</div>`;
+        return;
+      }
+
+      el.innerHTML = rows.map(([k, v]) => `
+        <div class="info-row">
+          <span class="hist-text">${k}</span>
+          <span class="hist-euro">€ ${Number(v || 0).toFixed(2)}</span>
+        </div>
+      `).join('');
     }
 
     function renderReport() {
@@ -558,6 +581,10 @@
         <div class="info-row"><span class="label">Manutenzione</span><span class="val">€ ${dataManu.toFixed(2)}</span></div>
         <div class="info-row"><span class="label">Carburante €/KM</span><span class="val">${euroPerKm === null ? '-' : ('€ ' + euroPerKm.toFixed(3))}</span></div>
       `;
+
+      // ✅ dettaglio: qui “ALTRO (nome personalizzato)” viene calcolato e mostrato
+      renderBreakdown('rep-break-spese', sumByKey(spese, 'tipo'));
+      renderBreakdown('rep-break-manu', sumByKey(manu, 'tipo'));
 
       renderHistory(
         'hist-gas',
