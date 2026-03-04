@@ -3,24 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DRIVELOG ELITE v14</title>
+    <title>DRIVELOG ELITE v13</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --accent: #006064; --bg: #000; --card: #1c1c1e; --text: #fff; --muted: #8e8e93; --line: #38383a; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px; -webkit-font-smoothing: antialiased; }
+        
         .hero { width: 100%; height: 180px; background: linear-gradient(to bottom, transparent, #000), url('https://i.ibb.co/vzY3rK7/108.jpg') center/cover; }
         .container { max-width: 500px; margin: -30px auto 0; padding: 0 20px; }
+        
         .view { display: none; }
         .view.active { display: block; }
+
+        /* Typography & Cards */
         .title { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-bottom: 2px solid #fff; padding-bottom: 10px; margin-bottom: 20px; }
         .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--line); }
         .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .label { color: var(--muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
         .val { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+
+        /* Forms */
         label { display: block; font-size: 0.65rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin: 15px 0 5px 5px; }
         input, select { width: 100%; background: #2c2c2e; border: 1px solid var(--line); border-radius: 12px; padding: 15px; color: #fff; font-size: 1rem; font-weight: 600; box-sizing: border-box; text-transform: uppercase; outline: none; }
+        
         .btn-main { background: var(--accent); color: white; border: none; padding: 18px; width: 100%; border-radius: 16px; font-weight: 800; font-size: 0.9rem; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
         .btn-add { background: #fff; color: #000; border: none; padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; }
+
+        /* Nav */
         nav { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 500px; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); height: 70px; border-radius: 20px; display: flex; border: 1px solid var(--line); z-index: 1000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; }
         .nav-item.active { color: var(--accent); }
@@ -30,6 +39,7 @@
 <body>
 
 <div class="hero"></div>
+
 <div class="container">
     <div id="v-home" class="view active">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
@@ -41,10 +51,10 @@
 
     <div id="v-add-car" class="view">
         <div class="title">Nuovo Veicolo</div>
-        <label>Marca e Modello</label><input type="text" id="a-nome" placeholder="ES. ALFA ROMEO STELVIO" oninput="u(this)">
+        <label>Marca e Modello</label><input type="text" id="a-nome" placeholder="ALFA ROMEO STELVIO" oninput="u(this)">
         <label>Targa</label><input type="text" id="a-targa" placeholder="AA 000 AA" maxlength="9" oninput="fmtTarga(this)">
         <label>Data Immatricolazione</label><input type="date" id="a-imm">
-        <button class="btn-main" onclick="saveCar()">Salva Veicolo</button>
+        <button class="btn-main" onclick="saveCar()">Crea Identità</button>
     </div>
 
     <div id="v-spese" class="view">
@@ -56,7 +66,7 @@
         </select>
         <div id="s-alt-box" style="display:none"><label>Specifica voce</label><input type="text" id="s-alt" oninput="u(this)"></div>
         <label>Importo €</label><input type="number" id="s-euro" step="0.01">
-        <label>Data Scadenza</label><input type="date" id="s-scad">
+        <label>Data Scadenza</label><input type="date" id="a-scad">
         <button class="btn-main" onclick="saveSpesa()">Registra Spesa</button>
     </div>
 
@@ -88,8 +98,8 @@
     </div>
 
     <div id="v-rep" class="view">
-        <div class="title">Report</div>
-        <div class="card" style="height:250px"><canvas id="myChart"></canvas></div>
+        <div class="title">Report & Analisi</div>
+        <canvas id="myChart" style="width:100%; height:250px; margin-bottom:20px;"></canvas>
         <div id="rep-stats"></div>
         <button class="btn-main" style="background:#2c2c2e" onclick="exportExcel()">📥 Esporta Excel</button>
     </div>
@@ -104,78 +114,140 @@
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('dlog_v14')) || { auto: [], spese: [], manu: [], gas: [] };
+    let db = JSON.parse(localStorage.getItem('dlog_v13')) || { auto: [], spese: [], manu: [], gas: [] };
     let myChart = null;
 
     function u(el) { el.value = el.value.toUpperCase(); }
+
     function fmtTarga(el) {
         let v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
         if (v.length > 2) v = v.slice(0,2) + ' ' + v.slice(2);
-        if (v.length > 5) v = v.slice(0,6) + ' ' + v.slice(6,8);
+        if (v.length > 6) v = v.slice(0,6) + ' ' + v.slice(6,8);
         el.value = v;
     }
-    function toggleAlt(el, boxId) { document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none'; }
 
+    function toggleAlt(el, boxId) {
+        document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none';
+    }
+
+    // ✅ FIX: showV non va in errore se el non viene passato (es. bottone "+ AUTO")
     function showV(id, el) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) {
+
+        if (el) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
         }
-        if(id === 'v-add-car') {
-            document.getElementById('a-nome').value = "";
-            document.getElementById('a-targa').value = "";
-            document.getElementById('a-imm').value = "";
-        }
+
         fillSels();
         if(id === 'v-rep') renderCharts();
-        renderHome();
-    }
-
-    function saveCar() {
-        const n = document.getElementById('a-nome').value;
-        const t = document.getElementById('a-targa').value;
-        if(!n || !t) return alert("INSERISCI MARCA E TARGA");
-        db.auto.push({ id: Date.now(), nome: n, targa: t, imm: document.getElementById('a-imm').value || '--' });
-        sync();
-        showV('v-home', document.querySelector('.nav-item'));
     }
 
     function fillSels() {
-        const o = db.auto.map(a => `<option value="${a.id}">${a.nome} [${a.targa}]</option>`).join('');
-        ['s-auto', 'm-auto', 'g-auto'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = o; });
+        const o = db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`).join('');
+        ['s-auto', 'm-auto', 'g-auto'].forEach(id => {
+            const sel = document.getElementById(id);
+            if(sel) sel.innerHTML = o;
+        });
+    }
+
+    // ✅ RESET FORMS
+    function resetCarForm() {
+        document.getElementById('a-nome').value = '';
+        document.getElementById('a-targa').value = '';
+        document.getElementById('a-imm').value = '';
+    }
+    function resetSpesaForm() {
+        document.getElementById('s-tipo').value = 'BOLLO';
+        document.getElementById('s-alt').value = '';
+        document.getElementById('s-alt-box').style.display = 'none';
+        document.getElementById('s-euro').value = '';
+        document.getElementById('a-scad').value = '';
+    }
+    function resetManuForm() {
+        document.getElementById('m-tipo').value = 'TAGLIANDO';
+        document.getElementById('m-alt').value = '';
+        document.getElementById('m-alt-box').style.display = 'none';
+        document.getElementById('m-km').value = '';
+        document.getElementById('m-euro').value = '';
+    }
+    function resetGasForm() {
+        document.getElementById('g-tipo').value = 'BENZINA';
+        document.getElementById('g-lit').value = '';
+        document.getElementById('g-pre').value = '';
+        document.getElementById('g-tot').innerText = '0.00';
+    }
+
+    function saveCar() {
+        db.auto.push({
+            id: Date.now(),
+            nome: document.getElementById('a-nome').value,
+            targa: document.getElementById('a-targa').value,
+            imm: document.getElementById('a-imm').value
+        });
+        sync();
+        resetCarForm();
+        showV('v-home', document.querySelector('.nav-item'));
     }
 
     function saveSpesa() {
-        const t = document.getElementById('s-tipo').value;
-        db.spese.push({ autoId: document.getElementById('s-auto').value, tipo: t === 'ALTRO' ? document.getElementById('s-alt').value : t, euro: parseFloat(document.getElementById('s-euro').value || 0), data: new Date().toISOString() });
-        sync(); showV('v-home', document.querySelector('.nav-item'));
+        const tipo = document.getElementById('s-tipo').value;
+        db.spese.push({
+            autoId: document.getElementById('s-auto').value,
+            tipo: tipo === 'ALTRO' ? document.getElementById('s-alt').value : tipo,
+            euro: parseFloat(document.getElementById('s-euro').value) || 0,
+            data: new Date().toISOString()
+        });
+        sync();
+        resetSpesaForm();
+        showV('v-home', document.querySelector('.nav-item'));
     }
 
     function saveManu() {
-        const t = document.getElementById('m-tipo').value;
-        db.manu.push({ autoId: document.getElementById('m-auto').value, tipo: t === 'ALTRO' ? document.getElementById('m-alt').value : t, euro: parseFloat(document.getElementById('m-euro').value || 0), km: document.getElementById('m-km').value, data: new Date().toISOString() });
-        sync(); showV('v-home', document.querySelector('.nav-item'));
+        const tipo = document.getElementById('m-tipo').value;
+        db.manu.push({
+            autoId: document.getElementById('m-auto').value,
+            tipo: tipo === 'ALTRO' ? document.getElementById('m-alt').value : tipo,
+            euro: parseFloat(document.getElementById('m-euro').value) || 0,
+            km: document.getElementById('m-km').value,
+            data: new Date().toISOString()
+        });
+        sync();
+        resetManuForm();
+        showV('v-home', document.querySelector('.nav-item'));
     }
 
-    function calcG() { document.getElementById('g-tot').innerText = (document.getElementById('g-lit').value * document.getElementById('g-pre').value).toFixed(2); }
+    function calcG() {
+        const lit = parseFloat(document.getElementById('g-lit').value) || 0;
+        const pre = parseFloat(document.getElementById('g-pre').value) || 0;
+        document.getElementById('g-tot').innerText = (lit * pre).toFixed(2);
+    }
 
     function saveGas() {
-        db.gas.push({ autoId: document.getElementById('g-auto').value, tipo: document.getElementById('g-tipo').value, euro: parseFloat(document.getElementById('g-tot').innerText), data: new Date().toISOString() });
-        sync(); showV('v-home', document.querySelector('.nav-item'));
+        db.gas.push({
+            autoId: document.getElementById('g-auto').value,
+            tipo: document.getElementById('g-tipo').value,
+            litri: parseFloat(document.getElementById('g-lit').value) || 0,
+            euro: parseFloat(document.getElementById('g-tot').innerText) || 0,
+            data: new Date().toISOString()
+        });
+        sync();
+        resetGasForm();
+        showV('v-home', document.querySelector('.nav-item'));
     }
 
-    function sync() { localStorage.setItem('dlog_v14', JSON.stringify(db)); renderHome(); }
+    function sync() {
+        localStorage.setItem('dlog_v13', JSON.stringify(db));
+        renderHome();
+    }
 
     function renderHome() {
-        const list = document.getElementById('car-list');
-        if(!list) return;
-        list.innerHTML = db.auto.map(a => `
+        document.getElementById('car-list').innerHTML = db.auto.map(a => `
             <div class="card">
-                <div class="val" style="font-size:1.1rem; margin-bottom:10px; border-bottom:1px solid var(--line); padding-bottom:10px">${a.nome}</div>
+                <div class="val" style="font-size:1.1rem; margin-bottom:10px">${a.nome}</div>
                 <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
-                <div class="info-row"><span class="label">Immatricolazione</span><span class="val">${a.imm}</span></div>
+                <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm}</span></div>
             </div>
         `).join('');
     }
@@ -183,28 +255,45 @@
     function renderCharts() {
         const ctx = document.getElementById('myChart').getContext('2d');
         if(myChart) myChart.destroy();
-        const g = db.gas.reduce((a, b) => a + b.euro, 0);
-        const s = db.spese.reduce((a, b) => a + b.euro, 0);
-        const m = db.manu.reduce((a, b) => a + b.euro, 0);
+        
+        const dataGas = db.gas.reduce((a, b) => a + (Number(b.euro) || 0), 0);
+        const dataSpese = db.spese.reduce((a, b) => a + (Number(b.euro) || 0), 0);
+        const dataManu = db.manu.reduce((a, b) => a + (Number(b.euro) || 0), 0);
+
         myChart = new Chart(ctx, {
             type: 'doughnut',
-            data: { labels: ['GAS', 'SPESE', 'MANU'], datasets: [{ data: [g, s, m], backgroundColor: ['#006064', '#00acc1', '#004d40'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#fff', padding: 20 } } } }
+            data: {
+                labels: ['GAS', 'SPESE', 'MANU'],
+                datasets: [{
+                    data: [dataGas, dataSpese, dataManu],
+                    backgroundColor: ['#006064', '#00acc1', '#004d40'],
+                    borderWidth: 0
+                }]
+            },
+            options: { plugins: { legend: { labels: { color: '#fff' } } } }
         });
-        document.getElementById('rep-stats').innerHTML = `<div class="card" style="text-align:center"><div class="label">Totale Speso</div><div style="font-size:2rem; font-weight:900; color:var(--accent)">€ ${(g+s+m).toFixed(2)}</div></div>`;
+        
+        document.getElementById('rep-stats').innerHTML = `
+            <div class="info-row"><span class="label">Costo Annuo Totale</span><span class="val">€ ${(dataGas+dataSpese+dataManu).toFixed(2)}</span></div>
+        `;
     }
 
     function exportExcel() {
-        let csv = "Tipo,Dettaglio,Euro,Data\n";
-        db.gas.forEach(x => csv += `GAS,${x.tipo},${x.euro},${x.data}\n`);
-        db.spese.forEach(x => csv += `SPESA,${x.tipo},${x.euro},${x.data}\n`);
-        db.manu.forEach(x => csv += `MANU,${x.tipo},${x.euro},${x.data}\n`);
+        let csv = "Tipo,Auto,Dettaglio,Euro,Data\n";
+        db.gas.forEach(g => csv += `GAS,${g.autoId},${g.tipo},${g.euro},${g.data}\n`);
+        db.spese.forEach(s => csv += `SPESA,${s.autoId},${s.tipo},${s.euro},${s.data}\n`);
+        db.manu.forEach(m => csv += `MANU,${m.autoId},${m.tipo},${m.euro},${m.data}\n`);
+        
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = 'report.csv'; a.click();
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'drivelog_report.csv');
+        a.click();
     }
+
     renderHome();
+    fillSels(); // ✅ utile già all'avvio
 </script>
 </body>
 </html>
