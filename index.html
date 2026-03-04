@@ -10,10 +10,10 @@
     :root { --accent:#006064; --bg:#000; --card:#1c1c1e; --text:#fff; --muted:#8e8e93; --line:#38383a; }
     body { font-family:-apple-system,system-ui,sans-serif; background:var(--bg); color:var(--text); margin:0; padding-bottom:120px; -webkit-font-smoothing:antialiased; }
 
-    /* ✅ HERO SPLASH PREMIUM (logo grande) */
+    /* ✅ HERO SPLASH PREMIUM (compatta + glow) */
     .hero{
       width:100%;
-      height:160px;
+      height:150px;
       background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.06), transparent 55%),
                   linear-gradient(135deg,#001414,#006064);
       position:relative;
@@ -23,7 +23,7 @@
       justify-content:center;
       padding:18px 14px;
       box-sizing:border-box;
-      margin-bottom:18px; /* ✅ evita sovrapposizioni con contenuto sotto */
+      margin-bottom:18px;
     }
     .hero::after{
       content:"";
@@ -43,16 +43,10 @@
     }
     .splash img{
       width:100%;
-      max-height:90px;
+      max-height:100px;
       object-fit:contain;
       display:block;
-      /* ombra premium */
-      .splash img{
-  width:100%;
-  max-height:100px;
-  object-fit:contain;
-  display:block;
-  filter: drop-shadow(0 0 20px rgba(0,200,255,0.5));
+      filter: drop-shadow(0 0 20px rgba(0,200,255,0.45)) drop-shadow(0 18px 45px rgba(0,0,0,0.45));
     }
     .splash .fallback{
       display:none;
@@ -62,7 +56,6 @@
       font-size:2.2rem;
     }
 
-    /* ✅ contenuto sotto hero: niente margin negativa (risolve +AUTO che spariva) */
     .container { max-width:500px; margin:0 auto 0; padding:0 20px; }
 
     .view{ display:none; }
@@ -110,7 +103,6 @@
     .hist-euro{ font-size:.82rem; font-weight:800; }
     .hint{ font-size:.65rem; color:var(--muted); font-weight:800; text-transform:none; margin:8px 2px 0; opacity:.9; }
 
-    /* Buttons matita/cestino */
     .iconbar{ display:flex; gap:10px; align-items:center; justify-content:flex-end; }
     .iconbtn{
       border:1px solid rgba(255,255,255,0.14);
@@ -127,16 +119,14 @@
     .row-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
     .small{ font-size:0.75rem; color:var(--muted); font-weight:800; text-transform:none; }
 
-    /* ✅ Mobile tuning: hero più basso e logo perfetto */
     @media (max-width: 520px){
-      .hero{ height: 185px; }
-      .splash img{ max-height: 120px; }
+      .hero{ height: 150px; }
+      .splash img{ max-height: 92px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- ✅ SPLASH LOGO: metti "logo.png" nella stessa cartella di index.html -->
   <div class="hero">
     <div class="splash">
       <img src="logo.png" alt="driveLog"
@@ -147,7 +137,6 @@
 
   <div class="container">
 
-    <!-- HOME -->
     <div id="v-home" class="view active">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
         <div class="title" style="margin:0; border:0">Garage</div>
@@ -156,7 +145,6 @@
       <div id="car-list"></div>
     </div>
 
-    <!-- ADD CAR -->
     <div id="v-add-car" class="view">
       <div class="title" id="car-form-title">Nuovo Veicolo</div>
       <label>Marca e Modello</label>
@@ -169,7 +157,6 @@
       <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditCar()" id="car-cancel-btn">Annulla modifica</button>
     </div>
 
-    <!-- SPESE -->
     <div id="v-spese" class="view">
       <div class="title" id="spese-form-title">Spese Burocratiche</div>
       <label>Auto</label><select id="s-auto"></select>
@@ -202,7 +189,6 @@
       </div>
     </div>
 
-    <!-- MANUTENZIONE -->
     <div id="v-manu" class="view">
       <div class="title" id="manu-form-title">Manutenzione</div>
       <label>Auto</label><select id="m-auto"></select>
@@ -236,7 +222,6 @@
       </div>
     </div>
 
-    <!-- GAS -->
     <div id="v-gas" class="view">
       <div class="title" id="gas-form-title">Rifornimento</div>
       <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
@@ -278,7 +263,6 @@
       </div>
     </div>
 
-    <!-- REPORT -->
     <div id="v-rep" class="view">
       <div class="title">Report & Analisi</div>
 
@@ -286,21 +270,7 @@
       <select id="rep-auto" onchange="renderReport()"></select>
 
       <canvas id="myChart" style="width:100%; height:250px; margin-bottom:20px;"></canvas>
-
       <div id="rep-stats"></div>
-
-      <div class="card">
-        <div class="val" style="font-size:1rem; margin-bottom:10px">Storico (ultimi movimenti)</div>
-
-        <div class="label" style="margin-top:10px">Gas</div>
-        <div id="hist-gas"></div>
-
-        <div class="label" style="margin-top:14px">Spese</div>
-        <div id="hist-spese"></div>
-
-        <div class="label" style="margin-top:14px">Manutenzione</div>
-        <div id="hist-manu"></div>
-      </div>
 
       <button class="btn-main" style="background:#2c2c2e" onclick="exportExcel()">📥 Esporta Excel</button>
     </div>
@@ -593,75 +563,6 @@
     }
     function cancelEditCar(){ resetCarForm(); showV('v-home', document.querySelector('.nav-item')); }
 
-    function editSpesa(i){
-      const s = db.spese[i];
-      editSpesaIndex = i;
-      document.getElementById('s-auto').value = s.autoId;
-      document.getElementById('s-euro').value = (Number(s.euro) || 0);
-      document.getElementById('a-scad').value = s.scadenza || '';
-
-      const known = ['BOLLO','ASSICURAZIONE (RCA)','REVISIONE'];
-      if (known.includes(s.tipo)){
-        document.getElementById('s-tipo').value = s.tipo;
-        document.getElementById('s-alt-box').style.display = 'none';
-        document.getElementById('s-alt').value = '';
-      } else {
-        document.getElementById('s-tipo').value = 'ALTRO';
-        document.getElementById('s-alt-box').style.display = 'block';
-        document.getElementById('s-alt').value = s.tipo || '';
-      }
-
-      document.getElementById('spese-form-title').innerText = 'Modifica Spesa';
-      document.getElementById('spese-save-btn').innerText = 'Salva Modifiche';
-      document.getElementById('spese-cancel-btn').style.display = 'block';
-      showV('v-spese', document.querySelectorAll('.nav-item')[1]);
-    }
-    function cancelEditSpesa(){ resetSpesaForm(); }
-
-    function editManu(i){
-      const m = db.manu[i];
-      editManuIndex = i;
-      document.getElementById('m-auto').value = m.autoId;
-      document.getElementById('m-euro').value = (Number(m.euro) || 0);
-      document.getElementById('m-km').value = m.km || '';
-
-      const known = ['TAGLIANDO','FRENI','PNEUMATICI','DISTRIBUZIONE'];
-      if (known.includes(m.tipo)){
-        document.getElementById('m-tipo').value = m.tipo;
-        document.getElementById('m-alt-box').style.display = 'none';
-        document.getElementById('m-alt').value = '';
-      } else {
-        document.getElementById('m-tipo').value = 'ALTRO';
-        document.getElementById('m-alt-box').style.display = 'block';
-        document.getElementById('m-alt').value = m.tipo || '';
-      }
-
-      document.getElementById('manu-form-title').innerText = 'Modifica Manutenzione';
-      document.getElementById('manu-save-btn').innerText = 'Salva Modifiche';
-      document.getElementById('manu-cancel-btn').style.display = 'block';
-      showV('v-manu', document.querySelectorAll('.nav-item')[2]);
-    }
-    function cancelEditManu(){ resetManuForm(); }
-
-    function editGas(i){
-      const g = db.gas[i];
-      editGasIndex = i;
-      document.getElementById('g-auto').value = g.autoId;
-      document.getElementById('g-tipo').value = g.tipo || 'BENZINA';
-      document.getElementById('g-km').value = g.km || '';
-      document.getElementById('g-lit').value = g.litri || '';
-
-      const price = (Number(g.litri) > 0) ? (Number(g.euro)/Number(g.litri)) : '';
-      document.getElementById('g-pre').value = price ? price.toFixed(3) : '';
-      document.getElementById('g-tot').innerText = (Number(g.euro) || 0).toFixed(2);
-
-      document.getElementById('gas-form-title').innerText = 'Modifica Rifornimento';
-      document.getElementById('gas-cancel-btn').style.display = 'block';
-      updateGasKmMinHint();
-      showV('v-gas', document.querySelectorAll('.nav-item')[3]);
-    }
-    function cancelEditGas(){ resetGasForm(); }
-
     function deleteCar(i){
       const car = db.auto[i];
       const ok = doubleConfirm(
@@ -678,36 +579,6 @@
       sync();
     }
 
-    function deleteSpesa(i){
-      const s = db.spese[i];
-      const ok = doubleConfirm(`Eliminare questa spesa (${s.tipo})?`, `Confermi DEFINITIVAMENTE l'eliminazione?`);
-      if (!ok) return;
-      db.spese.splice(i,1);
-      sync();
-    }
-
-    function deleteManu(i){
-      const m = db.manu[i];
-      const ok = doubleConfirm(`Eliminare questa manutenzione (${m.tipo})?`, `Confermi DEFINITIVAMENTE l'eliminazione?`);
-      if (!ok) return;
-      db.manu.splice(i,1);
-      sync();
-    }
-
-    function deleteGas(i){
-      const g = db.gas[i];
-      const ok = doubleConfirm(`Eliminare questo rifornimento (${g.tipo} - KM ${g.km})?`, `Confermi DEFINITIVAMENTE l'eliminazione?`);
-      if (!ok) return;
-      db.gas.splice(i,1);
-      sync();
-      updateGasKmMinHint();
-    }
-
-    function getUltimoKmAuto(autoId){
-      const last = getMaxGasKm(autoId, null);
-      return (last === null || !isFinite(last)) ? '-' : String(last);
-    }
-
     function renderHome(){
       const el = document.getElementById('car-list');
       if (!el) return;
@@ -716,6 +587,11 @@
         el.innerHTML = `<div class="card"><div class="val">Nessuna auto</div><div class="label" style="margin-top:10px">Premi “+ AUTO” per iniziare</div></div>`;
         return;
       }
+
+      const ultimoKm = (autoId)=>{
+        const last = getMaxGasKm(autoId, null);
+        return (last === null || !isFinite(last)) ? '-' : String(last);
+      };
 
       el.innerHTML = db.auto.map((a, idx) => `
         <div class="card">
@@ -728,7 +604,7 @@
           </div>
           <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
           <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm || '-'}</span></div>
-          <div class="info-row" style="border-bottom:0"><span class="label">Ultimo KM</span><span class="val">${getUltimoKmAuto(a.id)}</span></div>
+          <div class="info-row" style="border-bottom:0"><span class="label">Ultimo KM</span><span class="val">${ultimoKm(a.id)}</span></div>
         </div>
       `).join('');
     }
@@ -736,59 +612,36 @@
     function renderSpeseList(){
       const el = document.getElementById('spese-list');
       if (!el) return;
-      const sorted = [...db.spese].map((x,i)=>({x,i})).sort((a,b)=> new Date(b.x.data)-new Date(a.x.data));
+      const sorted = [...db.spese].sort((a,b)=> new Date(b.data)-new Date(a.data)).slice(0,20);
       el.innerHTML = (sorted.length === 0) ? `<div class="hist-empty">Nessuna spesa</div>` :
-        sorted.slice(0,20).map(({x,i}) => `
+        sorted.map((x) => `
           <div class="info-row">
-            <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
-              <div class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</div>
-              <div class="small">${x.scadenza ? ('Scad.: ' + x.scadenza) : ''}</div>
-            </div>
-            <div class="iconbar">
-              <div class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</div>
-              <button class="iconbtn" onclick="editSpesa(${i})" title="Modifica">✏️</button>
-              <button class="iconbtn" onclick="deleteSpesa(${i})" title="Elimina">🗑</button>
-            </div>
+            <span class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</span>
+            <span class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</span>
           </div>
         `).join('');
     }
-
     function renderManuList(){
       const el = document.getElementById('manu-list');
       if (!el) return;
-      const sorted = [...db.manu].map((x,i)=>({x,i})).sort((a,b)=> new Date(b.x.data)-new Date(a.x.data));
+      const sorted = [...db.manu].sort((a,b)=> new Date(b.data)-new Date(a.data)).slice(0,20);
       el.innerHTML = (sorted.length === 0) ? `<div class="hist-empty">Nessuna manutenzione</div>` :
-        sorted.slice(0,20).map(({x,i}) => `
+        sorted.map((x) => `
           <div class="info-row">
-            <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
-              <div class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</div>
-              <div class="small">${x.km ? ('KM: ' + x.km) : ''}</div>
-            </div>
-            <div class="iconbar">
-              <div class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</div>
-              <button class="iconbtn" onclick="editManu(${i})" title="Modifica">✏️</button>
-              <button class="iconbtn" onclick="deleteManu(${i})" title="Elimina">🗑</button>
-            </div>
+            <span class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</span>
+            <span class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</span>
           </div>
         `).join('');
     }
-
     function renderGasList(){
       const el = document.getElementById('gas-list');
       if (!el) return;
-      const sorted = [...db.gas].map((x,i)=>({x,i})).sort((a,b)=> new Date(b.x.data)-new Date(a.x.data));
+      const sorted = [...db.gas].sort((a,b)=> new Date(b.data)-new Date(a.data)).slice(0,20);
       el.innerHTML = (sorted.length === 0) ? `<div class="hist-empty">Nessun rifornimento</div>` :
-        sorted.slice(0,20).map(({x,i}) => `
+        sorted.map((x) => `
           <div class="info-row">
-            <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
-              <div class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</div>
-              <div class="small">KM: ${x.km ?? '-'} • Litri: ${Number(x.litri||0).toFixed(1)}</div>
-            </div>
-            <div class="iconbar">
-              <div class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</div>
-              <button class="iconbtn" onclick="editGas(${i})" title="Modifica">✏️</button>
-              <button class="iconbtn" onclick="deleteGas(${i})" title="Elimina">🗑</button>
-            </div>
+            <span class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo} • KM ${x.km ?? '-'}</span>
+            <span class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</span>
           </div>
         `).join('');
     }
@@ -797,8 +650,7 @@
       const sel = document.getElementById('rep-auto');
       if (!sel) return;
       const prev = sel.value || 'ALL';
-      const opts = [`<option value="ALL">TUTTE LE AUTO</option>`, ...db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`)].join('');
-      sel.innerHTML = opts;
+      sel.innerHTML = [`<option value="ALL">TUTTE LE AUTO</option>`, ...db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`)].join('');
       const exists = [...sel.options].some(o => o.value === prev);
       sel.value = exists ? prev : 'ALL';
     }
@@ -806,42 +658,6 @@
     function filterByCar(list, carId){
       if (carId === 'ALL') return list;
       return list.filter(x => String(x.autoId) === String(carId));
-    }
-
-    function renderChartsFiltered(dataGas, dataSpese, dataManu, titolo){
-      const ctx = document.getElementById('myChart').getContext('2d');
-      if (myChart) myChart.destroy();
-
-      myChart = new Chart(ctx, {
-        type:'doughnut',
-        data:{
-          labels:['GAS','SPESE','MANU'],
-          datasets:[{
-            data:[dataGas, dataSpese, dataManu],
-            backgroundColor:['#006064','#00acc1','#004d40'],
-            borderWidth:0
-          }]
-        },
-        options:{
-          plugins:{
-            legend:{ labels:{ color:'#fff' } },
-            title:{ display:true, text:titolo, color:'#fff', padding:{ top:6, bottom:10 } }
-          }
-        }
-      });
-    }
-
-    function renderHistory(containerId, arr, rowLeftFn, rowRightFn){
-      const el = document.getElementById(containerId);
-      if (!el) return;
-      const sorted = [...arr].sort((a,b) => new Date(b.data) - new Date(a.data)).slice(0,6);
-      el.innerHTML = (sorted.length === 0) ? `<div class="hist-empty">Nessun dato</div>` :
-        sorted.map(x => `
-          <div class="info-row">
-            <span class="hist-text">${rowLeftFn(x)}</span>
-            <span class="hist-euro">€ ${(Number(rowRightFn(x)) || 0).toFixed(2)}</span>
-          </div>
-        `).join('');
     }
 
     function renderReport(){
@@ -860,19 +676,30 @@
       const dataManu = manu.reduce((a,b) => a + (Number(b.euro) || 0), 0);
       const tot = dataGas + dataSpese + dataManu;
 
-      renderChartsFiltered(dataGas, dataSpese, dataManu, titolo);
+      const ctx = document.getElementById('myChart').getContext('2d');
+      if (myChart) myChart.destroy();
+      myChart = new Chart(ctx, {
+        type:'doughnut',
+        data:{
+          labels:['GAS','SPESE','MANU'],
+          datasets:[{
+            data:[dataGas, dataSpese, dataManu],
+            backgroundColor:['#006064','#00acc1','#004d40'],
+            borderWidth:0
+          }]
+        },
+        options:{
+          plugins:{
+            legend:{ labels:{ color:'#fff' } },
+            title:{ display:true, text:titolo, color:'#fff', padding:{ top:6, bottom:10 } }
+          }
+        }
+      });
 
       document.getElementById('rep-stats').innerHTML = `
         <div class="info-row"><span class="label">Filtro</span><span class="val">${titolo}</span></div>
         <div class="info-row"><span class="label">Totale</span><span class="val">€ ${tot.toFixed(2)}</span></div>
-        <div class="info-row"><span class="label">Gas</span><span class="val">€ ${dataGas.toFixed(2)}</span></div>
-        <div class="info-row"><span class="label">Spese</span><span class="val">€ ${dataSpese.toFixed(2)}</span></div>
-        <div class="info-row"><span class="label">Manutenzione</span><span class="val">€ ${dataManu.toFixed(2)}</span></div>
       `;
-
-      renderHistory('hist-gas', gas, (x) => `${fmtDate(x.data)} • ${x.tipo} • ${Number(x.litri || 0).toFixed(1)} L • KM ${x.km ?? ''}`, (x) => x.euro);
-      renderHistory('hist-spese', spese, (x) => `${fmtDate(x.data)} • ${x.tipo}${x.scadenza ? ' • SCAD: ' + x.scadenza : ''}`, (x) => x.euro);
-      renderHistory('hist-manu', manu, (x) => `${fmtDate(x.data)} • ${x.tipo}${x.km ? ' • KM ' + x.km : ''}`, (x) => x.euro);
     }
 
     function exportExcel(){
