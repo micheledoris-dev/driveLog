@@ -11,46 +11,50 @@
     :root { --accent:#006064; --bg:#000; --card:#1c1c1e; --text:#fff; --muted:#8e8e93; --line:#38383a; }
     body { font-family:-apple-system,system-ui,sans-serif; background:var(--bg); color:var(--text); margin:0; padding-bottom:120px; -webkit-font-smoothing:antialiased; }
 
-    /* HERO BRAND (senza immagini esterne) + LOGO LOCALE */
+    /* ✅ HERO SPLASH (logo grande a tutta larghezza) */
     .hero{
       width:100%;
-      height:180px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      height:210px;
       background: linear-gradient(135deg,#001414,#006064);
       position:relative;
       overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px 14px;
+      box-sizing:border-box;
     }
     .hero::after{
       content:"";
       position:absolute;
       inset:0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.9));
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), transparent 55%),
+                  linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.85));
       pointer-events:none;
     }
-    .brand{
+    .splash{
       position:relative;
       z-index:1;
+      width:min(520px, 92vw);
+      height:100%;
       display:flex;
       align-items:center;
-      gap:14px;
-      padding:12px 18px;
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:18px;
-      background: rgba(0,0,0,0.18);
-      backdrop-filter: blur(14px);
+      justify-content:center;
     }
-    .brand img{
-      height:44px;
-      width:auto;
+    .splash img{
+      width:100%;
+      max-height:120px;
+      object-fit:contain;
       display:block;
+      filter: drop-shadow(0 14px 28px rgba(0,0,0,0.35));
     }
-    .brand .txt{
+    /* fallback testo se manca logo.png */
+    .splash .fallback{
+      display:none;
       font-weight:900;
-      letter-spacing:2px;
+      letter-spacing:3px;
       text-transform:uppercase;
-      font-size:1.2rem;
+      font-size:2.2rem;
     }
 
     .container { max-width:500px; margin:-30px auto 0; padding:0 20px; }
@@ -120,12 +124,11 @@
 </head>
 
 <body>
-  <!-- ✅ BRAND: per usare il logo, metti il file nel repo e rinominalo "logo.png" nella stessa cartella di index.html -->
+  <!-- ✅ SPLASH LOGO: metti "logo.png" nella stessa cartella di index.html nel repo GitHub -->
   <div class="hero">
-    <div class="brand">
+    <div class="splash">
       <img src="logo.png" alt="driveLog" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-      <div class="txt" style="display:none;">driveLog</div>
-      <div class="txt">driveLog</div>
+      <div class="fallback">driveLog</div>
     </div>
   </div>
 
@@ -419,7 +422,6 @@
       document.getElementById('g-tot').innerText = '0.00';
       editGasIndex = null;
       document.getElementById('gas-form-title').innerText = 'Rifornimento';
-      document.getElementById('gas-save-btn').style.display = 'block';
       document.getElementById('gas-cancel-btn').style.display = 'none';
       updateGasKmMinHint();
     }
@@ -449,9 +451,7 @@
         return;
       }
 
-      // se stai modificando un rifornimento, escludo quel record dal calcolo
       const last = getMaxGasKm(autoId, editGasIndex);
-
       if (last === null || !isFinite(last)){
         kmInput.min = '';
         hint.innerText = 'Primo rifornimento per questa auto: inserisci il KM attuale.';
@@ -594,7 +594,6 @@
       document.getElementById('s-euro').value = (Number(s.euro) || 0);
       document.getElementById('a-scad').value = s.scadenza || '';
 
-      // tipo
       const known = ['BOLLO','ASSICURAZIONE (RCA)','REVISIONE'];
       if (known.includes(s.tipo)){
         document.getElementById('s-tipo').value = s.tipo;
@@ -645,7 +644,7 @@
       document.getElementById('g-tipo').value = g.tipo || 'BENZINA';
       document.getElementById('g-km').value = g.km || '';
       document.getElementById('g-lit').value = g.litri || '';
-      // ricavo prezzo/l se posso
+
       const price = (Number(g.litri) > 0) ? (Number(g.euro)/Number(g.litri)) : '';
       document.getElementById('g-pre').value = price ? price.toFixed(3) : '';
       document.getElementById('g-tot').innerText = (Number(g.euro) || 0).toFixed(2);
