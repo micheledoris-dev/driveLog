@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -8,9 +9,9 @@
 
   <style>
     :root { --accent:#006064; --bg:#000; --card:#1c1c1e; --text:#fff; --muted:#8e8e93; --line:#38383a; }
-    body { font-family:-apple-system,sans-serif; background:var(--bg); color:var(--text); margin:0; padding-bottom:120px; -webkit-font-smoothing:antialiased; }
+    body { font-family:-apple-system,system-ui,sans-serif; background:var(--bg); color:var(--text); margin:0; padding-bottom:120px; -webkit-font-smoothing:antialiased; }
 
-    /* ✅ HERO BRAND (niente immagini esterne) */
+    /* HERO BRAND (senza immagini esterne) + LOGO LOCALE */
     .hero{
       width:100%;
       height:180px;
@@ -18,11 +19,8 @@
       align-items:center;
       justify-content:center;
       background: linear-gradient(135deg,#001414,#006064);
-      font-size:2.2rem;
-      font-weight:900;
-      letter-spacing:3px;
-      text-transform:uppercase;
       position:relative;
+      overflow:hidden;
     }
     .hero::after{
       content:"";
@@ -31,7 +29,29 @@
       background: linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.9));
       pointer-events:none;
     }
-    .hero span{ position:relative; z-index:1; }
+    .brand{
+      position:relative;
+      z-index:1;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:12px 18px;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:18px;
+      background: rgba(0,0,0,0.18);
+      backdrop-filter: blur(14px);
+    }
+    .brand img{
+      height:44px;
+      width:auto;
+      display:block;
+    }
+    .brand .txt{
+      font-weight:900;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      font-size:1.2rem;
+    }
 
     .container { max-width:500px; margin:-30px auto 0; padding:0 20px; }
 
@@ -79,11 +99,35 @@
     .hist-text{ text-transform:none; font-size:.75rem; color:var(--muted); font-weight:800; }
     .hist-euro{ font-size:.82rem; font-weight:800; }
     .hint{ font-size:.65rem; color:var(--muted); font-weight:800; text-transform:none; margin:8px 2px 0; opacity:.9; }
+
+    /* Buttons matita/cestino */
+    .iconbar{ display:flex; gap:10px; align-items:center; justify-content:flex-end; }
+    .iconbtn{
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color:#fff;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+      line-height:1;
+      font-size:0.95rem;
+    }
+    .iconbtn:active{ transform: scale(0.98); }
+    .row-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
+    .small{ font-size:0.75rem; color:var(--muted); font-weight:800; text-transform:none; }
   </style>
 </head>
 
 <body>
-  <div class="hero"><span>driveLog</span></div>
+  <!-- ✅ BRAND: per usare il logo, metti il file nel repo e rinominalo "logo.png" nella stessa cartella di index.html -->
+  <div class="hero">
+    <div class="brand">
+      <img src="logo.png" alt="driveLog" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <div class="txt" style="display:none;">driveLog</div>
+      <div class="txt">driveLog</div>
+    </div>
+  </div>
 
   <div class="container">
 
@@ -98,19 +142,20 @@
 
     <!-- ADD CAR -->
     <div id="v-add-car" class="view">
-      <div class="title">Nuovo Veicolo</div>
+      <div class="title" id="car-form-title">Nuovo Veicolo</div>
       <label>Marca e Modello</label>
       <input type="text" id="a-nome" placeholder="ALFA ROMEO STELVIO" oninput="u(this)" />
       <label>Targa</label>
       <input type="text" id="a-targa" placeholder="AA 000 AA" maxlength="9" oninput="fmtTarga(this)" />
       <label>Data Immatricolazione</label>
       <input type="date" id="a-imm" />
-      <button class="btn-main" onclick="saveCar()">Crea Identità</button>
+      <button class="btn-main" onclick="saveCar()" id="car-save-btn">Crea Identità</button>
+      <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditCar()" id="car-cancel-btn">Annulla modifica</button>
     </div>
 
     <!-- SPESE -->
     <div id="v-spese" class="view">
-      <div class="title">Spese Burocratiche</div>
+      <div class="title" id="spese-form-title">Spese Burocratiche</div>
       <label>Auto</label><select id="s-auto"></select>
 
       <label>Tipo Spesa</label>
@@ -129,12 +174,21 @@
       <label>Importo €</label><input type="number" id="s-euro" step="0.01" />
       <label>Data Scadenza</label><input type="date" id="a-scad" />
 
-      <button class="btn-main" onclick="saveSpesa()">Registra Spesa</button>
+      <button class="btn-main" onclick="saveSpesa()" id="spese-save-btn">Registra Spesa</button>
+      <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditSpesa()" id="spese-cancel-btn">Annulla modifica</button>
+
+      <div class="card" style="margin-top:18px;">
+        <div class="row-head">
+          <div class="val" style="font-size:1rem;">Storico Spese</div>
+          <div class="small">✏️ modifica • 🗑 elimina</div>
+        </div>
+        <div id="spese-list"></div>
+      </div>
     </div>
 
     <!-- MANUTENZIONE -->
     <div id="v-manu" class="view">
-      <div class="title">Manutenzione</div>
+      <div class="title" id="manu-form-title">Manutenzione</div>
       <label>Auto</label><select id="m-auto"></select>
 
       <label>Intervento</label>
@@ -154,12 +208,21 @@
       <label>KM Attuali</label><input type="number" id="m-km" />
       <label>Costo €</label><input type="number" id="m-euro" step="0.01" />
 
-      <button class="btn-main" onclick="saveManu()">Registra Meccanico</button>
+      <button class="btn-main" onclick="saveManu()" id="manu-save-btn">Registra Meccanico</button>
+      <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditManu()" id="manu-cancel-btn">Annulla modifica</button>
+
+      <div class="card" style="margin-top:18px;">
+        <div class="row-head">
+          <div class="val" style="font-size:1rem;">Storico Manutenzioni</div>
+          <div class="small">✏️ modifica • 🗑 elimina</div>
+        </div>
+        <div id="manu-list"></div>
+      </div>
     </div>
 
     <!-- GAS -->
     <div id="v-gas" class="view">
-      <div class="title">Rifornimento</div>
+      <div class="title" id="gas-form-title">Rifornimento</div>
       <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
 
       <label>KM Attuali (contachilometri)</label>
@@ -187,7 +250,16 @@
         </div>
       </div>
 
-      <button class="btn-main" onclick="saveGas()">Salva (€ <span id="g-tot">0.00</span>)</button>
+      <button class="btn-main" onclick="saveGas()" id="gas-save-btn">Salva (€ <span id="g-tot">0.00</span>)</button>
+      <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditGas()" id="gas-cancel-btn">Annulla modifica</button>
+
+      <div class="card" style="margin-top:18px;">
+        <div class="row-head">
+          <div class="val" style="font-size:1rem;">Storico Rifornimenti</div>
+          <div class="small">✏️ modifica • 🗑 elimina</div>
+        </div>
+        <div id="gas-list"></div>
+      </div>
     </div>
 
     <!-- REPORT -->
@@ -227,9 +299,17 @@
   </nav>
 
   <script>
+    // ====== DB ======
     let db = JSON.parse(localStorage.getItem('dlog_v13')) || { auto: [], spese: [], manu: [], gas: [] };
     let myChart = null;
 
+    // Indici di modifica (edit mode)
+    let editCarIndex = null;
+    let editSpesaIndex = null;
+    let editManuIndex = null;
+    let editGasIndex = null;
+
+    // ====== Helpers UI ======
     function u(el){ el.value = (el.value || '').toUpperCase(); }
 
     function fmtTarga(el){
@@ -243,7 +323,6 @@
       document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none';
     }
 
-    // ✅ FIX: showV non va in errore se el non viene passato (es. bottone "+ AUTO")
     function showV(id, el){
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById(id).classList.add('active');
@@ -256,6 +335,9 @@
       fillSels();
       if (id === 'v-gas') updateGasKmMinHint();
       if (id === 'v-rep') renderReport();
+      if (id === 'v-spese') renderSpeseList();
+      if (id === 'v-manu') renderManuList();
+      if (id === 'v-gas') renderGasList();
     }
 
     function fillSels(){
@@ -266,94 +348,91 @@
       });
     }
 
-    // ✅ RESET FORMS
+    function sync(){
+      localStorage.setItem('dlog_v13', JSON.stringify(db));
+      renderHome();
+      renderSpeseList();
+      renderManuList();
+      renderGasList();
+    }
+
+    function fmtDate(iso){
+      if (!iso) return '';
+      const d = new Date(iso);
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = d.getFullYear();
+      return `${dd}/${mm}/${yy}`;
+    }
+
+    function carNameById(id){
+      const a = db.auto.find(x => String(x.id) === String(id));
+      return a ? a.nome : '';
+    }
+
+    function doubleConfirm(msg1, msg2){
+      if (!confirm(msg1)) return false;
+      if (!confirm(msg2)) return false;
+      return true;
+    }
+
+    // ====== RESET FORMS ======
     function resetCarForm(){
       document.getElementById('a-nome').value = '';
       document.getElementById('a-targa').value = '';
       document.getElementById('a-imm').value = '';
+      editCarIndex = null;
+      document.getElementById('car-form-title').innerText = 'Nuovo Veicolo';
+      document.getElementById('car-save-btn').innerText = 'Crea Identità';
+      document.getElementById('car-cancel-btn').style.display = 'none';
     }
+
     function resetSpesaForm(){
       document.getElementById('s-tipo').value = 'BOLLO';
       document.getElementById('s-alt').value = '';
       document.getElementById('s-alt-box').style.display = 'none';
       document.getElementById('s-euro').value = '';
       document.getElementById('a-scad').value = '';
+      editSpesaIndex = null;
+      document.getElementById('spese-form-title').innerText = 'Spese Burocratiche';
+      document.getElementById('spese-save-btn').innerText = 'Registra Spesa';
+      document.getElementById('spese-cancel-btn').style.display = 'none';
     }
+
     function resetManuForm(){
       document.getElementById('m-tipo').value = 'TAGLIANDO';
       document.getElementById('m-alt').value = '';
       document.getElementById('m-alt-box').style.display = 'none';
       document.getElementById('m-km').value = '';
       document.getElementById('m-euro').value = '';
+      editManuIndex = null;
+      document.getElementById('manu-form-title').innerText = 'Manutenzione';
+      document.getElementById('manu-save-btn').innerText = 'Registra Meccanico';
+      document.getElementById('manu-cancel-btn').style.display = 'none';
     }
+
     function resetGasForm(){
       document.getElementById('g-km').value = '';
       document.getElementById('g-tipo').value = 'BENZINA';
       document.getElementById('g-lit').value = '';
       document.getElementById('g-pre').value = '';
       document.getElementById('g-tot').innerText = '0.00';
+      editGasIndex = null;
+      document.getElementById('gas-form-title').innerText = 'Rifornimento';
+      document.getElementById('gas-save-btn').style.display = 'block';
+      document.getElementById('gas-cancel-btn').style.display = 'none';
       updateGasKmMinHint();
     }
 
-    function saveCar(){
-      const nome = document.getElementById('a-nome').value.trim();
-      const targa = document.getElementById('a-targa').value.trim();
-      const imm  = document.getElementById('a-imm').value;
-
-      if (!nome) return alert('Inserisci MARCA e MODELLO');
-      if (!targa) return alert('Inserisci TARGA');
-
-      db.auto.push({ id: Date.now(), nome, targa, imm });
-      sync();
-      resetCarForm();
-      showV('v-home', document.querySelector('.nav-item'));
-    }
-
-    function saveSpesa(){
-      const autoId = document.getElementById('s-auto').value;
-      if (!autoId) return alert('Crea prima almeno 1 AUTO');
-
-      const tipoSel = document.getElementById('s-tipo').value;
-      const tipo = (tipoSel === 'ALTRO') ? document.getElementById('s-alt').value.trim() : tipoSel;
-      const euro = parseFloat(document.getElementById('s-euro').value) || 0;
-      const scadenza = document.getElementById('a-scad').value;
-
-      if (!tipo) return alert('Inserisci TIPO SPESA');
-
-      db.spese.push({ autoId, tipo, euro, scadenza, data: new Date().toISOString() });
-      sync();
-      resetSpesaForm();
-      showV('v-home', document.querySelector('.nav-item'));
-    }
-
-    function saveManu(){
-      const autoId = document.getElementById('m-auto').value;
-      if (!autoId) return alert('Crea prima almeno 1 AUTO');
-
-      const tipoSel = document.getElementById('m-tipo').value;
-      const tipo = (tipoSel === 'ALTRO') ? document.getElementById('m-alt').value.trim() : tipoSel;
-      const euro = parseFloat(document.getElementById('m-euro').value) || 0;
-      const km = parseInt(document.getElementById('m-km').value, 10);
-
-      if (!tipo) return alert('Inserisci INTERVENTO');
-
-      db.manu.push({ autoId, tipo, euro, km: isNaN(km) ? '' : km, data: new Date().toISOString() });
-      sync();
-      resetManuForm();
-      showV('v-home', document.querySelector('.nav-item'));
-    }
-
-    function calcG(){
-      const lit = parseFloat(document.getElementById('g-lit').value) || 0;
-      const pre = parseFloat(document.getElementById('g-pre').value) || 0;
-      document.getElementById('g-tot').innerText = (lit * pre).toFixed(2);
-    }
-
-    // =========================
-    // KM RIFORNIMENTO: min non inferiore al precedente (per auto)
-    // =========================
-    function getLastGasKm(autoId){
-      const list = db.gas.filter(x => String(x.autoId) === String(autoId) && Number.isFinite(Number(x.km)));
+    // ====== KM RIFORNIMENTO (non inferiore al precedente) ======
+    function getMaxGasKm(autoId, excludeIndex = null){
+      const list = db.gas
+        .map((x,idx) => ({...x, _idx: idx}))
+        .filter(x =>
+          String(x.autoId) === String(autoId) &&
+          Number.isFinite(Number(x.km)) &&
+          (excludeIndex === null || x._idx !== excludeIndex)
+        );
       if (list.length === 0) return null;
       return list.reduce((max, x) => Math.max(max, Number(x.km)), -Infinity);
     }
@@ -370,7 +449,9 @@
         return;
       }
 
-      const last = getLastGasKm(autoId);
+      // se stai modificando un rifornimento, escludo quel record dal calcolo
+      const last = getMaxGasKm(autoId, editGasIndex);
+
       if (last === null || !isFinite(last)){
         kmInput.min = '';
         hint.innerText = 'Primo rifornimento per questa auto: inserisci il KM attuale.';
@@ -384,7 +465,7 @@
       const autoId = document.getElementById('g-auto')?.value;
       if (!autoId) return;
 
-      const last = getLastGasKm(autoId);
+      const last = getMaxGasKm(autoId, editGasIndex);
       if (last === null || !isFinite(last)) return;
 
       const kmInput = document.getElementById('g-km');
@@ -392,6 +473,76 @@
       if (!isNaN(v) && v < last){
         kmInput.value = String(last);
       }
+    }
+
+    // ====== SAVE / EDIT ======
+    function saveCar(){
+      const nome = document.getElementById('a-nome').value.trim();
+      const targa = document.getElementById('a-targa').value.trim();
+      const imm  = document.getElementById('a-imm').value;
+
+      if (!nome) return alert('Inserisci MARCA e MODELLO');
+      if (!targa) return alert('Inserisci TARGA');
+
+      if (editCarIndex !== null){
+        db.auto[editCarIndex] = { ...db.auto[editCarIndex], nome, targa, imm };
+      } else {
+        db.auto.push({ id: Date.now(), nome, targa, imm });
+      }
+
+      sync();
+      resetCarForm();
+      showV('v-home', document.querySelector('.nav-item'));
+    }
+
+    function saveSpesa(){
+      const autoId = document.getElementById('s-auto').value;
+      if (!autoId) return alert('Crea prima almeno 1 AUTO');
+
+      const tipoSel = document.getElementById('s-tipo').value;
+      const tipo = (tipoSel === 'ALTRO') ? document.getElementById('s-alt').value.trim() : tipoSel;
+      const euro = parseFloat(document.getElementById('s-euro').value) || 0;
+      const scadenza = document.getElementById('a-scad').value;
+
+      if (!tipo) return alert('Inserisci TIPO SPESA');
+
+      if (editSpesaIndex !== null){
+        db.spese[editSpesaIndex] = { ...db.spese[editSpesaIndex], autoId, tipo, euro, scadenza };
+      } else {
+        db.spese.push({ autoId, tipo, euro, scadenza, data: new Date().toISOString() });
+      }
+
+      sync();
+      resetSpesaForm();
+      showV('v-home', document.querySelector('.nav-item'));
+    }
+
+    function saveManu(){
+      const autoId = document.getElementById('m-auto').value;
+      if (!autoId) return alert('Crea prima almeno 1 AUTO');
+
+      const tipoSel = document.getElementById('m-tipo').value;
+      const tipo = (tipoSel === 'ALTRO') ? document.getElementById('m-alt').value.trim() : tipoSel;
+      const euro = parseFloat(document.getElementById('m-euro').value) || 0;
+      const km = parseInt(document.getElementById('m-km').value, 10);
+
+      if (!tipo) return alert('Inserisci INTERVENTO');
+
+      if (editManuIndex !== null){
+        db.manu[editManuIndex] = { ...db.manu[editManuIndex], autoId, tipo, euro, km: isNaN(km) ? '' : km };
+      } else {
+        db.manu.push({ autoId, tipo, euro, km: isNaN(km) ? '' : km, data: new Date().toISOString() });
+      }
+
+      sync();
+      resetManuForm();
+      showV('v-home', document.querySelector('.nav-item'));
+    }
+
+    function calcG(){
+      const lit = parseFloat(document.getElementById('g-lit').value) || 0;
+      const pre = parseFloat(document.getElementById('g-pre').value) || 0;
+      document.getElementById('g-tot').innerText = (lit * pre).toFixed(2);
     }
 
     function saveGas(){
@@ -406,44 +557,266 @@
       if (!Number.isFinite(km) || km <= 0) return alert('Inserisci KM attuali (contachilometri)');
       if (litri <= 0 || euro <= 0) return alert('Inserisci LITRI e PREZZO/L');
 
-      const last = getLastGasKm(autoId);
+      const last = getMaxGasKm(autoId, editGasIndex);
       if (last !== null && isFinite(last) && km < last){
         return alert(`KM non valido: per questa auto non puoi inserire un valore inferiore a ${last} km.`);
       }
 
-      db.gas.push({ autoId, tipo, km, litri, euro, data: new Date().toISOString() });
+      if (editGasIndex !== null){
+        db.gas[editGasIndex] = { ...db.gas[editGasIndex], autoId, tipo, km, litri, euro };
+      } else {
+        db.gas.push({ autoId, tipo, km, litri, euro, data: new Date().toISOString() });
+      }
+
       sync();
       resetGasForm();
       showV('v-home', document.querySelector('.nav-item'));
     }
 
-    function sync(){
-      localStorage.setItem('dlog_v13', JSON.stringify(db));
-      renderHome();
+    // ====== EDIT / CANCEL ======
+    function editCar(i){
+      const a = db.auto[i];
+      editCarIndex = i;
+      document.getElementById('a-nome').value = a.nome || '';
+      document.getElementById('a-targa').value = a.targa || '';
+      document.getElementById('a-imm').value = a.imm || '';
+      document.getElementById('car-form-title').innerText = 'Modifica Veicolo';
+      document.getElementById('car-save-btn').innerText = 'Salva Modifiche';
+      document.getElementById('car-cancel-btn').style.display = 'block';
+      showV('v-add-car');
+    }
+    function cancelEditCar(){ resetCarForm(); showV('v-home', document.querySelector('.nav-item')); }
+
+    function editSpesa(i){
+      const s = db.spese[i];
+      editSpesaIndex = i;
+      document.getElementById('s-auto').value = s.autoId;
+      document.getElementById('s-euro').value = (Number(s.euro) || 0);
+      document.getElementById('a-scad').value = s.scadenza || '';
+
+      // tipo
+      const known = ['BOLLO','ASSICURAZIONE (RCA)','REVISIONE'];
+      if (known.includes(s.tipo)){
+        document.getElementById('s-tipo').value = s.tipo;
+        document.getElementById('s-alt-box').style.display = 'none';
+        document.getElementById('s-alt').value = '';
+      } else {
+        document.getElementById('s-tipo').value = 'ALTRO';
+        document.getElementById('s-alt-box').style.display = 'block';
+        document.getElementById('s-alt').value = s.tipo || '';
+      }
+
+      document.getElementById('spese-form-title').innerText = 'Modifica Spesa';
+      document.getElementById('spese-save-btn').innerText = 'Salva Modifiche';
+      document.getElementById('spese-cancel-btn').style.display = 'block';
+      showV('v-spese', document.querySelectorAll('.nav-item')[1]);
+    }
+    function cancelEditSpesa(){ resetSpesaForm(); }
+
+    function editManu(i){
+      const m = db.manu[i];
+      editManuIndex = i;
+      document.getElementById('m-auto').value = m.autoId;
+      document.getElementById('m-euro').value = (Number(m.euro) || 0);
+      document.getElementById('m-km').value = m.km || '';
+
+      const known = ['TAGLIANDO','FRENI','PNEUMATICI','DISTRIBUZIONE'];
+      if (known.includes(m.tipo)){
+        document.getElementById('m-tipo').value = m.tipo;
+        document.getElementById('m-alt-box').style.display = 'none';
+        document.getElementById('m-alt').value = '';
+      } else {
+        document.getElementById('m-tipo').value = 'ALTRO';
+        document.getElementById('m-alt-box').style.display = 'block';
+        document.getElementById('m-alt').value = m.tipo || '';
+      }
+
+      document.getElementById('manu-form-title').innerText = 'Modifica Manutenzione';
+      document.getElementById('manu-save-btn').innerText = 'Salva Modifiche';
+      document.getElementById('manu-cancel-btn').style.display = 'block';
+      showV('v-manu', document.querySelectorAll('.nav-item')[2]);
+    }
+    function cancelEditManu(){ resetManuForm(); }
+
+    function editGas(i){
+      const g = db.gas[i];
+      editGasIndex = i;
+      document.getElementById('g-auto').value = g.autoId;
+      document.getElementById('g-tipo').value = g.tipo || 'BENZINA';
+      document.getElementById('g-km').value = g.km || '';
+      document.getElementById('g-lit').value = g.litri || '';
+      // ricavo prezzo/l se posso
+      const price = (Number(g.litri) > 0) ? (Number(g.euro)/Number(g.litri)) : '';
+      document.getElementById('g-pre').value = price ? price.toFixed(3) : '';
+      document.getElementById('g-tot').innerText = (Number(g.euro) || 0).toFixed(2);
+
+      document.getElementById('gas-form-title').innerText = 'Modifica Rifornimento';
+      document.getElementById('gas-cancel-btn').style.display = 'block';
+      updateGasKmMinHint();
+      showV('v-gas', document.querySelectorAll('.nav-item')[3]);
+    }
+    function cancelEditGas(){ resetGasForm(); }
+
+    // ====== DELETE (doppia conferma) ======
+    function deleteCar(i){
+      const car = db.auto[i];
+      const ok = doubleConfirm(
+        `Eliminare l'auto "${car.nome}"?`,
+        `Confermi DEFINITIVAMENTE? Verranno eliminati anche rifornimenti, spese e manutenzioni di questa auto.`
+      );
+      if (!ok) return;
+
+      const carId = car.id;
+      db.auto.splice(i,1);
+      db.gas = db.gas.filter(x => String(x.autoId) !== String(carId));
+      db.spese = db.spese.filter(x => String(x.autoId) !== String(carId));
+      db.manu = db.manu.filter(x => String(x.autoId) !== String(carId));
+
+      sync();
     }
 
-    // ✅ ultimo KM in garage (prende il max km dei rifornimenti di quell'auto)
+    function deleteSpesa(i){
+      const s = db.spese[i];
+      const ok = doubleConfirm(
+        `Eliminare questa spesa (${s.tipo})?`,
+        `Confermi DEFINITIVAMENTE l'eliminazione?`
+      );
+      if (!ok) return;
+      db.spese.splice(i,1);
+      sync();
+    }
+
+    function deleteManu(i){
+      const m = db.manu[i];
+      const ok = doubleConfirm(
+        `Eliminare questa manutenzione (${m.tipo})?`,
+        `Confermi DEFINITIVAMENTE l'eliminazione?`
+      );
+      if (!ok) return;
+      db.manu.splice(i,1);
+      sync();
+    }
+
+    function deleteGas(i){
+      const g = db.gas[i];
+      const ok = doubleConfirm(
+        `Eliminare questo rifornimento (${g.tipo} - KM ${g.km})?`,
+        `Confermi DEFINITIVAMENTE l'eliminazione?`
+      );
+      if (!ok) return;
+      db.gas.splice(i,1);
+      sync();
+      updateGasKmMinHint();
+    }
+
+    // ====== HOME ======
     function getUltimoKmAuto(autoId){
-      const last = getLastGasKm(autoId);
+      const last = getMaxGasKm(autoId, null);
       return (last === null || !isFinite(last)) ? '-' : String(last);
     }
 
     function renderHome(){
-      document.getElementById('car-list').innerHTML =
-        db.auto.map(a => `
-          <div class="card">
-            <div class="val" style="font-size:1.1rem; margin-bottom:10px">${a.nome}</div>
-            <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
-            <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm || '-'}</span></div>
-            <div class="info-row" style="border-bottom:0"><span class="label">Ultimo KM</span><span class="val">${getUltimoKmAuto(a.id)}</span></div>
+      const el = document.getElementById('car-list');
+      if (!el) return;
+
+      if (db.auto.length === 0){
+        el.innerHTML = `<div class="card"><div class="val">Nessuna auto</div><div class="label" style="margin-top:10px">Premi “+ AUTO” per iniziare</div></div>`;
+        return;
+      }
+
+      el.innerHTML = db.auto.map((a, idx) => `
+        <div class="card">
+          <div class="row-head">
+            <div class="val" style="font-size:1.1rem;">${a.nome}</div>
+            <div class="iconbar">
+              <button class="iconbtn" onclick="editCar(${idx})" title="Modifica">✏️</button>
+              <button class="iconbtn" onclick="deleteCar(${idx})" title="Elimina">🗑</button>
+            </div>
           </div>
-        `).join('')
-        || `<div class="card"><div class="val">Nessuna auto</div><div class="label" style="margin-top:10px">Premi “+ AUTO” per iniziare</div></div>`;
+          <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
+          <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm || '-'}</span></div>
+          <div class="info-row" style="border-bottom:0"><span class="label">Ultimo KM</span><span class="val">${getUltimoKmAuto(a.id)}</span></div>
+        </div>
+      `).join('');
     }
 
-    // =========================
-    // REPORT PER AUTO + STORICO
-    // =========================
+    // ====== LISTE (storici) ======
+    function renderSpeseList(){
+      const el = document.getElementById('spese-list');
+      if (!el) return;
+
+      const sorted = [...db.spese].map((x,i)=>({x,i})).sort((a,b)=> new Date(b.x.data)-new Date(a.x.data));
+      if (sorted.length === 0){
+        el.innerHTML = `<div class="hist-empty">Nessuna spesa</div>`;
+        return;
+      }
+
+      el.innerHTML = sorted.slice(0,20).map(({x,i}) => `
+        <div class="info-row">
+          <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
+            <div class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</div>
+            <div class="small">${x.scadenza ? ('Scad.: ' + x.scadenza) : ''}</div>
+          </div>
+          <div class="iconbar">
+            <div class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</div>
+            <button class="iconbtn" onclick="editSpesa(${i})" title="Modifica">✏️</button>
+            <button class="iconbtn" onclick="deleteSpesa(${i})" title="Elimina">🗑</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderManuList(){
+      const el = document.getElementById('manu-list');
+      if (!el) return;
+
+      const sorted = [...db.manu].map((x,i)=>({x,i})).sort((a,b)=> new Date(b.x.data)-new Date(a.x.data));
+      if (sorted.length === 0){
+        el.innerHTML = `<div class="hist-empty">Nessuna manutenzione</div>`;
+        return;
+      }
+
+      el.innerHTML = sorted.slice(0,20).map(({x,i}) => `
+        <div class="info-row">
+          <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
+            <div class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</div>
+            <div class="small">${x.km ? ('KM: ' + x.km) : ''}</div>
+          </div>
+          <div class="iconbar">
+            <div class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</div>
+            <button class="iconbtn" onclick="editManu(${i})" title="Modifica">✏️</button>
+            <button class="iconbtn" onclick="deleteManu(${i})" title="Elimina">🗑</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderGasList(){
+      const el = document.getElementById('gas-list');
+      if (!el) return;
+
+      const sorted = [...db.gas].map((x,i)=>({x,i})).sort((a,b)=> new Date(b.x.data)-new Date(a.x.data));
+      if (sorted.length === 0){
+        el.innerHTML = `<div class="hist-empty">Nessun rifornimento</div>`;
+        return;
+      }
+
+      el.innerHTML = sorted.slice(0,20).map(({x,i}) => `
+        <div class="info-row">
+          <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
+            <div class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</div>
+            <div class="small">KM: ${x.km ?? '-'} • Litri: ${Number(x.litri||0).toFixed(1)}</div>
+          </div>
+          <div class="iconbar">
+            <div class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</div>
+            <button class="iconbtn" onclick="editGas(${i})" title="Modifica">✏️</button>
+            <button class="iconbtn" onclick="deleteGas(${i})" title="Elimina">🗑</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ====== REPORT ======
     function fillRepSel(){
       const sel = document.getElementById('rep-auto');
       if (!sel) return;
@@ -457,20 +830,6 @@
       sel.innerHTML = opts;
       const exists = [...sel.options].some(o => o.value === prev);
       sel.value = exists ? prev : 'ALL';
-    }
-
-    function fmtDate(iso){
-      if (!iso) return '';
-      const d = new Date(iso);
-      const dd = String(d.getDate()).padStart(2,'0');
-      const mm = String(d.getMonth()+1).padStart(2,'0');
-      const yy = d.getFullYear();
-      return `${dd}/${mm}/${yy}`;
-    }
-
-    function carNameById(id){
-      const a = db.auto.find(x => String(x.id) === String(id));
-      return a ? a.nome : '';
     }
 
     function filterByCar(list, carId){
@@ -582,9 +941,12 @@
       a.click();
     }
 
-    // INIT
+    // ====== INIT ======
     renderHome();
     fillSels();
+    renderSpeseList();
+    renderManuList();
+    renderGasList();
   </script>
 </body>
 </html>
