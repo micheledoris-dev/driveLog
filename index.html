@@ -57,6 +57,8 @@
     .hist-empty { opacity: .7; padding: 6px 0; font-size: .75rem; color: var(--muted); text-transform: none; }
     .hist-text { text-transform: none; font-size: .75rem; color: var(--muted); font-weight: 800; }
     .hist-euro { font-size: .82rem; font-weight: 800; }
+
+    .hint { font-size: .65rem; color: var(--muted); font-weight: 800; text-transform: none; margin: 8px 2px 0; opacity: .9; }
   </style>
 </head>
 
@@ -139,7 +141,11 @@
     <!-- GAS -->
     <div id="v-gas" class="view">
       <div class="title">Rifornimento</div>
-      <label>Auto</label><select id="g-auto"></select>
+      <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
+
+      <label>KM Attuali (contachilometri)</label>
+      <input type="number" id="g-km" inputmode="numeric" oninput="enforceGasKmMinLive()" />
+      <div class="hint" id="g-km-hint"></div>
 
       <label>Tipo Carburante</label>
       <select id="g-tipo">
@@ -229,6 +235,7 @@
       }
 
       fillSels();
+      if (id === 'v-gas') updateGasKmMinHint();
       if (id === 'v-rep') renderReport();
     }
 
@@ -261,10 +268,12 @@
       document.getElementById('m-euro').value = '';
     }
     function resetGasForm() {
+      document.getElementById('g-km').value = '';
       document.getElementById('g-tipo').value = 'BENZINA';
       document.getElementById('g-lit').value = '';
       document.getElementById('g-pre').value = '';
       document.getElementById('g-tot').innerText = '0.00';
+      updateGasKmMinHint();
     }
 
     function saveCar() {
@@ -305,11 +314,11 @@
       const tipoSel = document.getElementById('m-tipo').value;
       const tipo = (tipoSel === 'ALTRO') ? document.getElementById('m-alt').value.trim() : tipoSel;
       const euro = parseFloat(document.getElementById('m-euro').value) || 0;
-      const km = document.getElementById('m-km').value;
+      const km = parseInt(document.getElementById('m-km').value, 10);
 
       if (!tipo) return alert('Inserisci INTERVENTO');
 
-      db.manu.push({ autoId, tipo, euro, km, data: new Date().toISOString() });
+      db.manu.push({ autoId, tipo, euro, km: isNaN(km) ? '' : km, data: new Date().toISOString() });
       sync();
       resetManuForm();
       showV('v-home', document.querySelector('.nav-item'));
@@ -321,17 +330,70 @@
       document.getElementById('g-tot').innerText = (lit * pre).toFixed(2);
     }
 
+    // =========================
+    // KM RIFORNIMENTO: min non inferiore al precedente (per auto)
+    // =========================
+    function getLastGasKm(autoId) {
+      const list = db.gas.filter(x => String(x.autoId) === String(autoId) && Number.isFinite(Number(x.km)));
+      if (list.length === 0) return null;
+      // trova max km (più affidabile dell'ordine)
+      return list.reduce((max, x) => Math.max(max, Number(x.km)), -Infinity);
+    }
+
+    function updateGasKmMinHint() {
+      const autoId = document.getElementById('g-auto')?.value;
+      const kmInput = document.getElementById('g-km');
+      const hint = document.getElementById('g-km-hint');
+      if (!kmInput || !hint) return;
+
+      if (!autoId) {
+        kmInput.min = '';
+        hint.innerText = '';
+        return;
+      }
+
+      const last = getLastGasKm(autoId);
+      if (last === null || !isFinite(last)) {
+        kmInput.min = '';
+        hint.innerText = 'Primo rifornimento per questa auto: inserisci il KM attuale.';
+      } else {
+        kmInput.min = String(last);
+        hint.innerText = `Minimo consentito per questa auto: ${last} km (ultimo rifornimento).`;
+      }
+    }
+
+    function enforceGasKmMinLive() {
+      const autoId = document.getElementById('g-auto')?.value;
+      if (!autoId) return;
+
+      const last = getLastGasKm(autoId);
+      if (last === null || !isFinite(last)) return;
+
+      const kmInput = document.getElementById('g-km');
+      const v = parseInt(kmInput.value, 10);
+      if (!isNaN(v) && v < last) {
+        kmInput.value = String(last);
+      }
+    }
+
     function saveGas() {
       const autoId = document.getElementById('g-auto').value;
       if (!autoId) return alert('Crea prima almeno 1 AUTO');
 
       const tipo = document.getElementById('g-tipo').value;
+      const km = parseInt(document.getElementById('g-km').value, 10);
       const litri = parseFloat(document.getElementById('g-lit').value) || 0;
       const euro = parseFloat(document.getElementById('g-tot').innerText) || 0;
 
+      if (!Number.isFinite(km) || km <= 0) return alert('Inserisci KM attuali (contachilometri)');
       if (litri <= 0 || euro <= 0) return alert('Inserisci LITRI e PREZZO/L');
 
-      db.gas.push({ autoId, tipo, litri, euro, data: new Date().toISOString() });
+      const last = getLastGasKm(autoId);
+      if (last !== null && isFinite(last) && km < last) {
+        return alert(`KM non valido: per questa auto non puoi inserire un valore inferiore a ${last} km.`);
+      }
+
+      db.gas.push({ autoId, tipo, km, litri, euro, data: new Date().toISOString() });
       sync();
       resetGasForm();
       showV('v-home', document.querySelector('.nav-item'));
@@ -355,7 +417,6 @@
     // =========================
     // REPORT PER AUTO + STORICO
     // =========================
-
     function fillRepSel() {
       const sel = document.getElementById('rep-auto');
       if (!sel) return;
@@ -368,7 +429,6 @@
 
       sel.innerHTML = opts;
 
-      // ripristina selezione precedente se ancora esiste
       const exists = [...sel.options].some(o => o.value === prev);
       sel.value = exists ? prev : 'ALL';
     }
@@ -463,7 +523,7 @@
       renderHistory(
         'hist-gas',
         gas,
-        (x) => `${fmtDate(x.data)} • ${x.tipo} • ${Number(x.litri || 0).toFixed(1)} L`,
+        (x) => `${fmtDate(x.data)} • ${x.tipo} • ${Number(x.litri || 0).toFixed(1)} L • KM ${x.km ?? ''}`,
         (x) => x.euro
       );
 
@@ -485,7 +545,7 @@
     function exportExcel() {
       // esporta tutto (non filtrato) come CSV
       let csv = "Tipo,Auto,Dettaglio,Euro,Data,Extra\n";
-      db.gas.forEach(g => csv += `GAS,${carNameById(g.autoId) || g.autoId},${g.tipo},${g.euro},${g.data},${g.litri} L\n`);
+      db.gas.forEach(g => csv += `GAS,${carNameById(g.autoId) || g.autoId},${g.tipo},${g.euro},${g.data},KM:${g.km} LITRI:${g.litri}\n`);
       db.spese.forEach(s => csv += `SPESA,${carNameById(s.autoId) || s.autoId},${s.tipo},${s.euro},${s.data},SCAD:${s.scadenza || ''}\n`);
       db.manu.forEach(m => csv += `MANU,${carNameById(m.autoId) || m.autoId},${m.tipo},${m.euro},${m.data},KM:${m.km || ''}\n`);
 
@@ -500,9 +560,6 @@
     // INIT
     renderHome();
     fillSels();
-    // prepara select report (se l'utente apre subito report)
-    const repSel = document.getElementById('rep-auto');
-    if (repSel) fillRepSel();
   </script>
 </body>
 </html>
