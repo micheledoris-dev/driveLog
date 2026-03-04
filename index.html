@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -57,8 +58,6 @@
     .hist-empty { opacity: .7; padding: 6px 0; font-size: .75rem; color: var(--muted); text-transform: none; }
     .hist-text { text-transform: none; font-size: .75rem; color: var(--muted); font-weight: 800; }
     .hist-euro { font-size: .82rem; font-weight: 800; }
-
-    .hint { font-size: .65rem; color: var(--muted); font-weight: 800; text-transform: none; margin: 8px 2px 0; opacity: .9; }
   </style>
 </head>
 
@@ -107,7 +106,6 @@
       </div>
 
       <label>Importo €</label><input type="number" id="s-euro" step="0.01" />
-
       <label>Data Scadenza</label><input type="date" id="a-scad" />
 
       <button class="btn-main" onclick="saveSpesa()">Registra Spesa</button>
@@ -117,6 +115,8 @@
     <div id="v-manu" class="view">
       <div class="title">Manutenzione</div>
       <label>Auto</label><select id="m-auto"></select>
+
+      <label>Data Intervento</label><input type="date" id="m-date" />
 
       <label>Intervento</label>
       <select id="m-tipo" onchange="toggleAlt(this, 'm-alt-box')">
@@ -141,11 +141,11 @@
     <!-- GAS -->
     <div id="v-gas" class="view">
       <div class="title">Rifornimento</div>
-      <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
+      <label>Auto</label><select id="g-auto"></select>
 
-      <label>KM Attuali (contachilometri)</label>
-      <input type="number" id="g-km" inputmode="numeric" oninput="enforceGasKmMinLive()" />
-      <div class="hint" id="g-km-hint"></div>
+      <label>Data Rifornimento</label><input type="date" id="g-date" />
+
+      <label>KM Attuali</label><input type="number" id="g-km" />
 
       <label>Tipo Carburante</label>
       <select id="g-tipo">
@@ -224,7 +224,7 @@
       document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none';
     }
 
-    // ✅ FIX: showV non va in errore se el non viene passato (es. bottone "+ AUTO")
+    // ✅ FIX showV robusta
     function showV(id, el) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById(id).classList.add('active');
@@ -235,7 +235,6 @@
       }
 
       fillSels();
-      if (id === 'v-gas') updateGasKmMinHint();
       if (id === 'v-rep') renderReport();
     }
 
@@ -245,6 +244,29 @@
         const sel = document.getElementById(id);
         if (sel) sel.innerHTML = o;
       });
+    }
+
+    // =========================
+    // KM LOGIC (NO BACKWARDS)
+    // =========================
+    function getLastKmForCar(autoId) {
+      let maxKm = 0;
+
+      db.gas.forEach(g => {
+        if (String(g.autoId) === String(autoId)) {
+          const km = Number(g.km);
+          if (!Number.isNaN(km)) maxKm = Math.max(maxKm, km);
+        }
+      });
+
+      db.manu.forEach(m => {
+        if (String(m.autoId) === String(autoId)) {
+          const km = Number(m.km);
+          if (!Number.isNaN(km)) maxKm = Math.max(maxKm, km);
+        }
+      });
+
+      return maxKm;
     }
 
     // ✅ RESET FORMS
@@ -261,6 +283,7 @@
       document.getElementById('a-scad').value = '';
     }
     function resetManuForm() {
+      document.getElementById('m-date').value = '';
       document.getElementById('m-tipo').value = 'TAGLIANDO';
       document.getElementById('m-alt').value = '';
       document.getElementById('m-alt-box').style.display = 'none';
@@ -268,14 +291,17 @@
       document.getElementById('m-euro').value = '';
     }
     function resetGasForm() {
+      document.getElementById('g-date').value = '';
       document.getElementById('g-km').value = '';
       document.getElementById('g-tipo').value = 'BENZINA';
       document.getElementById('g-lit').value = '';
       document.getElementById('g-pre').value = '';
       document.getElementById('g-tot').innerText = '0.00';
-      updateGasKmMinHint();
     }
 
+    // =========================
+    // SAVE
+    // =========================
     function saveCar() {
       const nome = document.getElementById('a-nome').value.trim();
       const targa = document.getElementById('a-targa').value.trim();
@@ -311,14 +337,32 @@
       const autoId = document.getElementById('m-auto').value;
       if (!autoId) return alert('Crea prima almeno 1 AUTO');
 
+      const date = document.getElementById('m-date').value;
+      const km = Number(document.getElementById('m-km').value);
+      const lastKm = getLastKmForCar(autoId);
+
+      if (!date) return alert('Inserisci DATA INTERVENTO');
+      if (!Number.isFinite(km)) return alert('Inserisci KM validi');
+
+      if (km < lastKm) {
+        return alert(`KM non validi: per questa auto l'ultimo KM registrato è ${lastKm}. Inserisci ${lastKm} o più.`);
+      }
+
       const tipoSel = document.getElementById('m-tipo').value;
       const tipo = (tipoSel === 'ALTRO') ? document.getElementById('m-alt').value.trim() : tipoSel;
       const euro = parseFloat(document.getElementById('m-euro').value) || 0;
-      const km = parseInt(document.getElementById('m-km').value, 10);
 
       if (!tipo) return alert('Inserisci INTERVENTO');
 
-      db.manu.push({ autoId, tipo, euro, km: isNaN(km) ? '' : km, data: new Date().toISOString() });
+      db.manu.push({
+        autoId,
+        tipo,
+        euro,
+        km,
+        date,              // data scelta dall’utente
+        data: new Date().toISOString() // timestamp salvataggio
+      });
+
       sync();
       resetManuForm();
       showV('v-home', document.querySelector('.nav-item'));
@@ -330,70 +374,37 @@
       document.getElementById('g-tot').innerText = (lit * pre).toFixed(2);
     }
 
-    // =========================
-    // KM RIFORNIMENTO: min non inferiore al precedente (per auto)
-    // =========================
-    function getLastGasKm(autoId) {
-      const list = db.gas.filter(x => String(x.autoId) === String(autoId) && Number.isFinite(Number(x.km)));
-      if (list.length === 0) return null;
-      // trova max km (più affidabile dell'ordine)
-      return list.reduce((max, x) => Math.max(max, Number(x.km)), -Infinity);
-    }
-
-    function updateGasKmMinHint() {
-      const autoId = document.getElementById('g-auto')?.value;
-      const kmInput = document.getElementById('g-km');
-      const hint = document.getElementById('g-km-hint');
-      if (!kmInput || !hint) return;
-
-      if (!autoId) {
-        kmInput.min = '';
-        hint.innerText = '';
-        return;
-      }
-
-      const last = getLastGasKm(autoId);
-      if (last === null || !isFinite(last)) {
-        kmInput.min = '';
-        hint.innerText = 'Primo rifornimento per questa auto: inserisci il KM attuale.';
-      } else {
-        kmInput.min = String(last);
-        hint.innerText = `Minimo consentito per questa auto: ${last} km (ultimo rifornimento).`;
-      }
-    }
-
-    function enforceGasKmMinLive() {
-      const autoId = document.getElementById('g-auto')?.value;
-      if (!autoId) return;
-
-      const last = getLastGasKm(autoId);
-      if (last === null || !isFinite(last)) return;
-
-      const kmInput = document.getElementById('g-km');
-      const v = parseInt(kmInput.value, 10);
-      if (!isNaN(v) && v < last) {
-        kmInput.value = String(last);
-      }
-    }
-
     function saveGas() {
       const autoId = document.getElementById('g-auto').value;
       if (!autoId) return alert('Crea prima almeno 1 AUTO');
 
+      const date = document.getElementById('g-date').value;
+      const km = Number(document.getElementById('g-km').value);
+      const lastKm = getLastKmForCar(autoId);
+
+      if (!date) return alert('Inserisci DATA RIFORNIMENTO');
+      if (!Number.isFinite(km)) return alert('Inserisci KM validi');
+
+      if (km < lastKm) {
+        return alert(`KM non validi: per questa auto l'ultimo KM registrato è ${lastKm}. Inserisci ${lastKm} o più.`);
+      }
+
       const tipo = document.getElementById('g-tipo').value;
-      const km = parseInt(document.getElementById('g-km').value, 10);
       const litri = parseFloat(document.getElementById('g-lit').value) || 0;
       const euro = parseFloat(document.getElementById('g-tot').innerText) || 0;
 
-      if (!Number.isFinite(km) || km <= 0) return alert('Inserisci KM attuali (contachilometri)');
       if (litri <= 0 || euro <= 0) return alert('Inserisci LITRI e PREZZO/L');
 
-      const last = getLastGasKm(autoId);
-      if (last !== null && isFinite(last) && km < last) {
-        return alert(`KM non valido: per questa auto non puoi inserire un valore inferiore a ${last} km.`);
-      }
+      db.gas.push({
+        autoId,
+        tipo,
+        litri,
+        euro,
+        km,
+        date,               // data scelta dall’utente
+        data: new Date().toISOString() // timestamp salvataggio
+      });
 
-      db.gas.push({ autoId, tipo, km, litri, euro, data: new Date().toISOString() });
       sync();
       resetGasForm();
       showV('v-home', document.querySelector('.nav-item'));
@@ -404,14 +415,21 @@
       renderHome();
     }
 
+    // =========================
+    // HOME
+    // =========================
     function renderHome() {
-      document.getElementById('car-list').innerHTML = db.auto.map(a => `
-        <div class="card">
-          <div class="val" style="font-size:1.1rem; margin-bottom:10px">${a.nome}</div>
-          <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
-          <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm || '-'}</span></div>
-        </div>
-      `).join('') || `<div class="card"><div class="val">Nessuna auto</div><div class="label" style="margin-top:10px">Premi “+ AUTO” per iniziare</div></div>`;
+      document.getElementById('car-list').innerHTML = db.auto.map(a => {
+        const lastKm = getLastKmForCar(a.id);
+        return `
+          <div class="card">
+            <div class="val" style="font-size:1.1rem; margin-bottom:10px">${a.nome}</div>
+            <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
+            <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm || '-'}</span></div>
+            <div class="info-row"><span class="label">Ultimo KM</span><span class="val">${lastKm || '-'}</span></div>
+          </div>
+        `;
+      }).join('') || `<div class="card"><div class="val">Nessuna auto</div><div class="label" style="margin-top:10px">Premi “+ AUTO” per iniziare</div></div>`;
     }
 
     // =========================
@@ -428,7 +446,6 @@
       ].join('');
 
       sel.innerHTML = opts;
-
       const exists = [...sel.options].some(o => o.value === prev);
       sel.value = exists ? prev : 'ALL';
     }
@@ -494,6 +511,25 @@
       `).join('');
     }
 
+    function computeFuelEuroPerKm(gasArr) {
+      // usa i rifornimenti ordinati per km: €/km = totale euro / (km_last - km_first)
+      const arr = gasArr
+        .filter(x => Number.isFinite(Number(x.km)))
+        .map(x => ({ ...x, km: Number(x.km), euro: Number(x.euro) || 0 }))
+        .sort((a, b) => a.km - b.km);
+
+      if (arr.length < 2) return null;
+
+      const kmFirst = arr[0].km;
+      const kmLast = arr[arr.length - 1].km;
+      const delta = kmLast - kmFirst;
+
+      if (delta <= 0) return null;
+
+      const euroTot = arr.reduce((s, x) => s + (Number(x.euro) || 0), 0);
+      return euroTot / delta;
+    }
+
     function renderReport() {
       fillSels();
       fillRepSel();
@@ -510,6 +546,8 @@
       const dataManu = manu.reduce((a, b) => a + (Number(b.euro) || 0), 0);
       const tot = dataGas + dataSpese + dataManu;
 
+      const euroPerKm = computeFuelEuroPerKm(gas);
+
       renderChartsFiltered(dataGas, dataSpese, dataManu, titolo);
 
       document.getElementById('rep-stats').innerHTML = `
@@ -518,12 +556,13 @@
         <div class="info-row"><span class="label">Gas</span><span class="val">€ ${dataGas.toFixed(2)}</span></div>
         <div class="info-row"><span class="label">Spese</span><span class="val">€ ${dataSpese.toFixed(2)}</span></div>
         <div class="info-row"><span class="label">Manutenzione</span><span class="val">€ ${dataManu.toFixed(2)}</span></div>
+        <div class="info-row"><span class="label">Carburante €/KM</span><span class="val">${euroPerKm === null ? '-' : ('€ ' + euroPerKm.toFixed(3))}</span></div>
       `;
 
       renderHistory(
         'hist-gas',
         gas,
-        (x) => `${fmtDate(x.data)} • ${x.tipo} • ${Number(x.litri || 0).toFixed(1)} L • KM ${x.km ?? ''}`,
+        (x) => `${(x.date || '').split('-').reverse().join('/')} • KM ${x.km ?? '-'} • ${x.tipo} • ${Number(x.litri || 0).toFixed(1)} L`,
         (x) => x.euro
       );
 
@@ -537,17 +576,16 @@
       renderHistory(
         'hist-manu',
         manu,
-        (x) => `${fmtDate(x.data)} • ${x.tipo}${x.km ? ' • KM ' + x.km : ''}`,
+        (x) => `${(x.date || '').split('-').reverse().join('/')} • KM ${x.km ?? '-'} • ${x.tipo}`,
         (x) => x.euro
       );
     }
 
     function exportExcel() {
-      // esporta tutto (non filtrato) come CSV
-      let csv = "Tipo,Auto,Dettaglio,Euro,Data,Extra\n";
-      db.gas.forEach(g => csv += `GAS,${carNameById(g.autoId) || g.autoId},${g.tipo},${g.euro},${g.data},KM:${g.km} LITRI:${g.litri}\n`);
-      db.spese.forEach(s => csv += `SPESA,${carNameById(s.autoId) || s.autoId},${s.tipo},${s.euro},${s.data},SCAD:${s.scadenza || ''}\n`);
-      db.manu.forEach(m => csv += `MANU,${carNameById(m.autoId) || m.autoId},${m.tipo},${m.euro},${m.data},KM:${m.km || ''}\n`);
+      let csv = "Tipo,Auto,Dettaglio,Euro,Data,KM,Extra\n";
+      db.gas.forEach(g => csv += `GAS,${carNameById(g.autoId) || g.autoId},${g.tipo},${g.euro},${g.date || ''},${g.km || ''},${g.litri} L\n`);
+      db.spese.forEach(s => csv += `SPESA,${carNameById(s.autoId) || s.autoId},${s.tipo},${s.euro},${s.data},,SCAD:${s.scadenza || ''}\n`);
+      db.manu.forEach(m => csv += `MANU,${carNameById(m.autoId) || m.autoId},${m.tipo},${m.euro},${m.date || ''},${m.km || ''},\n`);
 
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
@@ -560,6 +598,8 @@
     // INIT
     renderHome();
     fillSels();
+    const repSel = document.getElementById('rep-auto');
+    if (repSel) fillRepSel();
   </script>
 </body>
 </html>
