@@ -227,7 +227,7 @@
       <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
 
       <label>KM Attuali (contachilometri)</label>
-      <input type="number" id="g-km" inputmode="numeric" oninput="enforceGasKmMinLive()" />
+      <input type="text" id="g-km" inputmode="numeric" pattern="[0-9]*" placeholder="es. 123456" />
       <div class="hint" id="g-km-hint"></div>
 
       <label>Tipo Carburante</label>
