@@ -10,62 +10,39 @@
     :root { --accent:#006064; --bg:#000; --card:#1c1c1e; --text:#fff; --muted:#8e8e93; --line:#38383a; }
     body { font-family:-apple-system,system-ui,sans-serif; background:var(--bg); color:var(--text); margin:0; padding-bottom:120px; -webkit-font-smoothing:antialiased; }
 
-    /* ✅ HERO SPLASH PREMIUM (compatta + glow) */
+    /* HERO SPLASH */
     .hero{
       width:100%;
-      height:170px;
+      height:150px;
       background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.06), transparent 55%),
                   linear-gradient(135deg,#001414,#006064);
-      position:relative;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px 14px;
-      box-sizing:border-box;
+      position:relative; overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+      padding:18px 14px; box-sizing:border-box;
       margin-bottom:18px;
     }
-    .hero::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.88));
-      pointer-events:none;
-    }
-    .splash{
-      position:relative;
-      z-index:1;
-      width:min(760px, 96vw);
-      height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
+    .hero::after{ content:""; position:absolute; inset:0; background: linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.88)); pointer-events:none; }
+    .splash{ position:relative; z-index:1; width:min(760px, 96vw); height:100%; display:flex; align-items:center; justify-content:center; }
     .splash img{
       width:100%;
-      max-height:120px;
+      max-height:100px;
       object-fit:contain;
       display:block;
       filter: drop-shadow(0 0 20px rgba(0,200,255,0.45)) drop-shadow(0 18px 45px rgba(0,0,0,0.45));
     }
-    .splash .fallback{
-      display:none;
-      font-weight:900;
-      letter-spacing:3px;
-      text-transform:uppercase;
-      font-size:2.2rem;
-    }
+    .splash .fallback{ display:none; font-weight:900; letter-spacing:3px; text-transform:uppercase; font-size:2.2rem; }
 
-    .container { max-width:500px; margin:0 auto 0; padding:0 20px; }
+    .container { max-width:500px; margin:0 auto; padding:0 20px; }
 
     .view{ display:none; }
     .view.active{ display:block; }
 
     .title{ font-size:1.4rem; font-weight:900; text-transform:uppercase; border-bottom:2px solid #fff; padding-bottom:10px; margin-bottom:20px; }
     .card{ background:var(--card); border-radius:20px; padding:20px; margin-bottom:15px; border:1px solid var(--line); }
-    .info-row{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); gap:12px; }
+    .info-row{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); gap:12px; align-items:flex-start; }
     .label{ color:var(--muted); font-size:0.7rem; font-weight:800; text-transform:uppercase; }
-    .val{ font-weight:700; font-size:0.9rem; text-transform:uppercase; }
+    .val{ font-weight:800; font-size:0.9rem; text-transform:uppercase; }
+    .muted{ color:var(--muted); font-weight:800; font-size:0.75rem; text-transform:none; }
 
     label{ display:block; font-size:0.65rem; font-weight:800; color:var(--accent); text-transform:uppercase; margin:15px 0 5px 5px; }
     input,select{
@@ -76,14 +53,14 @@
       padding:15px;
       color:#fff;
       font-size:1rem;
-      font-weight:600;
+      font-weight:700;
       box-sizing:border-box;
       text-transform:uppercase;
       outline:none;
     }
 
-    .btn-main{ background:var(--accent); color:#fff; border:none; padding:18px; width:100%; border-radius:16px; font-weight:800; font-size:0.9rem; cursor:pointer; margin-top:20px; text-transform:uppercase; }
-    .btn-add{ background:#fff; color:#000; border:none; padding:8px 16px; border-radius:10px; font-weight:800; font-size:0.7rem; cursor:pointer; }
+    .btn-main{ background:var(--accent); color:#fff; border:none; padding:18px; width:100%; border-radius:16px; font-weight:900; font-size:0.9rem; cursor:pointer; margin-top:20px; text-transform:uppercase; }
+    .btn-add{ background:#fff; color:#000; border:none; padding:8px 16px; border-radius:10px; font-weight:900; font-size:0.7rem; cursor:pointer; }
 
     nav{
       position:fixed; bottom:15px; left:50%; transform:translateX(-50%);
@@ -96,13 +73,12 @@
     }
     .nav-item{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--muted); cursor:pointer; }
     .nav-item.active{ color:var(--accent); }
-    .nav-text{ font-size:0.5rem; font-weight:800; text-transform:uppercase; margin-top:4px; }
+    .nav-text{ font-size:0.5rem; font-weight:900; text-transform:uppercase; margin-top:4px; }
 
-    .hist-empty{ opacity:.7; padding:6px 0; font-size:.75rem; color:var(--muted); text-transform:none; }
-    .hist-text{ text-transform:none; font-size:.75rem; color:var(--muted); font-weight:800; }
-    .hist-euro{ font-size:.82rem; font-weight:800; }
-    .hint{ font-size:.65rem; color:var(--muted); font-weight:800; text-transform:none; margin:8px 2px 0; opacity:.9; }
+    .hint{ font-size:.7rem; color:var(--muted); font-weight:900; text-transform:none; margin:8px 2px 0; opacity:.95; }
 
+    /* Icon buttons */
+    .row-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
     .iconbar{ display:flex; gap:10px; align-items:center; justify-content:flex-end; }
     .iconbtn{
       border:1px solid rgba(255,255,255,0.14);
@@ -115,13 +91,21 @@
       line-height:1;
       font-size:0.95rem;
     }
-    .iconbtn:active{ transform: scale(0.98); }
-    .row-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
-    .small{ font-size:0.75rem; color:var(--muted); font-weight:800; text-transform:none; }
 
-    @media (max-width: 520px){
-      .hero{ height: 150px; }
-      .splash img{ max-height: 92px; }
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .pill{
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 12px 12px;
+    }
+    .pill .k{ font-size:.65rem; font-weight:900; text-transform:uppercase; color:var(--muted); }
+    .pill .v{ font-size:1.05rem; font-weight:900; margin-top:6px; }
+    .pill .sub{ font-size:.7rem; font-weight:900; color:var(--muted); margin-top:6px; text-transform:none; }
+
+    @media (max-width:520px){
+      .hero{ height:150px; }
+      .splash img{ max-height:92px; }
     }
   </style>
 </head>
@@ -136,7 +120,7 @@
   </div>
 
   <div class="container">
-
+    <!-- HOME -->
     <div id="v-home" class="view active">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
         <div class="title" style="margin:0; border:0">Garage</div>
@@ -145,6 +129,7 @@
       <div id="car-list"></div>
     </div>
 
+    <!-- ADD CAR -->
     <div id="v-add-car" class="view">
       <div class="title" id="car-form-title">Nuovo Veicolo</div>
       <label>Marca e Modello</label>
@@ -153,124 +138,97 @@
       <input type="text" id="a-targa" placeholder="AA 000 AA" maxlength="9" oninput="fmtTarga(this)" />
       <label>Data Immatricolazione</label>
       <input type="date" id="a-imm" />
-      <button class="btn-main" onclick="saveCar()" id="car-save-btn">Crea Identità</button>
-      <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditCar()" id="car-cancel-btn">Annulla modifica</button>
+      <button class="btn-main" onclick="saveCar()">Crea Identità</button>
     </div>
 
+    <!-- SPESE -->
     <div id="v-spese" class="view">
-      <div class="title" id="spese-form-title">Spese Burocratiche</div>
+      <div class="title">Spese Amministrative</div>
       <label>Auto</label><select id="s-auto"></select>
 
       <label>Tipo Spesa</label>
       <select id="s-tipo" onchange="toggleAlt(this, 's-alt-box')">
-        <option>BOLLO</option>
-        <option>ASSICURAZIONE (RCA)</option>
-        <option>REVISIONE</option>
-        <option value="ALTRO">ALTRO...</option>
+        <option>BOLLO</option><option>ASSICURAZIONE (RCA)</option><option>REVISIONE</option><option value="ALTRO">ALTRO...</option>
       </select>
-
       <div id="s-alt-box" style="display:none">
-        <label>Specifica voce</label>
-        <input type="text" id="s-alt" oninput="u(this)" />
+        <label>Specifica voce</label><input type="text" id="s-alt" oninput="u(this)">
       </div>
 
-      <label>Importo €</label><input type="number" id="s-euro" step="0.01" />
-      <label>Data Scadenza</label><input type="date" id="a-scad" />
-
-      <button class="btn-main" onclick="saveSpesa()" id="spese-save-btn">Registra Spesa</button>
-      <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditSpesa()" id="spese-cancel-btn">Annulla modifica</button>
-
-      <div class="card" style="margin-top:18px;">
-        <div class="row-head">
-          <div class="val" style="font-size:1rem;">Storico Spese</div>
-          <div class="small">✏️ modifica • 🗑 elimina</div>
-        </div>
-        <div id="spese-list"></div>
-      </div>
+      <label>Importo €</label><input type="number" id="s-euro" step="0.01">
+      <label>Data Scadenza</label><input type="date" id="a-scad">
+      <button class="btn-main" onclick="saveSpesa()">Registra Spesa</button>
     </div>
 
+    <!-- MANU -->
     <div id="v-manu" class="view">
-      <div class="title" id="manu-form-title">Manutenzione</div>
+      <div class="title">Manutenzione</div>
       <label>Auto</label><select id="m-auto"></select>
 
       <label>Intervento</label>
       <select id="m-tipo" onchange="toggleAlt(this, 'm-alt-box')">
-        <option>TAGLIANDO</option>
-        <option>FRENI</option>
-        <option>PNEUMATICI</option>
-        <option>DISTRIBUZIONE</option>
-        <option value="ALTRO">ALTRO...</option>
+        <option>TAGLIANDO</option><option>FRENI</option><option>PNEUMATICI</option><option>DISTRIBUZIONE</option><option value="ALTRO">ALTRO...</option>
       </select>
-
       <div id="m-alt-box" style="display:none">
-        <label>Specifica intervento</label>
-        <input type="text" id="m-alt" oninput="u(this)" />
+        <label>Specifica intervento</label><input type="text" id="m-alt" oninput="u(this)">
       </div>
 
-      <label>KM Attuali</label><input type="number" id="m-km" />
-      <label>Costo €</label><input type="number" id="m-euro" step="0.01" />
-
-      <button class="btn-main" onclick="saveManu()" id="manu-save-btn">Registra Meccanico</button>
-      <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditManu()" id="manu-cancel-btn">Annulla modifica</button>
-
-      <div class="card" style="margin-top:18px;">
-        <div class="row-head">
-          <div class="val" style="font-size:1rem;">Storico Manutenzioni</div>
-          <div class="small">✏️ modifica • 🗑 elimina</div>
-        </div>
-        <div id="manu-list"></div>
-      </div>
+      <label>KM Attuali</label><input type="number" id="m-km">
+      <label>Costo €</label><input type="number" id="m-euro" step="0.01">
+      <button class="btn-main" onclick="saveManu()">Registra Manutenzione</button>
     </div>
 
+    <!-- GAS -->
     <div id="v-gas" class="view">
-      <div class="title" id="gas-form-title">Rifornimento</div>
+      <div class="title">Rifornimento</div>
       <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
 
       <label>KM Attuali (contachilometri)</label>
+      <!-- ✅ smartphone-friendly -->
       <input type="text" id="g-km" inputmode="numeric" pattern="[0-9]*" placeholder="es. 123456" />
       <div class="hint" id="g-km-hint"></div>
 
       <label>Tipo Carburante</label>
       <select id="g-tipo">
-        <option>BENZINA</option>
-        <option>DIESEL</option>
-        <option>DIESEL PLUS</option>
-        <option>HVO</option>
-        <option>GPL</option>
-        <option>METANO</option>
+        <option>BENZINA</option><option>DIESEL</option><option>DIESEL PLUS</option><option>HVO</option><option>GPL</option><option>METANO</option>
       </select>
 
       <div style="display:flex; gap:10px">
-        <div style="flex:1">
-          <label>Litri</label>
-          <input type="number" id="g-lit" oninput="calcG()" />
-        </div>
-        <div style="flex:1">
-          <label>Prezzo/L</label>
-          <input type="number" id="g-pre" oninput="calcG()" step="0.001" />
-        </div>
+        <div style="flex:1"><label>Litri</label><input type="number" id="g-lit" oninput="calcG()"></div>
+        <div style="flex:1"><label>Prezzo/L</label><input type="number" id="g-pre" oninput="calcG()" step="0.001"></div>
       </div>
 
-      <button class="btn-main" onclick="saveGas()" id="gas-save-btn">Salva (€ <span id="g-tot">0.00</span>)</button>
-      <button class="btn-main" style="background:#2c2c2e; display:none" onclick="cancelEditGas()" id="gas-cancel-btn">Annulla modifica</button>
-
-      <div class="card" style="margin-top:18px;">
-        <div class="row-head">
-          <div class="val" style="font-size:1rem;">Storico Rifornimenti</div>
-          <div class="small">✏️ modifica • 🗑 elimina</div>
-        </div>
-        <div id="gas-list"></div>
-      </div>
+      <button class="btn-main" onclick="saveGas()">Salva (€ <span id="g-tot">0.00</span>)</button>
     </div>
 
+    <!-- REPORT -->
     <div id="v-rep" class="view">
       <div class="title">Report & Analisi</div>
 
       <label>Auto (filtra)</label>
       <select id="rep-auto" onchange="renderReport()"></select>
 
-      <canvas id="myChart" style="width:100%; height:250px; margin-bottom:20px;"></canvas>
-      <div id="rep-stats"></div>
+      <div class="grid2">
+        <div>
+          <label>Anno</label>
+          <select id="rep-year" onchange="renderReport()"></select>
+        </div>
+        <div>
+          <label>Mese</label>
+          <select id="rep-month" onchange="renderReport()"></select>
+        </div>
+      </div>
+
+      <canvas id="myChart" style="width:100%; height:250px; margin:18px 0 14px;"></canvas>
+
+      <div class="card">
+        <div class="val" style="font-size:1rem; margin-bottom:10px">Costi per Area (Periodo selezionato)</div>
+        <div id="rep-areas"></div>
+      </div>
+
+      <div class="card">
+        <div class="val" style="font-size:1rem; margin-bottom:10px">Mensile vs Annuale (Anno selezionato)</div>
+        <div id="rep-month-year"></div>
+      </div>
 
       <button class="btn-main" style="background:#2c2c2e" onclick="exportExcel()">📥 Esporta Excel</button>
     </div>
@@ -288,39 +246,30 @@
     let db = JSON.parse(localStorage.getItem('dlog_v13')) || { auto: [], spese: [], manu: [], gas: [] };
     let myChart = null;
 
-    let editCarIndex = null;
-    let editSpesaIndex = null;
-    let editManuIndex = null;
-    let editGasIndex = null;
-
     function u(el){ el.value = (el.value || '').toUpperCase(); }
-
     function fmtTarga(el){
       let v = (el.value || '').toUpperCase().replace(/[^A-Z0-9]/g,'');
       if (v.length > 2) v = v.slice(0,2) + ' ' + v.slice(2);
       if (v.length > 6) v = v.slice(0,6) + ' ' + v.slice(6,8);
       el.value = v;
     }
-
-    function toggleAlt(el, boxId){
-      document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none';
-    }
+    function toggleAlt(el, boxId){ document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none'; }
 
     function showV(id, el){
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById(id).classList.add('active');
-
       if (el){
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
       }
-
       fillSels();
       if (id === 'v-gas') updateGasKmMinHint();
-      if (id === 'v-rep') renderReport();
-      if (id === 'v-spese') renderSpeseList();
-      if (id === 'v-manu') renderManuList();
-      if (id === 'v-gas') renderGasList();
+      if (id === 'v-rep') initReportSelectorsAndRender();
+    }
+
+    function sync(){
+      localStorage.setItem('dlog_v13', JSON.stringify(db));
+      renderHome();
     }
 
     function fillSels(){
@@ -331,145 +280,24 @@
       });
     }
 
-    function sync(){
-      localStorage.setItem('dlog_v13', JSON.stringify(db));
-      renderHome();
-      renderSpeseList();
-      renderManuList();
-      renderGasList();
-    }
-
-    function fmtDate(iso){
-      if (!iso) return '';
-      const d = new Date(iso);
-      const dd = String(d.getDate()).padStart(2,'0');
-      const mm = String(d.getMonth()+1).padStart(2,'0');
-      const yy = d.getFullYear();
-      return `${dd}/${mm}/${yy}`;
-    }
-
     function carNameById(id){
       const a = db.auto.find(x => String(x.id) === String(id));
       return a ? a.nome : '';
-    }
-
-    function doubleConfirm(msg1, msg2){
-      if (!confirm(msg1)) return false;
-      if (!confirm(msg2)) return false;
-      return true;
-    }
-
-    function resetCarForm(){
-      document.getElementById('a-nome').value = '';
-      document.getElementById('a-targa').value = '';
-      document.getElementById('a-imm').value = '';
-      editCarIndex = null;
-      document.getElementById('car-form-title').innerText = 'Nuovo Veicolo';
-      document.getElementById('car-save-btn').innerText = 'Crea Identità';
-      document.getElementById('car-cancel-btn').style.display = 'none';
-    }
-
-    function resetSpesaForm(){
-      document.getElementById('s-tipo').value = 'BOLLO';
-      document.getElementById('s-alt').value = '';
-      document.getElementById('s-alt-box').style.display = 'none';
-      document.getElementById('s-euro').value = '';
-      document.getElementById('a-scad').value = '';
-      editSpesaIndex = null;
-      document.getElementById('spese-form-title').innerText = 'Spese Burocratiche';
-      document.getElementById('spese-save-btn').innerText = 'Registra Spesa';
-      document.getElementById('spese-cancel-btn').style.display = 'none';
-    }
-
-    function resetManuForm(){
-      document.getElementById('m-tipo').value = 'TAGLIANDO';
-      document.getElementById('m-alt').value = '';
-      document.getElementById('m-alt-box').style.display = 'none';
-      document.getElementById('m-km').value = '';
-      document.getElementById('m-euro').value = '';
-      editManuIndex = null;
-      document.getElementById('manu-form-title').innerText = 'Manutenzione';
-      document.getElementById('manu-save-btn').innerText = 'Registra Meccanico';
-      document.getElementById('manu-cancel-btn').style.display = 'none';
-    }
-
-    function resetGasForm(){
-      document.getElementById('g-km').value = '';
-      document.getElementById('g-tipo').value = 'BENZINA';
-      document.getElementById('g-lit').value = '';
-      document.getElementById('g-pre').value = '';
-      document.getElementById('g-tot').innerText = '0.00';
-      editGasIndex = null;
-      document.getElementById('gas-form-title').innerText = 'Rifornimento';
-      document.getElementById('gas-cancel-btn').style.display = 'none';
-      updateGasKmMinHint();
-    }
-
-    function getMaxGasKm(autoId, excludeIndex = null){
-      const list = db.gas
-        .map((x,idx) => ({...x, _idx: idx}))
-        .filter(x =>
-          String(x.autoId) === String(autoId) &&
-          Number.isFinite(Number(x.km)) &&
-          (excludeIndex === null || x._idx !== excludeIndex)
-        );
-      if (list.length === 0) return null;
-      return list.reduce((max, x) => Math.max(max, Number(x.km)), -Infinity);
-    }
-
-    function updateGasKmMinHint(){
-      const autoId = document.getElementById('g-auto')?.value;
-      const kmInput = document.getElementById('g-km');
-      const hint = document.getElementById('g-km-hint');
-      if (!kmInput || !hint) return;
-
-      if (!autoId){
-        kmInput.min = '';
-        hint.innerText = '';
-        return;
-      }
-
-      const last = getMaxGasKm(autoId, editGasIndex);
-      if (last === null || !isFinite(last)){
-        kmInput.min = '';
-        hint.innerText = 'Primo rifornimento per questa auto: inserisci il KM attuale.';
-      } else {
-        kmInput.min = String(last);
-        hint.innerText = `Minimo consentito per questa auto: ${last} km (ultimo rifornimento).`;
-      }
-    }
-
-    function enforceGasKmMinLive(){
-      const autoId = document.getElementById('g-auto')?.value;
-      if (!autoId) return;
-
-      const last = getMaxGasKm(autoId, editGasIndex);
-      if (last === null || !isFinite(last)) return;
-
-      const kmInput = document.getElementById('g-km');
-      const v = parseInt(kmInput.value, 10);
-      if (!isNaN(v) && v < last){
-        kmInput.value = String(last);
-      }
     }
 
     function saveCar(){
       const nome = document.getElementById('a-nome').value.trim();
       const targa = document.getElementById('a-targa').value.trim();
       const imm  = document.getElementById('a-imm').value;
-
       if (!nome) return alert('Inserisci MARCA e MODELLO');
       if (!targa) return alert('Inserisci TARGA');
 
-      if (editCarIndex !== null){
-        db.auto[editCarIndex] = { ...db.auto[editCarIndex], nome, targa, imm };
-      } else {
-        db.auto.push({ id: Date.now(), nome, targa, imm });
-      }
-
+      db.auto.push({ id: Date.now(), nome, targa, imm });
       sync();
-      resetCarForm();
       showV('v-home', document.querySelector('.nav-item'));
+      document.getElementById('a-nome').value = '';
+      document.getElementById('a-targa').value = '';
+      document.getElementById('a-imm').value = '';
     }
 
     function saveSpesa(){
@@ -482,16 +310,15 @@
       const scadenza = document.getElementById('a-scad').value;
 
       if (!tipo) return alert('Inserisci TIPO SPESA');
-
-      if (editSpesaIndex !== null){
-        db.spese[editSpesaIndex] = { ...db.spese[editSpesaIndex], autoId, tipo, euro, scadenza };
-      } else {
-        db.spese.push({ autoId, tipo, euro, scadenza, data: new Date().toISOString() });
-      }
-
+      db.spese.push({ autoId, tipo, euro, scadenza, data: new Date().toISOString() });
       sync();
-      resetSpesaForm();
       showV('v-home', document.querySelector('.nav-item'));
+
+      document.getElementById('s-euro').value = '';
+      document.getElementById('a-scad').value = '';
+      document.getElementById('s-alt').value = '';
+      document.getElementById('s-tipo').value = 'BOLLO';
+      document.getElementById('s-alt-box').style.display = 'none';
     }
 
     function saveManu(){
@@ -504,16 +331,15 @@
       const km = parseInt(document.getElementById('m-km').value, 10);
 
       if (!tipo) return alert('Inserisci INTERVENTO');
-
-      if (editManuIndex !== null){
-        db.manu[editManuIndex] = { ...db.manu[editManuIndex], autoId, tipo, euro, km: isNaN(km) ? '' : km };
-      } else {
-        db.manu.push({ autoId, tipo, euro, km: isNaN(km) ? '' : km, data: new Date().toISOString() });
-      }
-
+      db.manu.push({ autoId, tipo, euro, km: isNaN(km) ? '' : km, data: new Date().toISOString() });
       sync();
-      resetManuForm();
       showV('v-home', document.querySelector('.nav-item'));
+
+      document.getElementById('m-euro').value = '';
+      document.getElementById('m-km').value = '';
+      document.getElementById('m-alt').value = '';
+      document.getElementById('m-tipo').value = 'TAGLIANDO';
+      document.getElementById('m-alt-box').style.display = 'none';
     }
 
     function calcG(){
@@ -522,61 +348,47 @@
       document.getElementById('g-tot').innerText = (lit * pre).toFixed(2);
     }
 
+    function getMaxGasKm(autoId){
+      const list = db.gas.filter(x => String(x.autoId) === String(autoId) && Number.isFinite(Number(x.km)));
+      if (!list.length) return null;
+      return list.reduce((m,x)=> Math.max(m, Number(x.km)), -Infinity);
+    }
+
+    function updateGasKmMinHint(){
+      const autoId = document.getElementById('g-auto')?.value;
+      const hint = document.getElementById('g-km-hint');
+      if (!hint) return;
+      if (!autoId){ hint.innerText = ''; return; }
+      const last = getMaxGasKm(autoId);
+      hint.innerText = (last === null) ? 'Primo rifornimento: inserisci il KM attuale.' : `Ultimo KM registrato: ${last}. Non puoi inserire un valore inferiore.`;
+    }
+
     function saveGas(){
       const autoId = document.getElementById('g-auto').value;
       if (!autoId) return alert('Crea prima almeno 1 AUTO');
 
       const tipo = document.getElementById('g-tipo').value;
-      const km = parseInt(document.getElementById('g-km').value, 10);
+      const km = parseInt(String(document.getElementById('g-km').value).replace(/\D/g,''), 10);
       const litri = parseFloat(document.getElementById('g-lit').value) || 0;
       const euro = parseFloat(document.getElementById('g-tot').innerText) || 0;
 
-      if (!Number.isFinite(km) || km <= 0) return alert('Inserisci KM attuali (contachilometri)');
+      if (!Number.isFinite(km) || km <= 0) return alert('Inserisci KM attuali (solo numeri)');
       if (litri <= 0 || euro <= 0) return alert('Inserisci LITRI e PREZZO/L');
 
-      const last = getMaxGasKm(autoId, editGasIndex);
+      const last = getMaxGasKm(autoId);
       if (last !== null && isFinite(last) && km < last){
         return alert(`KM non valido: per questa auto non puoi inserire un valore inferiore a ${last} km.`);
       }
 
-      if (editGasIndex !== null){
-        db.gas[editGasIndex] = { ...db.gas[editGasIndex], autoId, tipo, km, litri, euro };
-      } else {
-        db.gas.push({ autoId, tipo, km, litri, euro, data: new Date().toISOString() });
-      }
-
+      db.gas.push({ autoId, tipo, km, litri, euro, data: new Date().toISOString() });
       sync();
-      resetGasForm();
       showV('v-home', document.querySelector('.nav-item'));
-    }
 
-    function editCar(i){
-      const a = db.auto[i];
-      editCarIndex = i;
-      document.getElementById('a-nome').value = a.nome || '';
-      document.getElementById('a-targa').value = a.targa || '';
-      document.getElementById('a-imm').value = a.imm || '';
-      document.getElementById('car-form-title').innerText = 'Modifica Veicolo';
-      document.getElementById('car-save-btn').innerText = 'Salva Modifiche';
-      document.getElementById('car-cancel-btn').style.display = 'block';
-      showV('v-add-car');
-    }
-    function cancelEditCar(){ resetCarForm(); showV('v-home', document.querySelector('.nav-item')); }
-
-    function deleteCar(i){
-      const car = db.auto[i];
-      const ok = doubleConfirm(
-        `Eliminare l'auto "${car.nome}"?`,
-        `Confermi DEFINITIVAMENTE? Verranno eliminati anche rifornimenti, spese e manutenzioni di questa auto.`
-      );
-      if (!ok) return;
-
-      const carId = car.id;
-      db.auto.splice(i,1);
-      db.gas = db.gas.filter(x => String(x.autoId) !== String(carId));
-      db.spese = db.spese.filter(x => String(x.autoId) !== String(carId));
-      db.manu = db.manu.filter(x => String(x.autoId) !== String(carId));
-      sync();
+      document.getElementById('g-km').value = '';
+      document.getElementById('g-lit').value = '';
+      document.getElementById('g-pre').value = '';
+      document.getElementById('g-tot').innerText = '0.00';
+      updateGasKmMinHint();
     }
 
     function renderHome(){
@@ -589,19 +401,13 @@
       }
 
       const ultimoKm = (autoId)=>{
-        const last = getMaxGasKm(autoId, null);
+        const last = getMaxGasKm(autoId);
         return (last === null || !isFinite(last)) ? '-' : String(last);
       };
 
-      el.innerHTML = db.auto.map((a, idx) => `
+      el.innerHTML = db.auto.map(a => `
         <div class="card">
-          <div class="row-head">
-            <div class="val" style="font-size:1.1rem;">${a.nome}</div>
-            <div class="iconbar">
-              <button class="iconbtn" onclick="editCar(${idx})" title="Modifica">✏️</button>
-              <button class="iconbtn" onclick="deleteCar(${idx})" title="Elimina">🗑</button>
-            </div>
-          </div>
+          <div class="val" style="font-size:1.1rem; margin-bottom:10px">${a.nome}</div>
           <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
           <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm || '-'}</span></div>
           <div class="info-row" style="border-bottom:0"><span class="label">Ultimo KM</span><span class="val">${ultimoKm(a.id)}</span></div>
@@ -609,104 +415,284 @@
       `).join('');
     }
 
-    function renderSpeseList(){
-      const el = document.getElementById('spese-list');
-      if (!el) return;
-      const sorted = [...db.spese].sort((a,b)=> new Date(b.data)-new Date(a.data)).slice(0,20);
-      el.innerHTML = (sorted.length === 0) ? `<div class="hist-empty">Nessuna spesa</div>` :
-        sorted.map((x) => `
-          <div class="info-row">
-            <span class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</span>
-            <span class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</span>
-          </div>
-        `).join('');
+    // ---- REPORT: date helpers ----
+    function parseISO(d){ return new Date(d); }
+    function getAllEntryDates(){
+      const all = []
+        .concat(db.gas.map(x=>x.data))
+        .concat(db.spese.map(x=>x.data))
+        .concat(db.manu.map(x=>x.data))
+        .filter(Boolean);
+      return all.map(parseISO).filter(d=>!isNaN(d));
     }
-    function renderManuList(){
-      const el = document.getElementById('manu-list');
-      if (!el) return;
-      const sorted = [...db.manu].sort((a,b)=> new Date(b.data)-new Date(a.data)).slice(0,20);
-      el.innerHTML = (sorted.length === 0) ? `<div class="hist-empty">Nessuna manutenzione</div>` :
-        sorted.map((x) => `
-          <div class="info-row">
-            <span class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo}</span>
-            <span class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</span>
-          </div>
-        `).join('');
-    }
-    function renderGasList(){
-      const el = document.getElementById('gas-list');
-      if (!el) return;
-      const sorted = [...db.gas].sort((a,b)=> new Date(b.data)-new Date(a.data)).slice(0,20);
-      el.innerHTML = (sorted.length === 0) ? `<div class="hist-empty">Nessun rifornimento</div>` :
-        sorted.map((x) => `
-          <div class="info-row">
-            <span class="hist-text">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • ${x.tipo} • KM ${x.km ?? '-'}</span>
-            <span class="hist-euro">€ ${(Number(x.euro)||0).toFixed(2)}</span>
-          </div>
-        `).join('');
+    function uniq(arr){ return [...new Set(arr)]; }
+
+    function monthName(m){
+      const names = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+      return names[m-1] || '';
     }
 
-    function fillRepSel(){
+    function initReportSelectorsAndRender(){
+      fillReportAutoSel();
+      fillReportYearMonth();
+      renderReport();
+    }
+
+    function fillReportAutoSel(){
       const sel = document.getElementById('rep-auto');
       if (!sel) return;
       const prev = sel.value || 'ALL';
-      sel.innerHTML = [`<option value="ALL">TUTTE LE AUTO</option>`, ...db.auto.map(a => `<option value="${a.id}">${a.nome}</option>`)].join('');
-      const exists = [...sel.options].some(o => o.value === prev);
-      sel.value = exists ? prev : 'ALL';
+      sel.innerHTML = [`<option value="ALL">TUTTE LE AUTO</option>`, ...db.auto.map(a=>`<option value="${a.id}">${a.nome}</option>`)].join('');
+      if ([...sel.options].some(o=>o.value===prev)) sel.value = prev;
+      else sel.value = 'ALL';
     }
 
-    function filterByCar(list, carId){
-      if (carId === 'ALL') return list;
-      return list.filter(x => String(x.autoId) === String(carId));
+    function fillReportYearMonth(){
+      const ySel = document.getElementById('rep-year');
+      const mSel = document.getElementById('rep-month');
+      if (!ySel || !mSel) return;
+
+      const dates = getAllEntryDates();
+      const now = new Date();
+      const years = uniq(dates.map(d=>d.getFullYear())).sort((a,b)=>b-a);
+      const safeYears = years.length ? years : [now.getFullYear()];
+
+      const prevY = ySel.value;
+      ySel.innerHTML = safeYears.map(y=>`<option value="${y}">${y}</option>`).join('');
+      ySel.value = safeYears.includes(Number(prevY)) ? prevY : String(safeYears[0]);
+
+      const prevM = mSel.value;
+      const months = ['ALL', ...Array.from({length:12}, (_,i)=>String(i+1))];
+      mSel.innerHTML = months.map(v=>{
+        if (v==='ALL') return `<option value="ALL">TUTTI I MESI</option>`;
+        return `<option value="${v}">${monthName(Number(v))}</option>`;
+      }).join('');
+      mSel.value = months.includes(prevM) ? prevM : 'ALL';
+    }
+
+    function inPeriod(iso, year, month){
+      if (!iso) return false;
+      const d = new Date(iso);
+      if (isNaN(d)) return false;
+      if (d.getFullYear() !== year) return false;
+      if (month === 'ALL') return true;
+      return (d.getMonth()+1) === Number(month);
+    }
+
+    function filterDataByAutoAndPeriod(arr, autoId, year, month){
+      return arr.filter(x=>{
+        const okAuto = (autoId==='ALL') ? true : String(x.autoId) === String(autoId);
+        return okAuto && inPeriod(x.data, year, month);
+      });
+    }
+
+    function filterDataByAutoAndYear(arr, autoId, year){
+      return arr.filter(x=>{
+        const okAuto = (autoId==='ALL') ? true : String(x.autoId) === String(autoId);
+        return okAuto && inPeriod(x.data, year, 'ALL');
+      });
+    }
+
+    function sumEuro(arr){
+      return arr.reduce((s,x)=> s + (Number(x.euro)||0), 0);
+    }
+
+    // KM traveled = MAX(KM)-MIN(KM) per auto (nel periodo)
+    function kmTraveledForAuto(autoId, year, month){
+      const g = filterDataByAutoAndPeriod(db.gas, String(autoId), year, month)
+        .map(x=>Number(x.km))
+        .filter(v=>Number.isFinite(v));
+      if (g.length < 2) return 0;
+      const min = Math.min(...g);
+      const max = Math.max(...g);
+      return (max > min) ? (max - min) : 0;
+    }
+
+    function kmTraveled(autoId, year, month){
+      if (autoId !== 'ALL') return kmTraveledForAuto(autoId, year, month);
+      // sommo per ogni auto per non mescolare odometri
+      return db.auto.reduce((tot,a)=> tot + kmTraveledForAuto(a.id, year, month), 0);
+    }
+
+    function euroPerKm(euro, km){
+      if (!km || km <= 0) return '—';
+      return (euro / km).toFixed(3);
     }
 
     function renderReport(){
-      fillSels();
-      fillRepSel();
+      fillReportAutoSel(); // safety
+      fillReportYearMonth();
 
-      const carId = document.getElementById('rep-auto')?.value || 'ALL';
-      const titolo = (carId === 'ALL') ? 'TUTTE LE AUTO' : carNameById(carId);
+      const autoId = document.getElementById('rep-auto')?.value || 'ALL';
+      const year = Number(document.getElementById('rep-year')?.value) || (new Date().getFullYear());
+      const month = document.getElementById('rep-month')?.value || 'ALL';
 
-      const gas = filterByCar(db.gas, carId);
-      const spese = filterByCar(db.spese, carId);
-      const manu = filterByCar(db.manu, carId);
+      // PERIOD (mese selezionato o tutti i mesi dell'anno selezionato)
+      const A_p = sumEuro(filterDataByAutoAndPeriod(db.spese, autoId, year, month));
+      const B_p = sumEuro(filterDataByAutoAndPeriod(db.manu,  autoId, year, month));
+      const C_p = sumEuro(filterDataByAutoAndPeriod(db.gas,   autoId, year, month));
+      const KM_p = kmTraveled(autoId, year, month);
 
-      const dataGas = gas.reduce((a,b) => a + (Number(b.euro) || 0), 0);
-      const dataSpese = spese.reduce((a,b) => a + (Number(b.euro) || 0), 0);
-      const dataManu = manu.reduce((a,b) => a + (Number(b.euro) || 0), 0);
-      const tot = dataGas + dataSpese + dataManu;
+      // YEAR totals (anno selezionato, tutti i mesi)
+      const A_y = sumEuro(filterDataByAutoAndYear(db.spese, autoId, year));
+      const B_y = sumEuro(filterDataByAutoAndYear(db.manu,  autoId, year));
+      const C_y = sumEuro(filterDataByAutoAndYear(db.gas,   autoId, year));
+      const KM_y = kmTraveled(autoId, year, 'ALL');
 
+      // combos - period
+      const AB_p = A_p + B_p;
+      const AC_p = A_p + C_p;
+      const BC_p = B_p + C_p;
+      const ABC_p = A_p + B_p + C_p;
+
+      // combos - year
+      const AB_y = A_y + B_y;
+      const AC_y = A_y + C_y;
+      const BC_y = B_y + C_y;
+      const ABC_y = A_y + B_y + C_y;
+
+      // Chart (period selected)
       const ctx = document.getElementById('myChart').getContext('2d');
       if (myChart) myChart.destroy();
       myChart = new Chart(ctx, {
         type:'doughnut',
         data:{
-          labels:['GAS','SPESE','MANU'],
+          labels:['A SPESE','B MANU','C GAS'],
           datasets:[{
-            data:[dataGas, dataSpese, dataManu],
-            backgroundColor:['#006064','#00acc1','#004d40'],
+            data:[A_p, B_p, C_p],
+            backgroundColor:['#00acc1','#004d40','#006064'],
             borderWidth:0
           }]
         },
         options:{
           plugins:{
             legend:{ labels:{ color:'#fff' } },
-            title:{ display:true, text:titolo, color:'#fff', padding:{ top:6, bottom:10 } }
+            title:{
+              display:true,
+              text: `${(autoId==='ALL'?'TUTTE LE AUTO':carNameById(autoId))} • ${year} • ${(month==='ALL'?'TUTTI I MESI':monthName(Number(month)))}`,
+              color:'#fff',
+              padding:{ top:6, bottom:10 }
+            }
           }
         }
       });
 
-      document.getElementById('rep-stats').innerHTML = `
-        <div class="info-row"><span class="label">Filtro</span><span class="val">${titolo}</span></div>
-        <div class="info-row"><span class="label">Totale</span><span class="val">€ ${tot.toFixed(2)}</span></div>
+      // Panel 1: period costs + €/km
+      document.getElementById('rep-areas').innerHTML = `
+        <div class="info-row"><span class="label">KM nel periodo</span><span class="val">${KM_p ? KM_p.toFixed(0) : '—'}</span></div>
+
+        <div class="grid2" style="margin-top:12px">
+          <div class="pill">
+            <div class="k">A • Spese</div>
+            <div class="v">€ ${A_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(A_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">B • Manutenzioni</div>
+            <div class="v">€ ${B_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(B_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">C • Carburante</div>
+            <div class="v">€ ${C_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(C_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">A+B+C • Totale</div>
+            <div class="v">€ ${ABC_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(ABC_p, KM_p)}</div>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:10px">
+          <div class="pill">
+            <div class="k">A + B</div>
+            <div class="v">€ ${AB_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(AB_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">A + C</div>
+            <div class="v">€ ${AC_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(AC_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">B + C</div>
+            <div class="v">€ ${BC_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(BC_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">Solo KM</div>
+            <div class="v">${KM_p ? KM_p.toFixed(0) : '—'}</div>
+            <div class="sub">da rifornimenti (MAX−MIN)</div>
+          </div>
+        </div>
+      `;
+
+      // Panel 2: monthly (selected) vs yearly (year)
+      const monthLabel = (month==='ALL') ? 'Periodo selezionato' : `Mese: ${monthName(Number(month))}`;
+      document.getElementById('rep-month-year').innerHTML = `
+        <div class="info-row">
+          <span class="label">${monthLabel} (${year})</span>
+          <span class="val">€ ${ABC_p.toFixed(2)} • €/km ${euroPerKm(ABC_p, KM_p)}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Anno (${year})</span>
+          <span class="val">€ ${ABC_y.toFixed(2)} • €/km ${euroPerKm(ABC_y, KM_y)}</span>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <div class="pill">
+            <div class="k">A Mensile</div>
+            <div class="v">€ ${A_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(A_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">A Annuale</div>
+            <div class="v">€ ${A_y.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(A_y, KM_y)}</div>
+          </div>
+
+          <div class="pill">
+            <div class="k">B Mensile</div>
+            <div class="v">€ ${B_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(B_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">B Annuale</div>
+            <div class="v">€ ${B_y.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(B_y, KM_y)}</div>
+          </div>
+
+          <div class="pill">
+            <div class="k">C Mensile</div>
+            <div class="v">€ ${C_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(C_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">C Annuale</div>
+            <div class="v">€ ${C_y.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(C_y, KM_y)}</div>
+          </div>
+
+          <div class="pill">
+            <div class="k">A+B+C Mensile</div>
+            <div class="v">€ ${ABC_p.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(ABC_p, KM_p)}</div>
+          </div>
+          <div class="pill">
+            <div class="k">A+B+C Annuale</div>
+            <div class="v">€ ${ABC_y.toFixed(2)}</div>
+            <div class="sub">€/km: ${euroPerKm(ABC_y, KM_y)}</div>
+          </div>
+        </div>
       `;
     }
 
     function exportExcel(){
       let csv = "Tipo,Auto,Dettaglio,Euro,Data,Extra\n";
-      db.gas.forEach(g => csv += `GAS,${carNameById(g.autoId) || g.autoId},${g.tipo},${g.euro},${g.data},KM:${g.km} LITRI:${g.litri}\n`);
-      db.spese.forEach(s => csv += `SPESA,${carNameById(s.autoId) || s.autoId},${s.tipo},${s.euro},${s.data},SCAD:${s.scadenza || ''}\n`);
-      db.manu.forEach(m => csv += `MANU,${carNameById(m.autoId) || m.autoId},${m.tipo},${m.euro},${m.data},KM:${m.km || ''}\n`);
+      db.gas.forEach(g => csv += `C_GAS,${carNameById(g.autoId) || g.autoId},${g.tipo},${g.euro},${g.data},KM:${g.km} LITRI:${g.litri}\n`);
+      db.spese.forEach(s => csv += `A_SPESE,${carNameById(s.autoId) || s.autoId},${s.tipo},${s.euro},${s.data},SCAD:${s.scadenza || ''}\n`);
+      db.manu.forEach(m => csv += `B_MANU,${carNameById(m.autoId) || m.autoId},${m.tipo},${m.euro},${m.data},KM:${m.km || ''}\n`);
 
       const blob = new Blob([csv], { type:'text/csv' });
       const url = window.URL.createObjectURL(blob);
@@ -716,11 +702,9 @@
       a.click();
     }
 
+    // init
     renderHome();
     fillSels();
-    renderSpeseList();
-    renderManuList();
-    renderGasList();
   </script>
 </body>
 </html>
