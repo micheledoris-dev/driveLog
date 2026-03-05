@@ -10,7 +10,6 @@
     :root { --accent:#006064; --bg:#000; --card:#1c1c1e; --text:#fff; --muted:#8e8e93; --line:#38383a; }
     body { font-family:-apple-system,system-ui,sans-serif; background:var(--bg); color:var(--text); margin:0; padding-bottom:120px; -webkit-font-smoothing:antialiased; }
 
-    /* HERO SPLASH */
     .hero{
       width:100%;
       height:150px;
@@ -77,21 +76,6 @@
 
     .hint{ font-size:.7rem; color:var(--muted); font-weight:900; text-transform:none; margin:8px 2px 0; opacity:.95; }
 
-    /* Icon buttons */
-    .row-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
-    .iconbar{ display:flex; gap:10px; align-items:center; justify-content:flex-end; }
-    .iconbtn{
-      border:1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06);
-      color:#fff;
-      padding:8px 10px;
-      border-radius:12px;
-      font-weight:900;
-      cursor:pointer;
-      line-height:1;
-      font-size:0.95rem;
-    }
-
     .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .pill{
       background: rgba(255,255,255,0.06);
@@ -131,32 +115,66 @@
 
     <!-- ADD CAR -->
     <div id="v-add-car" class="view">
-      <div class="title" id="car-form-title">Nuovo Veicolo</div>
+      <div class="title">Nuovo Veicolo</div>
+
       <label>Marca e Modello</label>
       <input type="text" id="a-nome" placeholder="ALFA ROMEO STELVIO" oninput="u(this)" />
+
       <label>Targa</label>
       <input type="text" id="a-targa" placeholder="AA 000 AA" maxlength="9" oninput="fmtTarga(this)" />
+
       <label>Data Immatricolazione</label>
       <input type="date" id="a-imm" />
+
+      <!-- ✅ NUOVO: costo auto una tantum -->
+      <label>Prezzo Acquisto (una tantum) €</label>
+      <input type="number" id="a-price" step="0.01" placeholder="es. 8500" />
+
+      <label>Data Acquisto</label>
+      <input type="date" id="a-buydate" />
+
       <button class="btn-main" onclick="saveCar()">Crea Identità</button>
+      <div class="hint">Il prezzo acquisto viene conteggiato nei report (Area D) nel mese/anno della data acquisto.</div>
     </div>
 
-    <!-- SPESE -->
+    <!-- SPESE + POSSESSO -->
     <div id="v-spese" class="view">
-      <div class="title">Spese Amministrative</div>
+      <div class="title">Costi Amministrativi & Possesso</div>
+
       <label>Auto</label><select id="s-auto"></select>
 
-      <label>Tipo Spesa</label>
-      <select id="s-tipo" onchange="toggleAlt(this, 's-alt-box')">
-        <option>BOLLO</option><option>ASSICURAZIONE (RCA)</option><option>REVISIONE</option><option value="ALTRO">ALTRO...</option>
+      <!-- ✅ NUOVO: area A o D -->
+      <label>Area</label>
+      <select id="s-area" onchange="updateSpeseAreaUI()">
+        <option value="A">A • AMMINISTRATIVI</option>
+        <option value="D">D • POSSESSO (RATA/NOLEGGIO)</option>
       </select>
+
+      <label>Tipo Voce</label>
+      <select id="s-tipo" onchange="toggleAlt(this, 's-alt-box')">
+        <!-- A -->
+        <option data-area="A">BOLLO</option>
+        <option data-area="A">ASSICURAZIONE (RCA)</option>
+        <option data-area="A">REVISIONE</option>
+        <option data-area="A" value="ALTRO">ALTRO...</option>
+
+        <!-- D -->
+        <option data-area="D">RATA</option>
+        <option data-area="D">NOLEGGIO</option>
+        <option data-area="D">LEASING</option>
+        <option data-area="D" value="ALTRO_D">ALTRO...</option>
+      </select>
+
       <div id="s-alt-box" style="display:none">
         <label>Specifica voce</label><input type="text" id="s-alt" oninput="u(this)">
       </div>
 
       <label>Importo €</label><input type="number" id="s-euro" step="0.01">
-      <label>Data Scadenza</label><input type="date" id="a-scad">
-      <button class="btn-main" onclick="saveSpesa()">Registra Spesa</button>
+
+      <label>Data</label><input type="date" id="s-date">
+
+      <button class="btn-main" onclick="saveSpesa()">Registra</button>
+      <div class="hint">Area A = bollo/rca/revisione… • Area D = rata/noleggio/leasing. Il prezzo acquisto si imposta nella scheda auto.</div>
     </div>
 
     <!-- MANU -->
@@ -183,7 +201,6 @@
       <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
 
       <label>KM Attuali (contachilometri)</label>
-      <!-- ✅ smartphone-friendly -->
       <input type="text" id="g-km" inputmode="numeric" pattern="[0-9]*" placeholder="es. 123456" />
       <div class="hint" id="g-km-hint"></div>
 
@@ -243,7 +260,10 @@
   </nav>
 
   <script>
-    let db = JSON.parse(localStorage.getItem('dlog_v13')) || { auto: [], spese: [], manu: [], gas: [] };
+    // ✅ aggiunto "possesso" per Area D
+    let db = JSON.parse(localStorage.getItem('dlog_v13')) || { auto: [], spese: [], manu: [], gas: [], possesso: [] };
+    // migrazione soft (se array non esiste)
+    if (!db.possesso) db.possesso = [];
     let myChart = null;
 
     function u(el){ el.value = (el.value || '').toUpperCase(); }
@@ -253,7 +273,11 @@
       if (v.length > 6) v = v.slice(0,6) + ' ' + v.slice(6,8);
       el.value = v;
     }
-    function toggleAlt(el, boxId){ document.getElementById(boxId).style.display = (el.value === 'ALTRO') ? 'block' : 'none'; }
+    function toggleAlt(el, boxId){
+      const v = el.value;
+      const isAlt = (v === 'ALTRO' || v === 'ALTRO_D');
+      document.getElementById(boxId).style.display = isAlt ? 'block' : 'none';
+    }
 
     function showV(id, el){
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -264,6 +288,7 @@
       }
       fillSels();
       if (id === 'v-gas') updateGasKmMinHint();
+      if (id === 'v-spese') updateSpeseAreaUI();
       if (id === 'v-rep') initReportSelectorsAndRender();
     }
 
@@ -285,40 +310,77 @@
       return a ? a.nome : '';
     }
 
+    // ✅ Spese UI: mostra solo opzioni tipo per area selezionata
+    function updateSpeseAreaUI(){
+      const area = document.getElementById('s-area')?.value || 'A';
+      const tipoSel = document.getElementById('s-tipo');
+      if (!tipoSel) return;
+
+      [...tipoSel.options].forEach(opt => {
+        const a = opt.getAttribute('data-area');
+        opt.hidden = (a && a !== area);
+      });
+
+      // scegli default coerente
+      const firstVisible = [...tipoSel.options].find(o => !o.hidden);
+      if (firstVisible) tipoSel.value = firstVisible.value;
+
+      document.getElementById('s-alt-box').style.display = 'none';
+      document.getElementById('s-alt').value = '';
+    }
+
+    // ---- SAVE ----
     function saveCar(){
       const nome = document.getElementById('a-nome').value.trim();
       const targa = document.getElementById('a-targa').value.trim();
       const imm  = document.getElementById('a-imm').value;
+
+      const purchasePrice = parseFloat(document.getElementById('a-price').value) || 0;
+      const purchaseDate  = document.getElementById('a-buydate').value || '';
+
       if (!nome) return alert('Inserisci MARCA e MODELLO');
       if (!targa) return alert('Inserisci TARGA');
 
-      db.auto.push({ id: Date.now(), nome, targa, imm });
+      db.auto.push({ id: Date.now(), nome, targa, imm, purchasePrice, purchaseDate });
       sync();
       showV('v-home', document.querySelector('.nav-item'));
+
       document.getElementById('a-nome').value = '';
       document.getElementById('a-targa').value = '';
       document.getElementById('a-imm').value = '';
+      document.getElementById('a-price').value = '';
+      document.getElementById('a-buydate').value = '';
     }
 
     function saveSpesa(){
       const autoId = document.getElementById('s-auto').value;
       if (!autoId) return alert('Crea prima almeno 1 AUTO');
 
+      const area = document.getElementById('s-area').value; // A o D
       const tipoSel = document.getElementById('s-tipo').value;
-      const tipo = (tipoSel === 'ALTRO') ? document.getElementById('s-alt').value.trim() : tipoSel;
-      const euro = parseFloat(document.getElementById('s-euro').value) || 0;
-      const scadenza = document.getElementById('a-scad').value;
 
-      if (!tipo) return alert('Inserisci TIPO SPESA');
-      db.spese.push({ autoId, tipo, euro, scadenza, data: new Date().toISOString() });
+      let tipo = tipoSel;
+      if (tipoSel === 'ALTRO' || tipoSel === 'ALTRO_D') tipo = document.getElementById('s-alt').value.trim();
+
+      const euro = parseFloat(document.getElementById('s-euro').value) || 0;
+      const dateStr = document.getElementById('s-date').value;
+      if (!tipo) return alert('Inserisci TIPO VOCE');
+      if (!(euro > 0)) return alert('Inserisci IMPORTO');
+      if (!dateStr) return alert('Inserisci la DATA');
+
+      const rec = { autoId, tipo: tipo.toUpperCase(), euro, data: new Date(dateStr).toISOString() };
+
+      if (area === 'A') db.spese.push(rec);
+      else db.possesso.push(rec); // ✅ area D
+
       sync();
       showV('v-home', document.querySelector('.nav-item'));
 
       document.getElementById('s-euro').value = '';
-      document.getElementById('a-scad').value = '';
+      document.getElementById('s-date').value = '';
       document.getElementById('s-alt').value = '';
-      document.getElementById('s-tipo').value = 'BOLLO';
       document.getElementById('s-alt-box').style.display = 'none';
+      updateSpeseAreaUI();
     }
 
     function saveManu(){
@@ -331,7 +393,7 @@
       const km = parseInt(document.getElementById('m-km').value, 10);
 
       if (!tipo) return alert('Inserisci INTERVENTO');
-      db.manu.push({ autoId, tipo, euro, km: isNaN(km) ? '' : km, data: new Date().toISOString() });
+      db.manu.push({ autoId, tipo: tipo.toUpperCase(), euro, km: isNaN(km) ? '' : km, data: new Date().toISOString() });
       sync();
       showV('v-home', document.querySelector('.nav-item'));
 
@@ -380,7 +442,7 @@
         return alert(`KM non valido: per questa auto non puoi inserire un valore inferiore a ${last} km.`);
       }
 
-      db.gas.push({ autoId, tipo, km, litri, euro, data: new Date().toISOString() });
+      db.gas.push({ autoId, tipo: tipo.toUpperCase(), km, litri, euro, data: new Date().toISOString() });
       sync();
       showV('v-home', document.querySelector('.nav-item'));
 
@@ -391,6 +453,7 @@
       updateGasKmMinHint();
     }
 
+    // ---- HOME ----
     function renderHome(){
       const el = document.getElementById('car-list');
       if (!el) return;
@@ -410,26 +473,28 @@
           <div class="val" style="font-size:1.1rem; margin-bottom:10px">${a.nome}</div>
           <div class="info-row"><span class="label">Targa</span><span class="val">${a.targa}</span></div>
           <div class="info-row"><span class="label">Immatricolata</span><span class="val">${a.imm || '-'}</span></div>
+          <div class="info-row"><span class="label">Prezzo Acquisto</span><span class="val">${a.purchasePrice ? ('€ ' + Number(a.purchasePrice).toFixed(2)) : '-'}</span></div>
+          <div class="info-row"><span class="label">Data Acquisto</span><span class="val">${a.purchaseDate || '-'}</span></div>
           <div class="info-row" style="border-bottom:0"><span class="label">Ultimo KM</span><span class="val">${ultimoKm(a.id)}</span></div>
         </div>
       `).join('');
     }
 
-    // ---- REPORT: date helpers ----
-    function parseISO(d){ return new Date(d); }
+    // ---- REPORT helpers ----
+    function uniq(arr){ return [...new Set(arr)]; }
+    function monthName(m){
+      const names = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+      return names[m-1] || '';
+    }
+
     function getAllEntryDates(){
       const all = []
         .concat(db.gas.map(x=>x.data))
         .concat(db.spese.map(x=>x.data))
         .concat(db.manu.map(x=>x.data))
+        .concat(db.possesso.map(x=>x.data))
         .filter(Boolean);
-      return all.map(parseISO).filter(d=>!isNaN(d));
-    }
-    function uniq(arr){ return [...new Set(arr)]; }
-
-    function monthName(m){
-      const names = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
-      return names[m-1] || '';
+      return all.map(d=>new Date(d)).filter(d=>!isNaN(d));
     }
 
     function initReportSelectorsAndRender(){
@@ -485,7 +550,6 @@
         return okAuto && inPeriod(x.data, year, month);
       });
     }
-
     function filterDataByAutoAndYear(arr, autoId, year){
       return arr.filter(x=>{
         const okAuto = (autoId==='ALL') ? true : String(x.autoId) === String(autoId);
@@ -493,11 +557,9 @@
       });
     }
 
-    function sumEuro(arr){
-      return arr.reduce((s,x)=> s + (Number(x.euro)||0), 0);
-    }
+    function sumEuro(arr){ return arr.reduce((s,x)=> s + (Number(x.euro)||0), 0); }
 
-    // KM traveled = MAX(KM)-MIN(KM) per auto (nel periodo)
+    // KM traveled = MAX(KM)-MIN(KM) per auto nel periodo (solo gas)
     function kmTraveledForAuto(autoId, year, month){
       const g = filterDataByAutoAndPeriod(db.gas, String(autoId), year, month)
         .map(x=>Number(x.km))
@@ -507,10 +569,8 @@
       const max = Math.max(...g);
       return (max > min) ? (max - min) : 0;
     }
-
     function kmTraveled(autoId, year, month){
       if (autoId !== 'ALL') return kmTraveledForAuto(autoId, year, month);
-      // sommo per ogni auto per non mescolare odometri
       return db.auto.reduce((tot,a)=> tot + kmTraveledForAuto(a.id, year, month), 0);
     }
 
@@ -519,48 +579,66 @@
       return (euro / km).toFixed(3);
     }
 
+    // ✅ prezzo acquisto (una tantum) dentro Area D nei report
+    function purchaseCostForPeriod(autoId, year, month){
+      const cars = (autoId === 'ALL') ? db.auto : db.auto.filter(a => String(a.id) === String(autoId));
+      let tot = 0;
+      for (const c of cars){
+        if (!c.purchaseDate) continue;
+        const price = Number(c.purchasePrice) || 0;
+        if (!price) continue;
+
+        // purchaseDate è YYYY-MM-DD
+        const d = new Date(c.purchaseDate + "T00:00:00");
+        if (isNaN(d)) continue;
+        if (d.getFullYear() !== year) continue;
+        if (month !== 'ALL' && (d.getMonth()+1) !== Number(month)) continue;
+        tot += price;
+      }
+      return tot;
+    }
+
     function renderReport(){
-      fillReportAutoSel(); // safety
+      fillReportAutoSel();
       fillReportYearMonth();
 
       const autoId = document.getElementById('rep-auto')?.value || 'ALL';
       const year = Number(document.getElementById('rep-year')?.value) || (new Date().getFullYear());
       const month = document.getElementById('rep-month')?.value || 'ALL';
 
-      // PERIOD (mese selezionato o tutti i mesi dell'anno selezionato)
+      // Period
       const A_p = sumEuro(filterDataByAutoAndPeriod(db.spese, autoId, year, month));
       const B_p = sumEuro(filterDataByAutoAndPeriod(db.manu,  autoId, year, month));
       const C_p = sumEuro(filterDataByAutoAndPeriod(db.gas,   autoId, year, month));
+      const D_p = sumEuro(filterDataByAutoAndPeriod(db.possesso, autoId, year, month)) + purchaseCostForPeriod(autoId, year, month);
       const KM_p = kmTraveled(autoId, year, month);
 
-      // YEAR totals (anno selezionato, tutti i mesi)
+      // Year
       const A_y = sumEuro(filterDataByAutoAndYear(db.spese, autoId, year));
       const B_y = sumEuro(filterDataByAutoAndYear(db.manu,  autoId, year));
       const C_y = sumEuro(filterDataByAutoAndYear(db.gas,   autoId, year));
+      const D_y = sumEuro(filterDataByAutoAndYear(db.possesso, autoId, year)) + purchaseCostForPeriod(autoId, year, 'ALL');
       const KM_y = kmTraveled(autoId, year, 'ALL');
 
-      // combos - period
-      const AB_p = A_p + B_p;
-      const AC_p = A_p + C_p;
-      const BC_p = B_p + C_p;
+      // combos
+      const AB_p = A_p + B_p, AC_p = A_p + C_p, BC_p = B_p + C_p;
       const ABC_p = A_p + B_p + C_p;
+      const ABCD_p = ABC_p + D_p;
+      const AD_p = A_p + D_p, BD_p = B_p + D_p, CD_p = C_p + D_p;
 
-      // combos - year
-      const AB_y = A_y + B_y;
-      const AC_y = A_y + C_y;
-      const BC_y = B_y + C_y;
       const ABC_y = A_y + B_y + C_y;
+      const ABCD_y = ABC_y + D_y;
 
-      // Chart (period selected)
+      // Chart (4 aree)
       const ctx = document.getElementById('myChart').getContext('2d');
       if (myChart) myChart.destroy();
       myChart = new Chart(ctx, {
         type:'doughnut',
         data:{
-          labels:['A SPESE','B MANU','C GAS'],
+          labels:['A AMM','B MANU','C GAS','D POSSESSO'],
           datasets:[{
-            data:[A_p, B_p, C_p],
-            backgroundColor:['#00acc1','#004d40','#006064'],
+            data:[A_p, B_p, C_p, D_p],
+            backgroundColor:['#00acc1','#004d40','#006064','#2c2c2e'],
             borderWidth:0
           }]
         },
@@ -577,122 +655,70 @@
         }
       });
 
-      // Panel 1: period costs + €/km
       document.getElementById('rep-areas').innerHTML = `
         <div class="info-row"><span class="label">KM nel periodo</span><span class="val">${KM_p ? KM_p.toFixed(0) : '—'}</span></div>
 
         <div class="grid2" style="margin-top:12px">
-          <div class="pill">
-            <div class="k">A • Spese</div>
-            <div class="v">€ ${A_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(A_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">B • Manutenzioni</div>
-            <div class="v">€ ${B_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(B_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">C • Carburante</div>
-            <div class="v">€ ${C_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(C_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">A+B+C • Totale</div>
-            <div class="v">€ ${ABC_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(ABC_p, KM_p)}</div>
-          </div>
+          <div class="pill"><div class="k">A • Amministrativi</div><div class="v">€ ${A_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(A_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">B • Manutenzioni</div><div class="v">€ ${B_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(B_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">C • Carburante</div><div class="v">€ ${C_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(C_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">D • Possesso</div><div class="v">€ ${D_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(D_p, KM_p)}</div></div>
         </div>
 
         <div class="grid2" style="margin-top:10px">
-          <div class="pill">
-            <div class="k">A + B</div>
-            <div class="v">€ ${AB_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(AB_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">A + C</div>
-            <div class="v">€ ${AC_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(AC_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">B + C</div>
-            <div class="v">€ ${BC_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(BC_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">Solo KM</div>
-            <div class="v">${KM_p ? KM_p.toFixed(0) : '—'}</div>
-            <div class="sub">da rifornimenti (MAX−MIN)</div>
-          </div>
+          <div class="pill"><div class="k">A+B+C</div><div class="v">€ ${ABC_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(ABC_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">A+B+C+D</div><div class="v">€ ${ABCD_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(ABCD_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">A+B</div><div class="v">€ ${AB_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(AB_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">A+C</div><div class="v">€ ${AC_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(AC_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">B+C</div><div class="v">€ ${BC_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(BC_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">A+D</div><div class="v">€ ${AD_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(AD_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">B+D</div><div class="v">€ ${BD_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(BD_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">C+D</div><div class="v">€ ${CD_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(CD_p, KM_p)}</div></div>
         </div>
       `;
 
-      // Panel 2: monthly (selected) vs yearly (year)
       const monthLabel = (month==='ALL') ? 'Periodo selezionato' : `Mese: ${monthName(Number(month))}`;
       document.getElementById('rep-month-year').innerHTML = `
         <div class="info-row">
           <span class="label">${monthLabel} (${year})</span>
-          <span class="val">€ ${ABC_p.toFixed(2)} • €/km ${euroPerKm(ABC_p, KM_p)}</span>
+          <span class="val">€ ${(A_p+B_p+C_p+D_p).toFixed(2)} • €/km ${euroPerKm((A_p+B_p+C_p+D_p), KM_p)}</span>
         </div>
         <div class="info-row">
           <span class="label">Anno (${year})</span>
-          <span class="val">€ ${ABC_y.toFixed(2)} • €/km ${euroPerKm(ABC_y, KM_y)}</span>
+          <span class="val">€ ${(A_y+B_y+C_y+D_y).toFixed(2)} • €/km ${euroPerKm((A_y+B_y+C_y+D_y), KM_y)}</span>
         </div>
 
         <div class="grid2" style="margin-top:12px">
-          <div class="pill">
-            <div class="k">A Mensile</div>
-            <div class="v">€ ${A_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(A_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">A Annuale</div>
-            <div class="v">€ ${A_y.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(A_y, KM_y)}</div>
-          </div>
+          <div class="pill"><div class="k">A Mensile</div><div class="v">€ ${A_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(A_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">A Annuale</div><div class="v">€ ${A_y.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(A_y, KM_y)}</div></div>
 
-          <div class="pill">
-            <div class="k">B Mensile</div>
-            <div class="v">€ ${B_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(B_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">B Annuale</div>
-            <div class="v">€ ${B_y.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(B_y, KM_y)}</div>
-          </div>
+          <div class="pill"><div class="k">B Mensile</div><div class="v">€ ${B_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(B_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">B Annuale</div><div class="v">€ ${B_y.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(B_y, KM_y)}</div></div>
 
-          <div class="pill">
-            <div class="k">C Mensile</div>
-            <div class="v">€ ${C_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(C_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">C Annuale</div>
-            <div class="v">€ ${C_y.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(C_y, KM_y)}</div>
-          </div>
+          <div class="pill"><div class="k">C Mensile</div><div class="v">€ ${C_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(C_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">C Annuale</div><div class="v">€ ${C_y.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(C_y, KM_y)}</div></div>
 
-          <div class="pill">
-            <div class="k">A+B+C Mensile</div>
-            <div class="v">€ ${ABC_p.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(ABC_p, KM_p)}</div>
-          </div>
-          <div class="pill">
-            <div class="k">A+B+C Annuale</div>
-            <div class="v">€ ${ABC_y.toFixed(2)}</div>
-            <div class="sub">€/km: ${euroPerKm(ABC_y, KM_y)}</div>
-          </div>
+          <div class="pill"><div class="k">D Mensile</div><div class="v">€ ${D_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(D_p, KM_p)}</div></div>
+          <div class="pill"><div class="k">D Annuale</div><div class="v">€ ${D_y.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(D_y, KM_y)}</div></div>
+
+          <div class="pill"><div class="k">A+B+C+D Mensile</div><div class="v">€ ${(A_p+B_p+C_p+D_p).toFixed(2)}</div><div class="sub">€/km: ${euroPerKm((A_p+B_p+C_p+D_p), KM_p)}</div></div>
+          <div class="pill"><div class="k">A+B+C+D Annuale</div><div class="v">€ ${(A_y+B_y+C_y+D_y).toFixed(2)}</div><div class="sub">€/km: ${euroPerKm((A_y+B_y+C_y+D_y), KM_y)}</div></div>
         </div>
       `;
     }
 
     function exportExcel(){
-      let csv = "Tipo,Auto,Dettaglio,Euro,Data,Extra\n";
-      db.gas.forEach(g => csv += `C_GAS,${carNameById(g.autoId) || g.autoId},${g.tipo},${g.euro},${g.data},KM:${g.km} LITRI:${g.litri}\n`);
-      db.spese.forEach(s => csv += `A_SPESE,${carNameById(s.autoId) || s.autoId},${s.tipo},${s.euro},${s.data},SCAD:${s.scadenza || ''}\n`);
-      db.manu.forEach(m => csv += `B_MANU,${carNameById(m.autoId) || m.autoId},${m.tipo},${m.euro},${m.data},KM:${m.km || ''}\n`);
+      let csv = "Tipo,Area,Auto,Dettaglio,Euro,Data,Extra\n";
+      db.gas.forEach(g => csv += `C_GAS,C,${carNameById(g.autoId) || g.autoId},${g.tipo},${g.euro},${g.data},KM:${g.km} LITRI:${g.litri}\n`);
+      db.spese.forEach(s => csv += `A_SPESE,A,${carNameById(s.autoId) || s.autoId},${s.tipo},${s.euro},${s.data},-\n`);
+      db.manu.forEach(m => csv += `B_MANU,B,${carNameById(m.autoId) || m.autoId},${m.tipo},${m.euro},${m.data},KM:${m.km || ''}\n`);
+      db.possesso.forEach(p => csv += `D_POSS,D,${carNameById(p.autoId) || p.autoId},${p.tipo},${p.euro},${p.data},-\n`);
+      // prezzo acquisto come riga D (una tantum)
+      db.auto.forEach(a => {
+        if (a.purchasePrice && a.purchaseDate){
+          csv += `D_ACQUISTO,D,${a.nome},PREZZO ACQUISTO,${Number(a.purchasePrice).toFixed(2)},${new Date(a.purchaseDate+"T00:00:00").toISOString()},-\n`;
+        }
+      });
 
       const blob = new Blob([csv], { type:'text/csv' });
       const url = window.URL.createObjectURL(blob);
