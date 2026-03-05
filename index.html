@@ -1048,12 +1048,29 @@
         <div class="info-row"><span class="label">KM nel periodo</span><span class="val">${KM_p ? KM_p.toFixed(0) : '—'}</span></div>
 
         <div class="grid2" style="margin-top:12px">
-          <div class="pill"><div class="k">A • Amministrativi</div><div class="v">€ ${A_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(A_p, KM_p)}</div></div>
-          <div class="pill"><div class="k">B • Manutenzioni</div><div class="v">€ ${B_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(B_p, KM_p)}</div></div>
-          <div class="pill"><div class="k">C • Carburante</div><div class="v">€ ${C_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(C_p, KM_p)}</div></div>
-          <div class="pill"><div class="k">D • Possesso</div><div class="v">€ ${D_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(D_p, KM_p)}</div></div>
-        </div>
+          <div class="pill" onclick="openDrilldown('A')">
+<div class="k">A • Amministrativi</div>
+<div class="v">€ ${A_p.toFixed(2)}</div>
+<div class="sub">€/km: ${euroPerKm(A_p, KM_p)}</div>
+</div>
 
+<div class="pill" onclick="openDrilldown('B')">
+<div class="k">B • Manutenzioni</div>
+<div class="v">€ ${B_p.toFixed(2)}</div>
+<div class="sub">€/km: ${euroPerKm(B_p, KM_p)}</div>
+</div>
+
+<div class="pill" onclick="openDrilldown('C')">
+<div class="k">C • Carburante</div>
+<div class="v">€ ${C_p.toFixed(2)}</div>
+<div class="sub">€/km: ${euroPerKm(C_p, KM_p)}</div>
+</div>
+
+<div class="pill" onclick="openDrilldown('D')">
+<div class="k">D • Possesso</div>
+<div class="v">€ ${D_p.toFixed(2)}</div>
+<div class="sub">€/km: ${euroPerKm(D_p, KM_p)}</div>
+</div>
         <div class="grid2" style="margin-top:10px">
           <div class="pill"><div class="k">A+B+C</div><div class="v">€ ${ABC_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(ABC_p, KM_p)}</div></div>
           <div class="pill"><div class="k">A+B+C+D</div><div class="v">€ ${ABCD_p.toFixed(2)}</div><div class="sub">€/km: ${euroPerKm(ABCD_p, KM_p)}</div></div>
