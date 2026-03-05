@@ -1117,6 +1117,34 @@
     }
 
     // INIT
+    function openDrilldown(area){
+
+  let list = [];
+
+  if(area === "A") list = db.spese;
+  if(area === "B") list = db.manu;
+  if(area === "C") list = db.gas;
+  if(area === "D") list = db.possesso;
+
+  if(list.length === 0){
+    alert("Nessuna voce registrata");
+    return;
+  }
+
+  let msg = "DETTAGLIO AREA " + area + "\n\n";
+
+  list.forEach(x => {
+
+    let nomeAuto = carNameById(x.autoId) || "AUTO";
+    let data = fmtDate(x.data);
+
+    msg += data + "  |  " + nomeAuto + "  |  € " + (x.euro || 0).toFixed(2) + "\n";
+
+  });
+
+  alert(msg);
+
+}
     renderHome();
     fillSels();
     renderADList();
