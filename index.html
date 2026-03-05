@@ -1115,35 +1115,115 @@
       a.setAttribute('download', 'drivelog_report.csv');
       a.click();
     }
+function getReportFilters(){
+  const autoId = document.getElementById('rep-auto')?.value || 'ALL';
+  const year = Number(document.getElementById('rep-year')?.value) || (new Date().getFullYear());
+  const month = document.getElementById('rep-month')?.value || 'ALL';
+  return { autoId, year, month };
+}
 
-    // INIT
-    function openDrilldown(area){
-
-  let list = [];
-
-  if(area === "A") list = db.spese;
-  if(area === "B") list = db.manu;
-  if(area === "C") list = db.gas;
-  if(area === "D") list = db.possesso;
-
-  if(list.length === 0){
-    alert("Nessuna voce registrata");
-    return;
-  }
-
-  let msg = "DETTAGLIO AREA " + area + "\n\n";
-
-  list.forEach(x => {
-
-    let nomeAuto = carNameById(x.autoId) || "AUTO";
-    let data = fmtDate(x.data);
-
-    msg += data + "  |  " + nomeAuto + "  |  € " + (x.euro || 0).toFixed(2) + "\n";
-
+function entriesForArea(area, autoId, year, month){
+  const norm = (x)=>({
+    area,
+    autoId: x.autoId,
+    tipo: x.tipo || '',
+    euro: Number(x.euro)||0,
+    data: x.data || '',
+    extra: x.extra || ''
   });
 
-  alert(msg);
+  if (area === 'A'){
+    return filterDataByAutoAndPeriod(db.spese, autoId, year, month).map(x => norm(x));
+  }
+  if (area === 'B'){
+    return filterDataByAutoAndPeriod(db.manu, autoId, year, month).map(x => norm({ ...x, extra: x.km ? ('KM ' + x.km) : '' }));
+  }
+  if (area === 'C'){
+    return filterDataByAutoAndPeriod(db.gas, autoId, year, month).map(x => norm({ ...x, extra: `KM ${x.km} • ${Number(x.litri||0).toFixed(2)} L` }));
+  }
+  if (area === 'D'){
+    const poss = filterDataByAutoAndPeriod(db.possesso, autoId, year, month).map(x => norm(x));
 
+    // aggiungo "PREZZO ACQUISTO" se ricade nel periodo
+    const cars = (autoId === 'ALL') ? db.auto : db.auto.filter(a => String(a.id) === String(autoId));
+    const acquisti = [];
+    for (const c of cars){
+      if (!c.purchaseDate) continue;
+      const price = Number(c.purchasePrice)||0;
+      if (!price) continue;
+
+      const d = new Date(c.purchaseDate + "T00:00:00");
+      if (isNaN(d)) continue;
+      if (d.getFullYear() !== year) continue;
+      if (month !== 'ALL' && (d.getMonth()+1) !== Number(month)) continue;
+
+      acquisti.push({
+        area:'D',
+        autoId: c.id,
+        tipo:'PREZZO ACQUISTO',
+        euro: price,
+        data: new Date(c.purchaseDate + "T12:00:00").toISOString(),
+        extra: c.nome || ''
+      });
+    }
+    return poss.concat(acquisti);
+  }
+  return [];
+}
+
+function entriesForCombo(combo, autoId, year, month){
+  const parts = combo.split('+').map(s=>s.trim()).filter(Boolean);
+  let out = [];
+  for (const p of parts) out = out.concat(entriesForArea(p, autoId, year, month));
+  out.sort((a,b)=> new Date(b.data) - new Date(a.data));
+  return out;
+}
+
+function openDrilldown(combo){
+  const { autoId, year, month } = getReportFilters();
+  const list = entriesForCombo(combo, autoId, year, month);
+  const tot = list.reduce((s,x)=> s + (Number(x.euro)||0), 0);
+  const km = kmTraveled(autoId, year, month);
+
+  const autoLabel = (autoId==='ALL') ? 'TUTTE LE AUTO' : carNameById(autoId);
+  const perLabel = `${year} • ${(month==='ALL'?'TUTTI I MESI':monthName(Number(month)))}`;
+
+  document.getElementById('dd-title').innerText = `DETTAGLIO ${combo}`;
+  document.getElementById('dd-sub').innerText = `${autoLabel} • ${perLabel}`;
+
+  document.getElementById('dd-totals').innerHTML = `
+    <div class="dd-box"><div class="k">Totale</div><div class="v">€ ${tot.toFixed(2)}</div></div>
+    <div class="dd-box"><div class="k">€/km</div><div class="v">${euroPerKm(tot, km)}</div></div>
+  `;
+
+  const el = document.getElementById('dd-list');
+  if (!list.length){
+    el.innerHTML = `<div class="dd-empty">Nessuna voce in questo periodo.</div>`;
+  } else {
+    el.innerHTML = list.map(x => `
+      <div class="dd-item">
+        <div class="top">
+          <div style="flex:1">
+            <div class="t1">${x.tipo}</div>
+            <div class="t2">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • Area ${x.area}${x.extra ? (' • ' + x.extra) : ''}</div>
+          </div>
+          <div class="euro">€ ${Number(x.euro||0).toFixed(2)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('dd-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDD(e){
+  if (e && e.target && e.target.id !== 'dd-modal') return;
+  const m = document.getElementById('dd-modal');
+  if (m) m.style.display = 'none';
+  document.body.style.overflow = '';
+}
+    // INIT
 }
     renderHome();
     fillSels();
