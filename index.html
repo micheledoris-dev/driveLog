@@ -141,6 +141,76 @@
   border-radius:10px;
   cursor:pointer;
 }
+      .dd-modal{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  display:flex; align-items:flex-end; justify-content:center;
+  padding: 14px;
+  box-sizing: border-box;
+}
+.dd-card{
+  width:min(520px, 96vw);
+  max-height: 80vh;
+  background: rgba(28,28,30,0.98);
+  border:1px solid var(--line);
+  border-radius: 22px;
+  overflow:hidden;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+}
+.dd-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.dd-title{ font-weight: 900; text-transform: uppercase; font-size: 0.95rem; }
+.dd-sub{ color: var(--muted); font-weight: 900; font-size: 0.75rem; margin-top:4px; }
+.dd-close{
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color:#fff;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.dd-totals{
+  padding: 12px 14px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+.dd-box{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+.dd-box .k{ font-size:.65rem; font-weight:900; text-transform:uppercase; color:var(--muted); }
+.dd-box .v{ font-size:1.05rem; font-weight:900; margin-top:6px; }
+.dd-list{
+  padding: 6px 14px 14px;
+  overflow:auto;
+  max-height: calc(80vh - 140px);
+}
+.dd-item{
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 12px 12px;
+  margin-top: 10px;
+}
+.dd-item .top{
+  display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+}
+.dd-item .t1{ font-weight:900; font-size:.9rem; text-transform:uppercase; }
+.dd-item .t2{ color:var(--muted); font-weight:900; font-size:.75rem; margin-top:4px; }
+.dd-item .euro{ font-weight:900; font-size:.95rem; white-space:nowrap; }
+.dd-empty{ opacity:.75; font-weight:900; color:var(--muted); text-transform:none; padding:6px 0; font-size:.85rem; }
+
+.pill{ cursor:pointer; }
+.pill:active{ transform:scale(0.98); }
   </style>
 </head>
 
@@ -1115,6 +1185,25 @@
       a.setAttribute('download', 'drivelog_report.csv');
       a.click();
     }
+    function closeDD(e){
+  if (e && e.target && e.target.id !== 'dd-modal') return;
+  const m = document.getElementById('dd-modal');
+  if (m) m.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// test: popup finto
+function openDrilldown(combo){
+  document.getElementById('dd-title').innerText = `DETTAGLIO ${combo}`;
+  document.getElementById('dd-sub').innerText = `TEST • nessun filtro`;
+  document.getElementById('dd-totals').innerHTML = `
+    <div class="dd-box"><div class="k">Totale</div><div class="v">€ 0.00</div></div>
+    <div class="dd-box"><div class="k">€/km</div><div class="v">—</div></div>
+  `;
+  document.getElementById('dd-list').innerHTML = `<div class="dd-empty">Popup OK. Prossimo step: riempire i dati.</div>`;
+  document.getElementById('dd-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
 
     // INIT
     function openDrilldown(area){
@@ -1163,6 +1252,20 @@
 
     <div class="dd-totals" id="dd-totals"></div>
 
+    <div id="dd-list" class="dd-list"></div>
+  </div>
+</div>
+  <div id="dd-modal" class="dd-modal" style="display:none" onclick="closeDD(event)">
+  <div class="dd-card" onclick="event.stopPropagation()">
+    <div class="dd-head">
+      <div>
+        <div id="dd-title" class="dd-title">Dettaglio</div>
+        <div id="dd-sub" class="dd-sub">—</div>
+      </div>
+      <button class="dd-close" onclick="closeDD()">✕</button>
+    </div>
+
+    <div class="dd-totals" id="dd-totals"></div>
     <div id="dd-list" class="dd-list"></div>
   </div>
 </div>
