@@ -106,7 +106,41 @@
     @media (max-width:520px){
       .hero{ height:150px; }
       .splash img{ max-height:92px; }
-    }
+      .dd-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(10px);
+  z-index:2000;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:14px;
+}
+
+.dd-card{
+  width:95%;
+  max-width:520px;
+  background:#1c1c1e;
+  border-radius:22px;
+  padding:15px;
+  border:1px solid #38383a;
+}
+
+.dd-title{
+  font-weight:900;
+  font-size:1rem;
+  text-transform:uppercase;
+}
+
+.dd-close{
+  background:#2c2c2e;
+  border:none;
+  color:#fff;
+  padding:6px 10px;
+  border-radius:10px;
+  cursor:pointer;
+}
   </style>
 </head>
 
@@ -1072,5 +1106,20 @@
     renderManuList();
     renderGasList();
   </script>
+  <div id="dd-modal" class="dd-modal" style="display:none" onclick="closeDD(event)">
+  <div class="dd-card" onclick="event.stopPropagation()">
+    <div class="dd-head">
+      <div>
+        <div id="dd-title" class="dd-title">Dettaglio</div>
+        <div id="dd-sub" class="dd-sub">—</div>
+      </div>
+      <button class="dd-close" onclick="closeDD()">✕</button>
+    </div>
+
+    <div class="dd-totals" id="dd-totals"></div>
+
+    <div id="dd-list" class="dd-list"></div>
+  </div>
+</div>
 </body>
 </html>
