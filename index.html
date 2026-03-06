@@ -1369,31 +1369,26 @@ async function fillStationFromGPS(){
     function openDrilldown(area){
 
   let list = [];
-
-const carId = document.getElementById('rep-auto').value;
-
-if(area === "A") list = db.spese.filter(x => x.autoId == carId);
-if(area === "B") list = db.manu.filter(x => x.autoId == carId);
-if(area === "C") list = db.gas.filter(x => x.autoId == carId);
-if(area === "D") list = db.possesso.filter(x => x.autoId == carId);
+if(area === "A") list = db.spese;
+if(area === "B") list = db.manu;
+if(area === "C") list = db.gas;
+if(area === "D") list = db.possesso;
 
 if(list.length === 0){
   alert("Nessuna voce registrata");
   return;
 }
 
-let msg = "DETTAGLIO AREA " + area + " • " + carNameById(carId) + "\n\n";
+let msg = "DETTAGLIO AREA " + area + "\n\n";
 
 list.forEach(x => {
-
   let nomeAuto = carNameById(x.autoId) || "AUTO";
   let data = fmtDate(x.data);
-
   msg += data + "  |  " + nomeAuto + "  |  € " + (x.euro || 0).toFixed(2) + "\n";
-
 });
 
 alert(msg);
+
 }
     renderHome();
     fillSels();
