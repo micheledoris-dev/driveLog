@@ -896,6 +896,9 @@
       const km = parseInt(String(document.getElementById('g-km').value).replace(/\D/g,''), 10);
       const litri = parseFloat(document.getElementById('g-lit').value) || 0;
       const euro = parseFloat(document.getElementById('g-tot').innerText) || 0;
+      const stazione = (document.getElementById('g-staz').value || '').trim().toUpperCase();
+      const lat = parseFloat(document.getElementById('g-lat').value) || null;
+      const lon = parseFloat(document.getElementById('g-lon').value) || null;
 
       if (!Number.isFinite(km) || km <= 0) return alert('Inserisci KM attuali (solo numeri)');
       if (litri <= 0 || euro <= 0) return alert('Inserisci LITRI e PREZZO/L');
@@ -905,7 +908,7 @@
         return alert(`KM non valido: per questa auto non puoi inserire un valore inferiore a ${last} km.`);
       }
 
-      const rec = { autoId, tipo: tipo.toUpperCase(), km, litri, euro, data: new Date().toISOString() };
+      const rec = { autoId, tipo: tipo.toUpperCase(), km, litri, euro, stazione, lat, lon, data: new Date().toISOString() };
 
       if (editGasIndex !== null) db.gas[editGasIndex] = { ...db.gas[editGasIndex], ...rec };
       else db.gas.push(rec);
