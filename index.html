@@ -742,34 +742,41 @@
       sync();
     }
 
-    function renderManuList(){
-      const el = document.getElementById('manu-list');
-      if (!el) return;
+   function renderManuList(){
+  const el = document.getElementById('manu-list');
+  if (!el) return;
 
-      const sorted = db.manu
-        .map((x,i)=>({i,...x}))
-        .sort((a,b)=> new Date(b.data)-new Date(a.data))
-        .slice(0, 30);
+  const sorted = db.manu
+    .map((x,i)=>({i,...x}))
+    .sort((a,b)=> new Date(b.data)-new Date(a.data))
+    .slice(0, 30);
 
-      if (!sorted.length){
-        el.innerHTML = `<div class="hist-empty">Nessuna manutenzione</div>`;
-        return;
-      }
+  if (!sorted.length){
+    el.innerHTML = `<div class="hist-empty">Nessuna manutenzione</div>`;
+    return;
+  }
 
-      el.innerHTML = sorted.map(x => `
-        <div class="info-row">
-          <div style="flex:1">
-            <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} ${x.km ? ('• KM '+x.km) : ''}</div>
-            <div class="val" style="font-size:.9rem; margin-top:4px">${x.tipo}</div>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center">
-            <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
-            <button class="iconbtn" onclick="editManu(${x.i})" title="Modifica">✏️</button>
-            <button class="iconbtn" onclick="deleteManu(${x.i})" title="Elimina">🗑</button>
-          </div>
-        </div>
-      `).join('');
-    }
+  const totale = sorted.reduce((sum, x) => sum + (Number(x.euro) || 0), 0);
+
+  el.innerHTML = sorted.map(x => `
+    <div class="info-row">
+      <div style="flex:1">
+        <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} ${x.km ? ('• KM '+x.km) : ''}</div>
+        <div class="val" style="font-size:.9rem; margin-top:4px">${x.tipo}</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center">
+        <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
+        <button class="iconbtn" onclick="editManu(${x.i})" title="Modifica">✏️</button>
+        <button class="iconbtn" onclick="deleteManu(${x.i})" title="Elimina">🗑</button>
+      </div>
+    </div>
+  `).join('') + `
+    <div class="info-row" style="border-bottom:0; margin-top:6px;">
+      <div class="label">Totale Manutenzioni</div>
+      <div class="val">€ ${totale.toFixed(2)}</div>
+    </div>
+  `;
+}
 
     // ---------- GAS ----------
     function calcG(){
