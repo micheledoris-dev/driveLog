@@ -331,16 +331,18 @@
     </div>
 
     <!-- GAS -->
-<!-- campi nascosti per salvare coordinate -->
-<input type="hidden" id="g-lat" />
-<input type="hidden" id="g-lon" />
-    <div id="v-gas" class="view">
-      <div class="title" id="gas-form-title">Rifornimento</div>
-      <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
+<div id="v-gas" class="view">
+  <div class="title" id="gas-form-title">Rifornimento</div>
 
-      <label>KM Attuali (contachilometri)</label>
-      <input type="text" id="g-km" inputmode="numeric" pattern="[0-9]*" placeholder="es. 123456" />
-      <div class="hint" id="g-km-hint"></div>
+  <!-- campi nascosti per salvare coordinate -->
+  <input type="hidden" id="g-lat" />
+  <input type="hidden" id="g-lon" />
+
+  <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
+
+  <label>KM Attuali (contachilometri)</label>
+  <input type="text" id="g-km" inputmode="numeric" pattern="[0-9]*" placeholder="es. 123456" />
+  <div class="hint" id="g-km-hint"></div>
 
       <label>Tipo Carburante</label>
       <label>Stazione di servizio (GPS / manuale)</label>
