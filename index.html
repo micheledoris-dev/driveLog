@@ -141,76 +141,6 @@
   border-radius:10px;
   cursor:pointer;
 }
-      .dd-modal{
-  position:fixed; inset:0;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter: blur(10px);
-  z-index: 2000;
-  display:flex; align-items:flex-end; justify-content:center;
-  padding: 14px;
-  box-sizing: border-box;
-}
-.dd-card{
-  width:min(520px, 96vw);
-  max-height: 80vh;
-  background: rgba(28,28,30,0.98);
-  border:1px solid var(--line);
-  border-radius: 22px;
-  overflow:hidden;
-  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
-}
-.dd-head{
-  display:flex; align-items:center; justify-content:space-between;
-  padding: 14px 14px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.dd-title{ font-weight: 900; text-transform: uppercase; font-size: 0.95rem; }
-.dd-sub{ color: var(--muted); font-weight: 900; font-size: 0.75rem; margin-top:4px; }
-.dd-close{
-  border:1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.06);
-  color:#fff;
-  padding: 8px 10px;
-  border-radius: 12px;
-  font-weight: 900;
-  cursor: pointer;
-}
-.dd-totals{
-  padding: 12px 14px;
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:10px;
-}
-.dd-box{
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 14px;
-  padding: 10px 12px;
-}
-.dd-box .k{ font-size:.65rem; font-weight:900; text-transform:uppercase; color:var(--muted); }
-.dd-box .v{ font-size:1.05rem; font-weight:900; margin-top:6px; }
-.dd-list{
-  padding: 6px 14px 14px;
-  overflow:auto;
-  max-height: calc(80vh - 140px);
-}
-.dd-item{
-  border:1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
-  border-radius: 16px;
-  padding: 12px 12px;
-  margin-top: 10px;
-}
-.dd-item .top{
-  display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
-}
-.dd-item .t1{ font-weight:900; font-size:.9rem; text-transform:uppercase; }
-.dd-item .t2{ color:var(--muted); font-weight:900; font-size:.75rem; margin-top:4px; }
-.dd-item .euro{ font-weight:900; font-size:.95rem; white-space:nowrap; }
-.dd-empty{ opacity:.75; font-weight:900; color:var(--muted); text-transform:none; padding:6px 0; font-size:.85rem; }
-
-.pill{ cursor:pointer; }
-.pill:active{ transform:scale(0.98); }
   </style>
 </head>
 
@@ -305,7 +235,7 @@
     <!-- MANU -->
     <div id="v-manu" class="view">
       <div class="title" id="manu-form-title">Manutenzione</div>
-      <label>Auto</label><select id="m-auto" onchange="renderManuList()"></select>
+      <label>Auto</label><select id="m-auto"></select>
 
       <label>Intervento</label>
       <select id="m-tipo" onchange="toggleAlt(this, 'm-alt-box')">
@@ -331,29 +261,15 @@
     </div>
 
     <!-- GAS -->
-<div id="v-gas" class="view">
-  <div class="title" id="gas-form-title">Rifornimento</div>
+    <div id="v-gas" class="view">
+      <div class="title" id="gas-form-title">Rifornimento</div>
+      <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
 
-  <!-- campi nascosti per salvare coordinate -->
-  <input type="hidden" id="g-lat" />
-  <input type="hidden" id="g-lon" />
-
-  <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint(); renderGasList();"></select>
-
-  <label>KM Attuali (contachilometri)</label>
-  <input type="text" id="g-km" inputmode="numeric" pattern="[0-9]*" placeholder="es. 123456" />
-  <div class="hint" id="g-km-hint"></div>
+      <label>KM Attuali (contachilometri)</label>
+      <input type="text" id="g-km" inputmode="numeric" pattern="[0-9]*" placeholder="es. 123456" />
+      <div class="hint" id="g-km-hint"></div>
 
       <label>Tipo Carburante</label>
-      <label>Stazione di servizio (GPS / manuale)</label>
-<div style="display:flex; gap:10px; align-items:center">
-  <input type="text" id="g-staz" placeholder="ES. Q8 VIA ROMA" oninput="u(this)" style="flex:1" />
-  <button type="button" class="iconbtn" onclick="fillStationFromGPS()" title="Compila da GPS">📍</button>
-</div>
-
-<!-- campi nascosti per salvare coordinate -->
-<input type="hidden" id="g-lat" />
-<input type="hidden" id="g-lon" />
       <select id="g-tipo">
         <option>BENZINA</option><option>DIESEL</option><option>DIESEL PLUS</option><option>HVO</option><option>GPL</option><option>METANO</option>
       </select>
@@ -827,43 +743,32 @@
     }
 
     function renderManuList(){
-  const el = document.getElementById('manu-list');
-  if (!el) return;
+      const el = document.getElementById('manu-list');
+      if (!el) return;
 
-  const selectedAutoId = document.getElementById('m-auto')?.value || '';
+      const sorted = db.manu
+        .map((x,i)=>({i,...x}))
+        .sort((a,b)=> new Date(b.data)-new Date(a.data))
+        .slice(0, 30);
 
-  const sorted = db.manu
-    .map((x,i)=>({i,...x}))
-    .filter(x => !selectedAutoId || String(x.autoId) === String(selectedAutoId))
-    .sort((a,b)=> new Date(b.data)-new Date(a.data))
-    .slice(0, 30);
+      if (!sorted.length){
+        el.innerHTML = `<div class="hist-empty">Nessuna manutenzione</div>`;
+        return;
+      }
 
-  if (!sorted.length){
-    el.innerHTML = `<div class="hist-empty">Nessuna manutenzione per questa auto</div>`;
-    return;
-  }
-
-  const totale = sorted.reduce((sum, x) => sum + (Number(x.euro) || 0), 0);
-
-  el.innerHTML = sorted.map(x => `
-    <div class="info-row">
-      <div style="flex:1">
-        <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} ${x.km ? ('• KM '+x.km) : ''}</div>
-        <div class="val" style="font-size:.9rem; margin-top:4px">${x.tipo}</div>
-      </div>
-      <div style="display:flex; gap:10px; align-items:center">
-        <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
-        <button class="iconbtn" onclick="editManu(${x.i})" title="Modifica">✏️</button>
-        <button class="iconbtn" onclick="deleteManu(${x.i})" title="Elimina">🗑</button>
-      </div>
-    </div>
-  `).join('') + `
-    <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
-      <div class="val" style="font-size:.95rem;">Totale € ${totale.toFixed(2)}</div>
-    </div>
-  `;
-}
- 
+      el.innerHTML = sorted.map(x => `
+        <div class="info-row">
+          <div style="flex:1">
+            <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} ${x.km ? ('• KM '+x.km) : ''}</div>
+            <div class="val" style="font-size:.9rem; margin-top:4px">${x.tipo}</div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center">
+            <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
+            <button class="iconbtn" onclick="editManu(${x.i})" title="Modifica">✏️</button>
+            <button class="iconbtn" onclick="deleteManu(${x.i})" title="Elimina">🗑</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     // ---------- GAS ----------
@@ -903,9 +808,6 @@
       const km = parseInt(String(document.getElementById('g-km').value).replace(/\D/g,''), 10);
       const litri = parseFloat(document.getElementById('g-lit').value) || 0;
       const euro = parseFloat(document.getElementById('g-tot').innerText) || 0;
-      const stazione = (document.getElementById('g-staz').value || '').trim().toUpperCase();
-      const lat = parseFloat(document.getElementById('g-lat').value) || null;
-      const lon = parseFloat(document.getElementById('g-lon').value) || null;
 
       if (!Number.isFinite(km) || km <= 0) return alert('Inserisci KM attuali (solo numeri)');
       if (litri <= 0 || euro <= 0) return alert('Inserisci LITRI e PREZZO/L');
@@ -915,7 +817,7 @@
         return alert(`KM non valido: per questa auto non puoi inserire un valore inferiore a ${last} km.`);
       }
 
-      const rec = { autoId, tipo: tipo.toUpperCase(), km, litri, euro, stazione, lat, lon, data: new Date().toISOString() };
+      const rec = { autoId, tipo: tipo.toUpperCase(), km, litri, euro, data: new Date().toISOString() };
 
       if (editGasIndex !== null) db.gas[editGasIndex] = { ...db.gas[editGasIndex], ...rec };
       else db.gas.push(rec);
@@ -956,40 +858,33 @@
       sync();
     }
 
-  function renderGasList(){
-  const el = document.getElementById('gas-list');
-  if (!el) return;
+    function renderGasList(){
+      const el = document.getElementById('gas-list');
+      if (!el) return;
 
-  const selectedAutoId = document.getElementById('g-auto')?.value || '';
+      const sorted = db.gas
+        .map((x,i)=>({i,...x}))
+        .sort((a,b)=> new Date(b.data)-new Date(a.data))
+        .slice(0, 30);
 
-  const sorted = db.gas
-    .map((x,i)=>({i,...x}))
-    .filter(x => !selectedAutoId || String(x.autoId) === String(selectedAutoId))
-    .sort((a,b)=> new Date(b.data)-new Date(a.data))
-    .slice(0, 30);
+      if (!sorted.length){
+        el.innerHTML = `<div class="hist-empty">Nessun rifornimento</div>`;
+        return;
+      }
 
-  if (!sorted.length){
-    el.innerHTML = `<div class="hist-empty">Nessun rifornimento per questa auto</div>`;
-    return;
-  }
-
-  el.innerHTML = sorted.map(x => `
-    <div class="info-row">
-      <div style="flex:1">
-        <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • KM ${x.km}</div>
-        <div class="val" style="font-size:.9rem; margin-top:4px">
-          ${x.tipo} • ${Number(x.litri||0).toFixed(2)} L
-          ${x.stazione ? (' • ' + x.stazione) : ''}
+      el.innerHTML = sorted.map(x => `
+        <div class="info-row">
+          <div style="flex:1">
+            <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • KM ${x.km}</div>
+            <div class="val" style="font-size:.9rem; margin-top:4px">${x.tipo} • ${Number(x.litri||0).toFixed(2)} L</div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center">
+            <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
+            <button class="iconbtn" onclick="editGas(${x.i})" title="Modifica">✏️</button>
+            <button class="iconbtn" onclick="deleteGas(${x.i})" title="Elimina">🗑</button>
+          </div>
         </div>
-      </div>
-      <div style="display:flex; gap:10px; align-items:center">
-        <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
-        <button class="iconbtn" onclick="editGas(${x.i})" title="Modifica">✏️</button>
-        <button class="iconbtn" onclick="deleteGas(${x.i})" title="Elimina">🗑</button>
-      </div>
-    </div>
-  `).join('');
-}
+      `).join('');
     }
 
     // ---------- REPORT ----------
@@ -1220,184 +1115,34 @@
       a.setAttribute('download', 'drivelog_report.csv');
       a.click();
     }
-    function closeDD(e){
-  if (e && e.target && e.target.id !== 'dd-modal') return;
-  const m = document.getElementById('dd-modal');
-  if (m) m.style.display = 'none';
-  document.body.style.overflow = '';
-}
 
-// test: popup finto
-function openDrilldown(combo){
-  document.getElementById('dd-title').innerText = `DETTAGLIO ${combo}`;
-  document.getElementById('dd-sub').innerText = `TEST • nessun filtro`;
-  document.getElementById('dd-totals').innerHTML = `
-    <div class="dd-box"><div class="k">Totale</div><div class="v">€ 0.00</div></div>
-    <div class="dd-box"><div class="k">€/km</div><div class="v">—</div></div>
-  `;
-  document.getElementById('dd-list').innerHTML = `<div class="dd-empty">Popup OK. Prossimo step: riempire i dati.</div>`;
-  document.getElementById('dd-modal').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-async function fillStationFromGPS(){
-  const btn = event?.target;
-  try{
-    if (!navigator.geolocation){
-      alert("GPS non disponibile su questo dispositivo.");
-      return;
-    }
-
-    if (btn) btn.disabled = true;
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-
-      document.getElementById('g-lat').value = String(lat);
-      document.getElementById('g-lon').value = String(lon);
-
-      // Reverse geocoding OpenStreetMap (Nominatim)
-      // Nota: può restituire indirizzo, e a volte un POI vicino. È perfetto per uso personale.
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=18&addressdetails=1`;
-
-      const res = await fetch(url, {
-        headers: { "Accept-Language": "it" }
-      });
-
-      if (!res.ok) throw new Error("Reverse geocoding non disponibile.");
-
-      const data = await res.json();
-
-      // Costruiamo una stringa “umana”
-      const addr = data.address || {};
-      const road = addr.road || addr.pedestrian || addr.footway || "";
-      const house = addr.house_number || "";
-      const city = addr.city || addr.town || addr.village || addr.hamlet || "";
-      const suburb = addr.suburb || "";
-      const place = data.name || data.display_name || "";
-
-      // Preferenza: nome POI se presente, altrimenti via+comune
-      let station = "";
-      if (data.category === "amenity" && data.type === "fuel" && place) {
-        station = place;
-      } else if (place && place.length < 60) {
-        station = place;
-      } else {
-        station = [road, house].filter(Boolean).join(" ");
-      }
-
-      const fallback = [road, house].filter(Boolean).join(" ");
-      const extra = [suburb, city].filter(Boolean).join(" • ");
-      const finalText = [station || fallback, extra].filter(Boolean).join(" • ");
-
-      if (finalText) document.getElementById('g-staz').value = finalText.toUpperCase();
-
-      if (btn) btn.disabled = false;
-    }, (err) => {
-      if (btn) btn.disabled = false;
-      alert("Permesso GPS negato o posizione non disponibile.");
-    }, {
-      enableHighAccuracy: true,
-      timeout: 8000,
-      maximumAge: 60000
-    });
-
-  } catch(e){
-    if (btn) btn.disabled = false;
-    alert("Errore GPS/indirizzo. Puoi inserire la stazione manualmente.");
-  }
-}
-    async function fillStationFromGPS(){
-  const btn = event?.target;
-  try{
-    if (!navigator.geolocation){
-      alert("GPS non disponibile su questo dispositivo.");
-      return;
-    }
-
-    if (btn) btn.disabled = true;
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-
-      document.getElementById('g-lat').value = String(lat);
-      document.getElementById('g-lon').value = String(lon);
-
-      // Reverse geocoding OpenStreetMap (Nominatim)
-      // Nota: può restituire indirizzo, e a volte un POI vicino. È perfetto per uso personale.
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=18&addressdetails=1`;
-
-      const res = await fetch(url, {
-        headers: { "Accept-Language": "it" }
-      });
-
-      if (!res.ok) throw new Error("Reverse geocoding non disponibile.");
-
-      const data = await res.json();
-
-      // Costruiamo una stringa “umana”
-      const addr = data.address || {};
-      const road = addr.road || addr.pedestrian || addr.footway || "";
-      const house = addr.house_number || "";
-      const city = addr.city || addr.town || addr.village || addr.hamlet || "";
-      const suburb = addr.suburb || "";
-      const place = data.name || data.display_name || "";
-
-      // Preferenza: nome POI se presente, altrimenti via+comune
-      let station = "";
-      if (data.category === "amenity" && data.type === "fuel" && place) {
-        station = place;
-      } else if (place && place.length < 60) {
-        station = place;
-      } else {
-        station = [road, house].filter(Boolean).join(" ");
-      }
-
-      const fallback = [road, house].filter(Boolean).join(" ");
-      const extra = [suburb, city].filter(Boolean).join(" • ");
-      const finalText = [station || fallback, extra].filter(Boolean).join(" • ");
-
-      if (finalText) document.getElementById('g-staz').value = finalText.toUpperCase();
-
-      if (btn) btn.disabled = false;
-    }, (err) => {
-      if (btn) btn.disabled = false;
-      alert("Permesso GPS negato o posizione non disponibile.");
-    }, {
-      enableHighAccuracy: true,
-      timeout: 8000,
-      maximumAge: 60000
-    });
-
-  } catch(e){
-    if (btn) btn.disabled = false;
-    alert("Errore GPS/indirizzo. Puoi inserire la stazione manualmente.");
-  }
-}
     // INIT
     function openDrilldown(area){
 
   let list = [];
-if(area === "A") list = db.spese;
-if(area === "B") list = db.manu;
-if(area === "C") list = db.gas;
-if(area === "D") list = db.possesso;
 
-if(list.length === 0){
-  alert("Nessuna voce registrata");
-  return;
-}
+  if(area === "A") list = db.spese;
+  if(area === "B") list = db.manu;
+  if(area === "C") list = db.gas;
+  if(area === "D") list = db.possesso;
 
-let msg = "DETTAGLIO AREA " + area + "\n\n";
+  if(list.length === 0){
+    alert("Nessuna voce registrata");
+    return;
+  }
 
-list.forEach(x => {
-  let nomeAuto = carNameById(x.autoId) || "AUTO";
-  let data = fmtDate(x.data);
-  msg += data + "  |  " + nomeAuto + "  |  € " + (x.euro || 0).toFixed(2) + "\n";
-});
+  let msg = "DETTAGLIO AREA " + area + "\n\n";
 
-alert(msg);
+  list.forEach(x => {
+
+    let nomeAuto = carNameById(x.autoId) || "AUTO";
+    let data = fmtDate(x.data);
+
+    msg += data + "  |  " + nomeAuto + "  |  € " + (x.euro || 0).toFixed(2) + "\n";
+
+  });
+
+  alert(msg);
 
 }
     renderHome();
@@ -1418,20 +1163,6 @@ alert(msg);
 
     <div class="dd-totals" id="dd-totals"></div>
 
-    <div id="dd-list" class="dd-list"></div>
-  </div>
-</div>
-  <div id="dd-modal" class="dd-modal" style="display:none" onclick="closeDD(event)">
-  <div class="dd-card" onclick="event.stopPropagation()">
-    <div class="dd-head">
-      <div>
-        <div id="dd-title" class="dd-title">Dettaglio</div>
-        <div id="dd-sub" class="dd-sub">—</div>
-      </div>
-      <button class="dd-close" onclick="closeDD()">✕</button>
-    </div>
-
-    <div class="dd-totals" id="dd-totals"></div>
     <div id="dd-list" class="dd-list"></div>
   </div>
 </div>
