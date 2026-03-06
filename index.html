@@ -1370,29 +1370,30 @@ async function fillStationFromGPS(){
 
   let list = [];
 
-  if(area === "A") list = db.spese;
-  if(area === "B") list = db.manu;
-  if(area === "C") list = db.gas;
-  if(area === "D") list = db.possesso;
+const carId = document.getElementById('rep-auto').value;
 
-  if(list.length === 0){
-    alert("Nessuna voce registrata");
-    return;
-  }
+if(area === "A") list = db.spese.filter(x => x.autoId == carId);
+if(area === "B") list = db.manu.filter(x => x.autoId == carId);
+if(area === "C") list = db.gas.filter(x => x.autoId == carId);
+if(area === "D") list = db.possesso.filter(x => x.autoId == carId);
 
-  let msg = "DETTAGLIO AREA " + area + "\n\n";
+if(list.length === 0){
+  alert("Nessuna voce registrata");
+  return;
+}
 
-  list.forEach(x => {
+let msg = "DETTAGLIO AREA " + area + "\n\n";
 
-    let nomeAuto = carNameById(x.autoId) || "AUTO";
-    let data = fmtDate(x.data);
+list.forEach(x => {
 
-    msg += data + "  |  " + nomeAuto + "  |  € " + (x.euro || 0).toFixed(2) + "\n";
+  let nomeAuto = carNameById(x.autoId) || "AUTO";
+  let data = fmtDate(x.data);
 
-  });
+  msg += data + "  |  " + nomeAuto + "  |  € " + (x.euro || 0).toFixed(2) + "\n";
 
-  alert(msg);
+});
 
+alert(msg);
 }
     renderHome();
     fillSels();
