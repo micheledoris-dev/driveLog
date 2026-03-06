@@ -1290,6 +1290,74 @@ async function fillStationFromGPS(){
     alert("Errore GPS/indirizzo. Puoi inserire la stazione manualmente.");
   }
 }
+    async function fillStationFromGPS(){
+  const btn = event?.target;
+  try{
+    if (!navigator.geolocation){
+      alert("GPS non disponibile su questo dispositivo.");
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+
+      document.getElementById('g-lat').value = String(lat);
+      document.getElementById('g-lon').value = String(lon);
+
+      // Reverse geocoding OpenStreetMap (Nominatim)
+      // Nota: può restituire indirizzo, e a volte un POI vicino. È perfetto per uso personale.
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=18&addressdetails=1`;
+
+      const res = await fetch(url, {
+        headers: { "Accept-Language": "it" }
+      });
+
+      if (!res.ok) throw new Error("Reverse geocoding non disponibile.");
+
+      const data = await res.json();
+
+      // Costruiamo una stringa “umana”
+      const addr = data.address || {};
+      const road = addr.road || addr.pedestrian || addr.footway || "";
+      const house = addr.house_number || "";
+      const city = addr.city || addr.town || addr.village || addr.hamlet || "";
+      const suburb = addr.suburb || "";
+      const place = data.name || data.display_name || "";
+
+      // Preferenza: nome POI se presente, altrimenti via+comune
+      let station = "";
+      if (data.category === "amenity" && data.type === "fuel" && place) {
+        station = place;
+      } else if (place && place.length < 60) {
+        station = place;
+      } else {
+        station = [road, house].filter(Boolean).join(" ");
+      }
+
+      const fallback = [road, house].filter(Boolean).join(" ");
+      const extra = [suburb, city].filter(Boolean).join(" • ");
+      const finalText = [station || fallback, extra].filter(Boolean).join(" • ");
+
+      if (finalText) document.getElementById('g-staz').value = finalText.toUpperCase();
+
+      if (btn) btn.disabled = false;
+    }, (err) => {
+      if (btn) btn.disabled = false;
+      alert("Permesso GPS negato o posizione non disponibile.");
+    }, {
+      enableHighAccuracy: true,
+      timeout: 8000,
+      maximumAge: 60000
+    });
+
+  } catch(e){
+    if (btn) btn.disabled = false;
+    alert("Errore GPS/indirizzo. Puoi inserire la stazione manualmente.");
+  }
+}
     // INIT
     function openDrilldown(area){
 
