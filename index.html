@@ -742,17 +742,20 @@
       sync();
     }
 
-   function renderManuList(){
+function renderManuList(){
   const el = document.getElementById('manu-list');
   if (!el) return;
 
+  const selectedAutoId = document.getElementById('m-auto')?.value || '';
+
   const sorted = db.manu
     .map((x,i)=>({i,...x}))
+    .filter(x => !selectedAutoId || String(x.autoId) === String(selectedAutoId))
     .sort((a,b)=> new Date(b.data)-new Date(a.data))
     .slice(0, 30);
 
   if (!sorted.length){
-    el.innerHTML = `<div class="hist-empty">Nessuna manutenzione</div>`;
+    el.innerHTML = `<div class="hist-empty">Nessuna manutenzione per questa auto</div>`;
     return;
   }
 
