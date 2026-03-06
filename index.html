@@ -459,14 +459,6 @@
       if (id === 'v-gas') updateGasKmMinHint();
       if (id === 'v-spese') { updateADAreaUI(); renderADList(); }
       if (id === 'v-manu') renderManuList();
-      let tot = 0;
-list.forEach(x => tot += Number(x.euro || 0));
-
-html += `
-<div style="margin-top:12px;font-weight:900;border-top:1px solid #444;padding-top:8px">
-TOTALE MANUTENZIONI € ${tot.toFixed(2)}
-</div>
-`;
       if (id === 'v-gas') renderGasList();
       if (id === 'v-rep') initReportSelectorsAndRender();
     }
