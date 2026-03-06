@@ -305,7 +305,7 @@
     <!-- MANU -->
     <div id="v-manu" class="view">
       <div class="title" id="manu-form-title">Manutenzione</div>
-      <label>Auto</label><select id="m-auto"></select>
+      <label>Auto</label><select id="m-auto" onchange="renderManuList()"></select>
 
       <label>Intervento</label>
       <select id="m-tipo" onchange="toggleAlt(this, 'm-alt-box')">
@@ -338,7 +338,7 @@
   <input type="hidden" id="g-lat" />
   <input type="hidden" id="g-lon" />
 
-  <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint()"></select>
+  <label>Auto</label><select id="g-auto" onchange="updateGasKmMinHint(); renderGasList();"></select>
 
   <label>KM Attuali (contachilometri)</label>
   <input type="text" id="g-km" inputmode="numeric" pattern="[0-9]*" placeholder="es. 123456" />
@@ -827,32 +827,43 @@
     }
 
     function renderManuList(){
-      const el = document.getElementById('manu-list');
-      if (!el) return;
+  const el = document.getElementById('manu-list');
+  if (!el) return;
 
-      const sorted = db.manu
-        .map((x,i)=>({i,...x}))
-        .sort((a,b)=> new Date(b.data)-new Date(a.data))
-        .slice(0, 30);
+  const selectedAutoId = document.getElementById('m-auto')?.value || '';
 
-      if (!sorted.length){
-        el.innerHTML = `<div class="hist-empty">Nessuna manutenzione</div>`;
-        return;
-      }
+  const sorted = db.manu
+    .map((x,i)=>({i,...x}))
+    .filter(x => !selectedAutoId || String(x.autoId) === String(selectedAutoId))
+    .sort((a,b)=> new Date(b.data)-new Date(a.data))
+    .slice(0, 30);
 
-      el.innerHTML = sorted.map(x => `
-        <div class="info-row">
-          <div style="flex:1">
-            <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} ${x.km ? ('• KM '+x.km) : ''}</div>
-            <div class="val" style="font-size:.9rem; margin-top:4px">${x.tipo}</div>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center">
-            <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
-            <button class="iconbtn" onclick="editManu(${x.i})" title="Modifica">✏️</button>
-            <button class="iconbtn" onclick="deleteManu(${x.i})" title="Elimina">🗑</button>
-          </div>
-        </div>
-      `).join('');
+  if (!sorted.length){
+    el.innerHTML = `<div class="hist-empty">Nessuna manutenzione per questa auto</div>`;
+    return;
+  }
+
+  const totale = sorted.reduce((sum, x) => sum + (Number(x.euro) || 0), 0);
+
+  el.innerHTML = sorted.map(x => `
+    <div class="info-row">
+      <div style="flex:1">
+        <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} ${x.km ? ('• KM '+x.km) : ''}</div>
+        <div class="val" style="font-size:.9rem; margin-top:4px">${x.tipo}</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center">
+        <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
+        <button class="iconbtn" onclick="editManu(${x.i})" title="Modifica">✏️</button>
+        <button class="iconbtn" onclick="deleteManu(${x.i})" title="Elimina">🗑</button>
+      </div>
+    </div>
+  `).join('') + `
+    <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
+      <div class="val" style="font-size:.95rem;">Totale € ${totale.toFixed(2)}</div>
+    </div>
+  `;
+}
+ 
     }
 
     // ---------- GAS ----------
@@ -945,33 +956,40 @@
       sync();
     }
 
-    function renderGasList(){
-      const el = document.getElementById('gas-list');
-      if (!el) return;
+  function renderGasList(){
+  const el = document.getElementById('gas-list');
+  if (!el) return;
 
-      const sorted = db.gas
-        .map((x,i)=>({i,...x}))
-        .sort((a,b)=> new Date(b.data)-new Date(a.data))
-        .slice(0, 30);
+  const selectedAutoId = document.getElementById('g-auto')?.value || '';
 
-      if (!sorted.length){
-        el.innerHTML = `<div class="hist-empty">Nessun rifornimento</div>`;
-        return;
-      }
+  const sorted = db.gas
+    .map((x,i)=>({i,...x}))
+    .filter(x => !selectedAutoId || String(x.autoId) === String(selectedAutoId))
+    .sort((a,b)=> new Date(b.data)-new Date(a.data))
+    .slice(0, 30);
 
-      el.innerHTML = sorted.map(x => `
-        <div class="info-row">
-          <div style="flex:1">
-            <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • KM ${x.km}</div>
-            <div class="val" style="font-size:.9rem; margin-top:4px">${x.tipo} • ${Number(x.litri||0).toFixed(2)} L</div>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center">
-            <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
-            <button class="iconbtn" onclick="editGas(${x.i})" title="Modifica">✏️</button>
-            <button class="iconbtn" onclick="deleteGas(${x.i})" title="Elimina">🗑</button>
-          </div>
+  if (!sorted.length){
+    el.innerHTML = `<div class="hist-empty">Nessun rifornimento per questa auto</div>`;
+    return;
+  }
+
+  el.innerHTML = sorted.map(x => `
+    <div class="info-row">
+      <div style="flex:1">
+        <div class="muted">${fmtDate(x.data)} • ${carNameById(x.autoId) || 'AUTO'} • KM ${x.km}</div>
+        <div class="val" style="font-size:.9rem; margin-top:4px">
+          ${x.tipo} • ${Number(x.litri||0).toFixed(2)} L
+          ${x.stazione ? (' • ' + x.stazione) : ''}
         </div>
-      `).join('');
+      </div>
+      <div style="display:flex; gap:10px; align-items:center">
+        <div class="val">€ ${(Number(x.euro)||0).toFixed(2)}</div>
+        <button class="iconbtn" onclick="editGas(${x.i})" title="Modifica">✏️</button>
+        <button class="iconbtn" onclick="deleteGas(${x.i})" title="Elimina">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
     }
 
     // ---------- REPORT ----------
