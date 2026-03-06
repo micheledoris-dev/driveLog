@@ -235,7 +235,7 @@
     <!-- MANU -->
     <div id="v-manu" class="view">
       <div class="title" id="manu-form-title">Manutenzione</div>
-      <label>Auto</label><select id="m-auto"></select>
+      <label>Auto</label><select id="m-auto" onchange="renderManuList()"></select>
 
       <label>Intervento</label>
       <select id="m-tipo" onchange="toggleAlt(this, 'm-alt-box')">
